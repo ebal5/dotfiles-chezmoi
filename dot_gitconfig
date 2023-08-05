@@ -1,0 +1,56 @@
+[core]
+	autocrlf = input
+	quotepath = false
+[user]
+	name = eval
+	email = 6240240+ebal5@users.noreply.github.com
+[alias]
+	a = add
+	ai = add -i
+	ap = add -p
+	au = add -u
+	b = branch
+	br = branch
+	cat = cat-file
+	c = commit
+	cm = commit
+	cmm = commit -m
+	cum = commit -am
+	co = checkout
+	dns = diff --name-status
+	fsw = !git for-each-ref --format '%(refname:short)' refs/heads | fzf | xargs git switch
+	fsn = !git branch --no-merged origin/master --format='%(refname:short)' | fzf | xargs git switch
+	fw = !git for-each-ref --format '%(refname:short)' refs/heads | fzf | xargs git switch
+	graph = log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'
+	l = log
+	l10 = log --first-parent -n 10
+	l5 = log --first-parent -n 5
+	lfp = log --first-parent
+	lt = ls-tree
+	pl = pull
+	poh = push origin HEAD
+	rh = reset --hard
+	rmc = rm --cached
+	rst = reset
+	s = status
+	sc = sparse-checkout
+	short = rev-parse --short
+	ss = status
+	sw = switch
+	top = rev-parse --show-toplevel
+	w = switch
+	wip = stash
+	wips = stash push
+	wipp = stash pop
+[merge]
+	ff = false
+[pull]
+	ff = only
+[init]
+	defaultBranch = main
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
