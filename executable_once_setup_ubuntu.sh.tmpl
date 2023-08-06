@@ -1,0 +1,41 @@
+#!/bin/bash
+{{ if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "ubuntu") }}
+sudo apt update
+sudo apt install -y \
+  aria2 \
+  bat \
+  build-essential \
+  cmake \
+  curl \
+  dirmngr \
+  fd-find \
+  fzf \
+  gawk \
+  gettext \
+  gpg \
+  hexyl \
+  htop \
+  httpie \
+  jq \
+  libcurl4-openssl-dev \
+  nmap \
+  ripgrep \
+  unzip \
+  vim
+
+{{ if and (not (.chezmoi.kernel.osrelease | lower | contains "microsoft")) (.chezmoi.requireGUI) }}
+# フォントなど独立したLinuxで必要とされるもの
+sudo apt install -y \
+  fonts-migmix \
+  fonts-ipafont-gothic \
+  fonts-ipafont-mincho
+{{ end }}
+[ ! -e "$HOME/.cargo/env" ] && curl https://sh.rustup.rs -sSf | sh
+cargo install starship --locked
+
+[ ! -e "$HOME/.asdf" ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
+asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+asdf plugin add git https://github.com/john-cai/asdf-git.git
+asdf plugin add python
+asdf plugin add rye https://github.com/Azuki-bar/asdf-rye.git
+{{ end }}
