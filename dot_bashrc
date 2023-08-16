@@ -102,8 +102,6 @@ if ! shopt -oq posix; then
   fi
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
-
 [ -x "$HOME/.local/share/rtx/bin/rtx" ] && eval "$($HOME/.local/share/rtx/bin/rtx activate bash)"
 
 if [ -e "$HOME/.cargo/env" ]; then
