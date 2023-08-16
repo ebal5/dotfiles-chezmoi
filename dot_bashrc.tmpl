@@ -108,4 +108,6 @@ if [ -e "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
 fi
 
+[ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
+
 which starship > /dev/null && eval "$(starship init bash)"
