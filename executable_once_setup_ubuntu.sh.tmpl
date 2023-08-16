@@ -52,9 +52,10 @@ $cargo install lsd
 
 [ ! -x "$HOME/.local/share/rtx/bin/rtx"] && curl https://rtx.pub/install.sh | sh
 rtx="$HOME/.local/share/rtx/bin/rtx"
-$rtx install chezmoi
-$rtx install git
-$rtx install node
-$rtx install python
-$rtx install rye
+$rtx use chezmoi
+$rtx use git
+$rtx use node
+$rtx use python
+$rtx use rye
+$rtx use bitwarden
 {{ end }}

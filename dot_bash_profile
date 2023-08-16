@@ -1,2 +1,3 @@
-test -r ~/.bashrc && . ~/.bashrc
 [ -e "$HOME/.profile" ] && . $HOME/.profile
+[ -e "$HOME/.bashrc" ] && . "$HOME/.bashrc"
+
