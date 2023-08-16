@@ -3,6 +3,7 @@
 sudo apt update
 sudo apt install -y \
   aria2 \
+  autoconf \
   bat \
   build-essential \
   cmake \
@@ -17,11 +18,24 @@ sudo apt install -y \
   htop \
   httpie \
   jq \
+  libbz2-dev \
   libcurl4-openssl-dev \
+  libdb-dev \
+  libffi-dev \
+  libgdbm-dev \
+  liblzma-dev \
+  libncursesw5-dev \
+  libreadline-dev \
+  libsqlite3-dev \
+  libssl-dev \
+  libz-dev \
   nmap \
   ripgrep \
+  tk-dev
   unzip \
-  vim
+  uuid-dev \
+  vim \
+  zlib1g-dev
 
 {{ if and (not (.chezmoi.kernel.osrelease | lower | contains "microsoft")) (.chezmoi.requireGUI) }}
 # フォントなど独立したLinuxで必要とされるもの
@@ -31,12 +45,15 @@ sudo apt install -y \
   fonts-ipafont-mincho
 {{ end }}
 [ ! -e "$HOME/.cargo/env" ] && curl https://sh.rustup.rs -sSf | sh
-cargo install starship --locked
-cargo install lsd
+cargo="$HOME/.cargo/bin/cargo"
+$cargo install starship --locked
+$cargo install lsd
 
-[ ! -e "$HOME/.asdf" ] && git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf plugin add git https://github.com/john-cai/asdf-git.git
-asdf plugin add python
-asdf plugin add rye https://github.com/Azuki-bar/asdf-rye.git
+[ ! -x "$HOME/.local/share/rtx/bin/rtx"] && curl https://rtx.pub/install.sh | sh
+rtx="$HOME/.local/share/rtx/bin/rtx"
+$rtx install chezmoi
+$rtx install git
+$rtx install node
+$rtx install python
+$rtx install rye
 {{ end }}

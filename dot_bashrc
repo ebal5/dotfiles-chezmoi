@@ -104,13 +104,10 @@ fi
 
 export PATH="$HOME/.local/bin:$PATH"
 
+[ -x "$HOME/.local/share/rtx/bin/rtx" ] && eval "$($HOME/.local/share/rtx/bin/rtx activate bash)"
+
 if [ -e "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
-fi
-
-if [ -e "$HOME/.asdf/completions/asdf.bash" ]; then
-    . "$HOME/.asdf/asdf.sh"
-    . "$HOME/.asdf/completions/asdf.bash"
 fi
 
 which starship > /dev/null && eval "$(starship init bash)"
