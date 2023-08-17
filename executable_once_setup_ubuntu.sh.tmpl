@@ -32,7 +32,7 @@ sudo apt install -y \
   nmap \
   ripgrep \
   socat \
-  tk-dev
+  tk-dev \
   unzip \
   uuid-dev \
   vim \
@@ -50,17 +50,21 @@ cargo="$HOME/.cargo/bin/cargo"
 $cargo install starship --locked
 $cargo install lsd
 
-[ ! -x "$HOME/.local/share/rtx/bin/rtx"] && curl https://rtx.pub/install.sh | sh
+[ ! -x "$HOME/.local/share/rtx/bin/rtx" ] && curl https://rtx.pub/install.sh | sh
 rtx="$HOME/.local/share/rtx/bin/rtx"
+$rtx plugins install chezmoi
 $rtx use -g chezmoi
+$rtx plugins install git
 $rtx use -g git
 $rtx use -g node
 $rtx use -g python
+$rtx plugins install rye
 $rtx use -g rye
+$rtx plugins install bitwarden
 $rtx use -g bitwarden
 
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
 cd ~/.bw-ssh-agent
-git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2
+git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2 2>&1 > /dev/null
 cd $HOME
 {{ end }}
