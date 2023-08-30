@@ -1,0 +1,19 @@
+set fenc=utf-8
+set noswapfile
+set nobackupfile
+set autoread
+set hidden
+
+set number
+set paste!
+set cursorline
+set cursorcolumn
+set smartindent
+set visualbell
+
+syntax enable
+
+set list listchars=tab:\▸\-
+set expandtab
+set tabstop=2
+set shiftwidth=2

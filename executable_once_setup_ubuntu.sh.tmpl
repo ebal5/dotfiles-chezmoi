@@ -52,16 +52,12 @@ $cargo install lsd
 
 [ ! -x "$HOME/.local/share/rtx/bin/rtx" ] && curl https://rtx.pub/install.sh | sh
 rtx="$HOME/.local/share/rtx/bin/rtx"
-$rtx plugins install chezmoi
-$rtx use -g chezmoi
-$rtx plugins install git
-$rtx use -g git
-$rtx use -g node
-$rtx use -g python
-$rtx plugins install rye
-$rtx use -g rye
-$rtx plugins install bitwarden
-$rtx use -g bitwarden
+$rtx use -yg chezmoi
+$rtx use -yg git
+$rtx use -yg node
+$rtx use -yg python
+$rtx use -yg rye
+$rtx use -yg bitwarden
 
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
 cd ~/.bw-ssh-agent
