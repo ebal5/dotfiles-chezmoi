@@ -110,6 +110,6 @@ fi
 
 [ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
 
-which rtx > /dev/null && eval $(rtx completion bash)
+# which rtx > /dev/null && eval $(rtx completion bash)
 
 which starship > /dev/null && eval "$(starship init bash)"
