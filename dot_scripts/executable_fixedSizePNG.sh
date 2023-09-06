@@ -30,6 +30,12 @@ convert -size ${img_size} xc:#${hex_color} \
 img_file_size=$(wc -c < $img_name)
 extra_text_size=$(( $target_size - 21 - $img_file_size ))
 
+if [ ${extra_text_size} -lt 1 ]; then
+  echo too small target size
+  rm ${img_name}
+  exit 1
+fi
+
 extra_text_fn=$(mktemp)
 get_random_text $extra_text_size > ${extra_text_fn}
 
