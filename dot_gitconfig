@@ -2,7 +2,7 @@
 	autocrlf = input
 	quotepath = false
 [user]
-	name = eval
+	name = ebal5
 	email = 6240240+ebal5@users.noreply.github.com
 [alias]
 	a = add
