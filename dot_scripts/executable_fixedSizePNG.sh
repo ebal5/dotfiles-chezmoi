@@ -2,13 +2,19 @@
 
 # thanks to https://hostingstock.net/blog/20160206/
 
-target_size=$1
-img_name=${2:-output.png}
-
+check () {
+  convert --version > /dev/null || echo "Need to install Imagemagick" && exit 1
+  exiftool > /dev/null || echo "Need to install exiftool" && exit 1
+}
 get_random_text () {
   text=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w $1 | head -n 1)
   echo $text
 }
+
+check
+
+target_size=$1
+img_name=${2:-output.png}
 
 img_size="640x640"
 text_length=20
