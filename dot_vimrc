@@ -1,6 +1,6 @@
 set fenc=utf-8
 set noswapfile
-set nobackupfile
+set nobackup
 set autoread
 set hidden
 
