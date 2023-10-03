@@ -29,14 +29,16 @@ if rg -h > /dev/null; then
 else
   alias gh="history | grep"
 fi
+which batcat > /dev/null && alias bat="batcat"
 
 which terraform > /dev/null && alias tf="terraform"
 [ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
 
 # クリップボード
-[[ $(uname -a) =~ (microsoft) ]] && 
-  alias pbcopy="clip.exe"; \
+if [[ $(uname -a) =~ (microsoft) ]]; then
+  alias pbcopy="clip.exe"
   alias clip="clip.exe"
+fi
 which pbcopy > /dev/null && alias clip="pbcopy"
 
 # docker
