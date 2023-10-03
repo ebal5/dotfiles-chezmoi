@@ -1,5 +1,5 @@
 # ls系
-which lsd > /dev/null && alias ls="lsd"
+which lsd >/dev/null && alias ls="lsd"
 alias l="ls"
 alias la="ls -A"
 alias ll="ls -alF"
@@ -24,14 +24,16 @@ alias myip="curl icanhazip.com"
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 alias cpv='rsync -ah --info=progress2'
-if rg -h > /dev/null; then
+if rg -h >/dev/null; then
   alias gh="history | rg"
 else
   alias gh="history | grep"
 fi
-which batcat > /dev/null && alias bat="batcat"
+which batcat >/dev/null && alias bat="batcat"
+which fdfind >/dev/null && alias fd="fdfind"
+which hstr >/dev/null && alias hh="hstr"
 
-which terraform > /dev/null && alias tf="terraform"
+which terraform >/dev/null && alias tf="terraform"
 [ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
 
 # クリップボード
@@ -39,7 +41,9 @@ if [[ $(uname -a) =~ (microsoft) ]]; then
   alias pbcopy="clip.exe"
   alias clip="clip.exe"
 fi
-which pbcopy > /dev/null && alias clip="pbcopy"
+which pbcopy >/dev/null && alias clip="pbcopy"
+which xsel >/dev/null && alias clip="xsel"
+alias teee="tee >(clip)"
 
 # docker
 alias dc="docker compose"
