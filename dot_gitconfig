@@ -1,9 +1,12 @@
 [core]
 	autocrlf = input
 	quotepath = false
+	pager = delta
+
 [user]
 	name = ebal5
 	email = 6240240+ebal5@users.noreply.github.com
+
 [alias]
 	a = add
 	ai = add -i
@@ -14,6 +17,8 @@
 	cat = cat-file
 	c = commit
 	cm = commit
+	cam = commit --amend -m
+	caum = commit --amend -am
 	cmm = commit -m
 	cum = commit -am
 	co = checkout
@@ -23,8 +28,9 @@
 	fw = !git for-each-ref --format '%(refname:short)' refs/heads | fzf | xargs git switch
 	graph = log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'
 	l = log
-	l10 = log --first-parent -n 10
 	l5 = log --first-parent -n 5
+	l10 = log --first-parent -n 10
+	l15 = log --first-parent -n 15
 	lfp = log --first-parent
 	lt = ls-tree
 	pl = pull
@@ -38,19 +44,35 @@
 	ss = status
 	sw = switch
 	top = rev-parse --show-toplevel
-	w = switch
 	wip = stash
+	wipl = stash list
 	wips = stash push
 	wipp = stash pop
+
 [merge]
 	ff = false
+
 [pull]
 	ff = only
+
 [init]
 	defaultBranch = main
+
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
 
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+ 	line-numbers = true
+
+[merge]
+  conflictstyle = diff3
+
+[diff]
+  colorMoved = default

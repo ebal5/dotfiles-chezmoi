@@ -50,6 +50,8 @@ sudo apt install -y \
 cargo="$HOME/.cargo/bin/cargo"
 $cargo install starship --locked
 $cargo install lsd
+$cargo install hyperfine
+$cargo install git-delta
 
 [ ! -x "$HOME/.local/share/rtx/bin/rtx" ] && curl https://rtx.pub/install.sh | sh
 rtx="$HOME/.local/share/rtx/bin/rtx"
@@ -59,6 +61,7 @@ $rtx use -yg node
 $rtx use -yg python
 $rtx use -yg rye
 $rtx use -yg bitwarden
+$rtx use -yg zoxide
 
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
 cd ~/.bw-ssh-agent

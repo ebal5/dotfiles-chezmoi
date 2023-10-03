@@ -1,7 +1,7 @@
 # If not running interactively, don't do anything
 case $- in
-    *i*) ;;
-      *) return;;
+*i*) ;;
+*) return ;;
 esac
 
 # don't put duplicate lines or lines starting with space in the history.
@@ -28,12 +28,12 @@ shopt -s globstar
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-    debian_chroot=$(cat /etc/debian_chroot)
+  debian_chroot=$(cat /etc/debian_chroot)
 fi
 
 # set a fancy prompt (non-color, unless we know we "want" color)
 case "$TERM" in
-    xterm-color|*-256color) color_prompt=yes;;
+xterm-color | *-256color) color_prompt=yes ;;
 esac
 
 PS1='\u@\h \W $(git branch 2>/dev/null | grep '"'"'*'"'"' | colrm 1 2)\n\t \$ '
@@ -41,12 +41,12 @@ unset color_prompt force_color_prompt
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
-    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-    alias ls='ls --color=auto'
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
 
-    alias grep='grep --color=auto'
-    alias fgrep='fgrep --color=auto'
-    alias egrep='egrep --color=auto'
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
 fi
 
 # colored GCC warnings and errors
@@ -63,13 +63,16 @@ if ! shopt -oq posix; then
   fi
 fi
 
-[ -x "$HOME/.local/share/rtx/bin/rtx" ] && eval "$($HOME/.local/share/rtx/bin/rtx activate bash)"
+[ -x "$HOME/.local/share/rtx/bin/rtx" ] &&
+  eval "$($HOME/.local/share/rtx/bin/rtx activate bash)"
 
 if [ -e "$HOME/.cargo/env" ]; then
-    . "$HOME/.cargo/env"
+  . "$HOME/.cargo/env"
 fi
+
+which zoxide > /dev/null && eval "$(zoxide init bash)"
 
 # which rtx > /dev/null && eval $(rtx completion bash)
 [ -e "$HOME/.config/sh-like-aliases" ] && . "$HOME/.config/sh-like-aliases"
 
-which starship > /dev/null && eval "$(starship init bash)"
+which starship >/dev/null && eval "$(starship init bash)"
