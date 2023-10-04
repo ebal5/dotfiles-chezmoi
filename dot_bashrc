@@ -63,8 +63,11 @@ if ! shopt -oq posix; then
   fi
 fi
 
-[ -x "$HOME/.local/share/rtx/bin/rtx" ] &&
+if [ -x "$HOME/.local/share/rtx/bin/rtx" ]; then
   eval "$($HOME/.local/share/rtx/bin/rtx activate bash)"
+  eval "$($HOME/.local/share/rtx/bin/rtx completion bash)"
+  eval "$($HOME/.local/share/rtx/bin/rtx env -s bash)"
+fi
 
 if [ -e "$HOME/.cargo/env" ]; then
   . "$HOME/.cargo/env"
@@ -72,7 +75,6 @@ fi
 
 which zoxide >/dev/null && eval "$(zoxide init bash)"
 
-# which rtx > /dev/null && eval $(rtx completion bash)
 [ -e "$HOME/.config/sh-like-aliases" ] && . "$HOME/.config/sh-like-aliases"
 
 which starship >/dev/null && eval "$(starship init bash)"
