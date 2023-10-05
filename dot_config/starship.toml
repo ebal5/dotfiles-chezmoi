@@ -1,10 +1,51 @@
-add_newline = true
+"$schema" = 'https://starship.rs/config-schema.json'
 
-# right_format = """$time"""
+add_newline = true
+continuation_prompt = '▶▶ '
+
+[aws]
+format = '[\[$symbol($profile)(\($region\))(\[$duration\])\]]($style) '
+
+[aws.region_aliases]
+ap-northeast-1 = "ap-ne-1"
+
+[azure]
+format = '[\[$symbol($subscription)\]]($style) '
+
+[cmd_duration]
+min_time = 10_000  # Show command duration over 10,000 milliseconds (=10 sec)
+format = '⏱ [$duration]($style)'
+
+[container]
+format = '[$symbol \[$name\]]($style) '
 
 [directory]
 truncation_length = 2
 truncate_to_repo = false
+home_symbol = "🏠"
+
+[git_branch]
+format = '[\[$symbol$branch(:$remote_branch)\]]($style) '
+ignore_branches = ['main', 'master']
+
+[git_commit]
+commit_hash_length = 8
+
+[git_metrics]
+disabled = false
+format = '\[([+$added]($added_style)/)([-$deleted]($deleted_style))\] '
+only_nonzero_diffs = false
+
+[memory_usage]
+disabled = false
+format = '[\[$symbol${ram}( | ${swap})\]]($style) '
+threshold = 50
+
+[python]
+pyenv_version_name = true
+
+[terraform]
+format = '[\[$symbol$workspace\]]($style) '
 
 [time]
 disabled = false
@@ -12,10 +53,3 @@ format = '⌚[\[ $time \]]($style) '
 time_format = "%T"
 utc_time_offset = "local"
 time_range = "-"
-
-[python]
-pyenv_version_name = true
-
-[memory_usage]
-disabled = false
-threshold = -1
