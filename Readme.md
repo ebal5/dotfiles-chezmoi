@@ -16,7 +16,7 @@ ${HOME}/bin/chezmoi apply
 # 初期スクリプトを起動する
 ${HOME}/once_setup_ubuntu.sh
 # 初期に使用したchezmoiを削除しrtxでインストールしたものを利用するようにする
-rm -rf ~/bin
+rm ~/bin/chezmoi
 ```
 
 ## 設定内容
