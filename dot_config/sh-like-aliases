@@ -49,6 +49,7 @@ alias teee="tee >(clip)"
 alias dc="docker compose"
 alias dup="docker compose up -d"
 alias ddw="docker compose down"
+alias ddu="docker compose down && docker compose up -d"
 alias ddown="docker compose down"
 alias dps="docker compose ps"
 
