@@ -14,7 +14,7 @@ format = '[\[$symbol($subscription)\]]($style) '
 
 [cmd_duration]
 min_time = 10_000  # Show command duration over 10,000 milliseconds (=10 sec)
-format = '⏱ [$duration]($style)'
+format = '⌛ [$duration]($style)'
 
 [container]
 format = '[$symbol \[$name\]]($style) '
@@ -35,6 +35,9 @@ commit_hash_length = 8
 disabled = false
 format = '\[([+$added]($added_style)/)([-$deleted]($deleted_style))\] '
 only_nonzero_diffs = false
+
+[haxe]
+format = '[\[$symbol($version)\]]($style) '
 
 [memory_usage]
 disabled = false
