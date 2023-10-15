@@ -49,19 +49,20 @@ sudo apt install -y \
 {{ end }}
 [ ! -e "$HOME/.cargo/env" ] && curl https://sh.rustup.rs -sSf | sh
 cargo="$HOME/.cargo/bin/cargo"
-$cargo install starship --locked
-$cargo install lsd
-$cargo install hyperfine
 $cargo install git-delta
+$cargo install hyperfine
+$cargo install lsd
+$cargo install sd
+$cargo install starship --locked
 
 [ ! -x "$HOME/.local/share/rtx/bin/rtx" ] && curl https://rtx.pub/install.sh | sh
 rtx="$HOME/.local/share/rtx/bin/rtx"
+$rtx use -yg bitwarden
 $rtx use -yg chezmoi
 $rtx use -yg git
 $rtx use -yg node
 $rtx use -yg python
 $rtx use -yg rye
-$rtx use -yg bitwarden
 $rtx use -yg zoxide
 
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
