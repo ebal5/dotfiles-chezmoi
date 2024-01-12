@@ -98,7 +98,7 @@ rm ~/bin/chezmoi
 | co    | checkout                                                                                                     | チェックアウト                          |
 | dns   | diff --name-status                                                                                           | 差分種類のみ確認                         |
 | fsw   | !git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch                          | fzfを利用してswitch                   |
-| fsn   | !git branch --no-merged origin/master --format='%(refname:short)' \| fzf \| xargs git switch                 | マージする得ていないブランチにfzfを利用してswitch    |
+| fsn   | !git branch --no-merged origin/master --format='%(refname:short)' \| fzf \| xargs git switch                 | マージされていないブランチにfzfを利用してswitch    |
 | fw    | !git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch                          | fwと同じ                            |
 | graph | log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s' | コミットグラフを表示                       |
 | l     | log                                                                                                          | ログ                               |
