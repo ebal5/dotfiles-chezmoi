@@ -1,11 +1,11 @@
 [core]
 	autocrlf = input
+	safecrlf = warn
 	quotepath = false
 	pager = delta
 
-[user]
-	name = ebal5
-	email = 6240240+ebal5@users.noreply.github.com
+[include]
+	path = ~/.config/local/git_user_config
 
 [alias]
 	a = add
