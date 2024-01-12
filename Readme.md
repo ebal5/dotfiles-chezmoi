@@ -23,11 +23,14 @@ rm ~/bin/chezmoi
 
 `~/.config/local/git_user_config` にGit用のユーザー設定を記述する。
 
-例:
+例: 基本のユーザー設定と、特定ディレクトリ配下のGitリポジトリのみで利用する設定を読み込む
 ```
 [user]
 	name = USERNAME_OF_GITHUB
 	email = EMAIL_ADDRESS@GITHUB
+
+[includeIf "gitdir:~/Projects/SOME_COMPANY/"]
+	path = PATH_OF_ONLY_SOMECOMPANY_CONFIG_FILE
 ```
 
 ## 設定内容
