@@ -19,14 +19,29 @@ ${HOME}/once_setup_ubuntu.sh
 rm ~/bin/chezmoi
 ```
 
+## install後の作業
+
+`~/.config/local/git_user_config` にGit用のユーザー設定を記述する。
+
+例:
+```
+[user]
+	name = USERNAME_OF_GITHUB
+	email = EMAIL_ADDRESS@GITHUB
+```
+
 ## 設定内容
 
 - パッケージ管理ツールを利用したセットアップ
 - Bash
 - SSHキーの共有（Bitwarden利用）
+  - https://github.com/joaojacome/bitwarden-ssh-agent の`6237a3604`を利用
+  - 使用する場合、利用者各個人で内容確認推奨
 - [Starship](https://starship.rs/ja-jp/)
 - [RTX (alt asdf)](https://github.com/jdx/rtx)
 - Git config
+  - diffとしてdeltaを利用
+  - 便利エイリアスを登録（よく使うコマンドの短縮など）
 - 作成したスクリプトの共有
 
 [chezmoi's doc](https://www.chezmoi.io)
