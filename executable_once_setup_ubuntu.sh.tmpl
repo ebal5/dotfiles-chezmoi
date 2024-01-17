@@ -55,15 +55,21 @@ $cargo install lsd
 $cargo install sd
 $cargo install starship --locked
 
-[ ! -x "$HOME/.local/share/rtx/bin/rtx" ] && curl https://rtx.pub/install.sh | sh
-rtx="$HOME/.local/share/rtx/bin/rtx"
-$rtx use -yg bitwarden
-$rtx use -yg chezmoi
-$rtx use -yg git
-$rtx use -yg node
-$rtx use -yg python
-$rtx use -yg rye
-$rtx use -yg zoxide
+curl https://mise.jdx.dev/install.sh
+if [ ! -x "$HOME/.local/bin/mise" ]; then
+  gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
+  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh
+  sh ./install.sh
+  rm ./install.sh
+fi
+mise="$HOME/.local/bin/mise"
+$mise use -yg bitwarden
+$mise use -yg chezmoi
+$mise use -yg git
+$mise use -yg node
+$mise use -yg python
+$mise use -yg rye
+$mise use -yg zoxide
 
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
 cd ~/.bw-ssh-agent
