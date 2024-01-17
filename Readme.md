@@ -42,7 +42,7 @@ rm ~/bin/chezmoi
   - https://github.com/joaojacome/bitwarden-ssh-agent の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
 - [Starship](https://starship.rs/ja-jp/)
-- [RTX (alt asdf)](https://github.com/jdx/rtx)
+- [mise (alt asdf)](https://github.com/jdx/mise)
 - Git config
   - diffとしてdeltaを利用
   - 便利エイリアスを登録（よく使うコマンドの短縮など）
@@ -118,3 +118,33 @@ rm ~/bin/chezmoi
 | wipl  | stash list                                                                                                   | 一時領域のリストを表示                      |
 | wips  | stash push                                                                                                   | 更新内容を一時領域に保存                     |
 | wipp  | stash pop                                                                                                    | 一時領域から更新を取得                      |
+
+## log
+
+### rtx -> mise への名前変更に追従
+
+miseのインストールを含めたマイグレーションスクリプト。
+以下3つについてはmise標準のマイグレーションではだめなことがわかっているので自前で実施。
+
+- gitの再インストール
+- Pythonの再インストール
+- Rubyの再インストール
+
+```shell
+if [ ! -x "$HOME/.local/bin/mise" ]; then
+  gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
+  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh
+  sh ./install.sh
+  rm ./install.sh
+fi
+if [ -x "$HOME/.local/share/rtx/bin/rtx" ]; then
+  "$HOME/.local/share/rtx/bin/rtx" uninstall git --all
+  "$HOME/.local/bin/mise" use -yg git
+  for v in $(~/.local/share/rtx/bin/rtx ls python | cut -d " " -f 2); do
+    "$HOME/.local/bin/mise" install -y python@$v
+  done
+  for v in $(~/.local/share/rtx/bin/rtx ls ruby | cut -d " " -f 2); do
+    "$HOME/.local/bin/mise" install -y ruby@$v
+  done
+fi
+```
