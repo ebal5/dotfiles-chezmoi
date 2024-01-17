@@ -55,7 +55,6 @@ $cargo install lsd
 $cargo install sd
 $cargo install starship --locked
 
-curl https://mise.jdx.dev/install.sh
 if [ ! -x "$HOME/.local/bin/mise" ]; then
   gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
   curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh
