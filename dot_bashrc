@@ -63,10 +63,10 @@ if ! shopt -oq posix; then
   fi
 fi
 
-if [ -x "$HOME/.local/share/rtx/bin/rtx" ]; then
-  eval "$($HOME/.local/share/rtx/bin/rtx activate bash)"
-  eval "$($HOME/.local/share/rtx/bin/rtx completion bash)"
-  eval "$($HOME/.local/share/rtx/bin/rtx env -s bash)"
+if [ -x "$HOME/.local/bin/mise" ]; then
+  eval "$($HOME/.local/bin/mise activate bash)"
+  eval "$($HOME/.local/bin/mise completion bash)"
+  eval "$($HOME/.local/bin/mise env -s bash)"
 fi
 
 if [ -e "$HOME/.cargo/env" ]; then
