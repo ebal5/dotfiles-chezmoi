@@ -39,7 +39,7 @@ rm ~/bin/chezmoi
 - パッケージ管理ツールを利用したセットアップ
 - Bash
 - SSHキーの共有（Bitwarden利用）
-  - https://github.com/joaojacome/bitwarden-ssh-agent の`6237a3604`を利用
+  - <https://github.com/joaojacome/bitwarden-ssh-agent> の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
 - [Starship](https://starship.rs/ja-jp/)
 - [mise (alt asdf)](https://github.com/jdx/mise)
