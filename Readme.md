@@ -7,6 +7,9 @@ Chezmoiを利用して作成したdotfiles。
 
 ### Ubuntu
 
+前提:
+- curl, gitがインストール済み
+
 ```bash
 # 一時的に使うchezmoiをインストールする
 sh -c "$(curl -fsLS get.chezmoi.io)"
@@ -15,7 +18,13 @@ ${HOME}/bin/chezmoi init https://github.com/ebal5/dotfiles-chezmoi.git
 ${HOME}/bin/chezmoi apply
 # 初期スクリプトを起動する
 ${HOME}/once_setup_ubuntu.sh
-# 初期に使用したchezmoiを削除しrtxでインストールしたものを利用するようにする
+# https -> sshへオリジンを変更する（SSHキーによるpush/pullを可能にする）
+# cdの戻りを考えなくていいようにサブシェル
+(
+  ${HOME}/bin/chezmoi cd
+  git remote set-url origin git@github.com:ebal5/dotfiles-chezmoi.git
+)
+# 初期に使用したchezmoiを削除しmiseでインストールしたものを利用するようにする
 rm ~/bin/chezmoi
 ```
 
