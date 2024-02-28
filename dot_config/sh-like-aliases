@@ -19,6 +19,7 @@ alias cg='cd $(git rev-parse --show-toplevel)'
 # 便利系
 alias cls="clear"
 alias gs="git status"
+alias gS="git status"
 alias myip="curl icanhazip.com"
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
@@ -37,13 +38,33 @@ which terraform >/dev/null && alias tf="terraform"
 [ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
 
 # クリップボード
+# thanks to https://github.com/kenh0u/.dotfiles/blob/main/.bash_aliases
+# TODO: config for MacOS
+wsl(){
+  alias pbcopy='win32yank.exe -i'
+  alias pbpaste='win32yank.exe -o'
+  function open() { 
+    if [ $# -lt 1 ]; then
+      cmd.exe /c start $(wslpath -w .) &> /dev/null
+    else
+      cmd.exe /c start $(wslpath -w $1) &> /dev/null
+    fi
+  }
+}
+
+linux(){
+  alias pbcopy='xsel --clipboard --input'
+  alias pbpaste='xsel --clipboard --output 2> /dev/null'
+}
+
 if [[ $(uname -a) =~ (microsoft) ]]; then
-  alias pbcopy="clip.exe"
-  alias clip="clip.exe"
+  wsl
+elif [ $(uname) == 'Linux' ]; then
+  linux
+elif [ $(uname) == 'Darwin' ]; then
+  mac
 fi
-which pbcopy >/dev/null && alias clip="pbcopy"
-which xsel >/dev/null && alias clip="xsel"
-alias teee="tee >(clip)"
+alias teee="tee >(pbcopy)"
 
 # docker
 alias dc="docker compose"
