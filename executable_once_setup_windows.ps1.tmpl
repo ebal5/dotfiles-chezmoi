@@ -33,10 +33,4 @@ winget install `
   WinMerge.WinMerge `
   XP89DCGQ3K6VLD # powertoys
 
-if (-not (Test-Path ~/.asdf)) {
-  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
-}
-asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
-asdf plugin add python
-asdf plugin add rye https://github.com/Azuki-bar/asdf-rye.git
 {{ end }}
