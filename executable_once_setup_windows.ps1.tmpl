@@ -1,11 +1,11 @@
 {{ if eq .chezmoi.os "windows" }}
 Get-Command winget
 if (-not $?) {
-  Write-Host "Wingetが利用できません。スクリプトを終了します"
+  Write-Host "cannot use winget. will be stop..."
   exit
 }
 
-winget insatll `
+winget install `
   7zip.7zip `
   Bitwarden.Bitwarden `
   BurntSushi.ripgrep.MSVC `
@@ -20,7 +20,7 @@ winget insatll `
   Kitware.CMake `
   Microsoft.VCRedist.2015+.x64 `
   Microsoft.VCRedist.2015+.x86 `
-  Microsoft.VisualStudioCode `l
+  Microsoft.VisualStudioCode `
   Nushell.Nushell `
   Obsidian.Obsidian `
   sharkdp.bat `
@@ -31,7 +31,7 @@ winget insatll `
   twpayne.chezmoi `
   vim.vim `
   WinMerge.WinMerge `
-  XP89DCGQ3K6VLD // powertoys
+  XP89DCGQ3K6VLD # powertoys
 
 if (-not (Test-Path ~/.asdf)) {
   git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.12.0
