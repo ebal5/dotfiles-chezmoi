@@ -4,11 +4,14 @@
 tempA=$(mktemp)
 tempB=$(mktemp)
 
+GREEN="\e[0;32m"
+RESET="\e[0m"
+
 # ユーザーからの入力を一時ファイルに保存
-echo -e "\e[0;32m最初のテキストを入力してください (Ctrl-D で終了):\e[0m"
+echo -e "${GREEN}最初のテキストを入力してください (Ctrl-D で終了):${RESET}"
 cat > "$tempA"
 echo ""
-echo -e "\e[0;32m次のテキストを入力してください (Ctrl-D で終了):\e[0m"
+echo -e "${GREEN}次のテキストを入力してください (Ctrl-D で終了):${RESET}"
 cat > "$tempB"
 echo ""
 
@@ -21,10 +24,10 @@ comm -23 "${tempA}_sorted" "${tempB}_sorted" > unique_to_A.txt
 comm -13 "${tempA}_sorted" "${tempB}_sorted" > unique_to_B.txt
 
 # 結果の出力
-echo -e "\e[0;32m最初のテキストにのみ存在する行:\e[0m"
+echo -e "${GREEN}最初のテキストにのみ存在する行:${RESET}"
 cat unique_to_A.txt
 echo ""
-echo -e "\e[0;32m次のテキストにのみ存在する行:\e[0m"
+echo -e "${GREEN}次のテキストにのみ存在する行:${RESET}"
 cat unique_to_B.txt
 echo ""
 
