@@ -2,11 +2,11 @@
 
 # thanks to https://hostingstock.net/blog/20160206/
 
-check () {
-  convert --version > /dev/null || echo "Need to install Imagemagick" && exit 1
-  exiftool > /dev/null || echo "Need to install exiftool" && exit 1
+check() {
+  convert --version >/dev/null || echo "Need to install Imagemagick" && exit 1
+  exiftool >/dev/null || echo "Need to install exiftool" && exit 1
 }
-get_random_text () {
+get_random_text() {
   text=$(cat /dev/urandom | LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w $1 | head -n 1)
   echo $text
 }
@@ -27,8 +27,8 @@ convert -size ${img_size} xc:#${hex_color} \
   -gravity Center -pointsize 16 -annotate "+0+80" $text \
   $img_name
 
-img_file_size=$(wc -c < $img_name)
-extra_text_size=$(( $target_size - 21 - $img_file_size ))
+img_file_size=$(wc -c <$img_name)
+extra_text_size=$(($target_size - 21 - $img_file_size))
 
 if [ ${extra_text_size} -lt 1 ]; then
   echo too small target size
@@ -37,7 +37,7 @@ if [ ${extra_text_size} -lt 1 ]; then
 fi
 
 extra_text_fn=$(mktemp)
-get_random_text $extra_text_size > ${extra_text_fn}
+get_random_text $extra_text_size >${extra_text_fn}
 
-exiftool -ignoreMinorErrors -overwrite_original ${img_name} -comment\<=${extra_text_fn} > /dev/null
+exiftool -ignoreMinorErrors -overwrite_original ${img_name} -comment\<=${extra_text_fn} >/dev/null
 rm ${extra_text_fn}

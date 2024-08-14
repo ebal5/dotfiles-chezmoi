@@ -40,19 +40,19 @@ which terraform >/dev/null && alias tf="terraform"
 # クリップボード
 # thanks to https://github.com/kenh0u/.dotfiles/blob/main/.bash_aliases
 # TODO: config for MacOS
-wsl(){
+wsl() {
   alias pbcopy='win32yank.exe -i'
   alias pbpaste='win32yank.exe -o'
-  function open() { 
+  function open() {
     if [ $# -lt 1 ]; then
-      cmd.exe /c start $(wslpath -w .) &> /dev/null
+      cmd.exe /c start $(wslpath -w .) &>/dev/null
     else
-      cmd.exe /c start $(wslpath -w $1) &> /dev/null
+      cmd.exe /c start $(wslpath -w $1) &>/dev/null
     fi
   }
 }
 
-linux(){
+linux() {
   alias pbcopy='xsel --clipboard --input'
   alias pbpaste='xsel --clipboard --output 2> /dev/null'
 }
