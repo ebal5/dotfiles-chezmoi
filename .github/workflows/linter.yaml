@@ -20,7 +20,6 @@ jobs:
   lint:
     name: Lint Code Base
     runs-on: ubuntu-latest
-    # checkov:skip=CKV2_GHA_1:we need these permissions
     permissions:
       contents: read
       issues: write
