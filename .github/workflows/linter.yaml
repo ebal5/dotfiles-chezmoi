@@ -1,4 +1,5 @@
 ---
+# checkov:skip=CKV2_GHA_1:we need these permissions
 name: Lint All
 
 on:
@@ -23,12 +24,9 @@ jobs:
 
     permissions:
       contents: read
-      #checkov:skip=CKV2_GHA_1:we need it
       issues: write
-      #checkov:skip=CKV2_GHA_1:we need it
       pull-requests: write
-    env:
-      CHECKOV_SKIP: CKV2_GHA_1
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
