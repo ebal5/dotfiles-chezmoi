@@ -1,8 +1,3 @@
 DISABLE_LINTERS:
-  - SPELL_CSPELL:
-    - ".gitignore"
-    - ".chezmoiignore"
-    - "dot_*"
-    - "Readme.md"
-    - "*.sh"
-    - "*.tmpl"
+  - SPELL_CSPELL
+  - BASH_EXEC
