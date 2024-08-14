@@ -7,7 +7,7 @@ check() {
   exiftool >/dev/null || echo "Need to install exiftool" && exit 1
 }
 get_random_text() {
-  text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w $1 | head -n 1)
+  text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "$1" | head -n 1)
   echo "$text"
 }
 
@@ -28,7 +28,7 @@ convert -size "${img_size}" "xc:#${hex_color}" \
   "$img_name"
 
 img_file_size=$(wc -c <"$img_name")
-extra_text_size=$(($target_size - 21 - $img_file_size))
+extra_text_size=$((target_size - 21 - img_file_size))
 
 if [ ${extra_text_size} -lt 1 ]; then
   echo too small target size
