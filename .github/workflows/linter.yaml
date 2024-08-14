@@ -1,5 +1,4 @@
 ---
-# checkov:skip=CKV2_GHA_1:we need these permissions
 name: Lint All
 
 on:
