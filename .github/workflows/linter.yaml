@@ -1,6 +1,8 @@
 name: Lint All
 
-on: [push, pull_request]
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   lint:
@@ -19,3 +21,5 @@ jobs:
 
       - name: Super-linter
         uses: super-linter/super-linter/slim@v6.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
