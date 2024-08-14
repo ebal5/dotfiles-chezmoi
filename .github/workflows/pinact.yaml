@@ -1,0 +1,22 @@
+name: Pinact
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pinact:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: チェックアウト
+        uses: actions/checkout@v4
+
+      - name: Pinactの実行
+        uses: suzuki-shunsuke/pinact-action@a60b07ee63e41654915780a3297ff9f5f6b6db63 # v0.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
