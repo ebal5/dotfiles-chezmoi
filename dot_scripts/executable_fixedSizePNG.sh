@@ -7,7 +7,7 @@ check() {
   exiftool >/dev/null || echo "Need to install exiftool" && exit 1
 }
 get_random_text() {
-  text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "$1" | head -n 1)
+  text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$1" | head -n 1)
   echo "$text"
 }
 
