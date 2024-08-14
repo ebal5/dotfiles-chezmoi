@@ -75,58 +75,58 @@ rm ~/bin/chezmoi
 
 ### 主な Bash 用エイリアス
 
-| エイリアス | 展開                                        | 備考                             |
-| ---------- | ------------------------------------------- | -------------------------------- |
-| `l`        | `ls`                                          | ディレクトリ配下の一覧           |
-| `ll`       | `ls -alF`                                     | リスト表示                       |
-| `sl`       | `ls`                                          | タイポ対策                       |
-| `cd..`     | `cd ..`                                       | タイポ対策                       |
-| `..`       | `cd ..`                                       |                                  |
-| `...`      | `cd ../../`                                   |                                  |
-| `.2`       | `cd ../../`                                   |                                  |
-| `.3`       | `cd ../../../`                                |                                  |
-| `cg`       | `cd $(git rev-parse --show-toplevel)`         | Git リポジトリのトップに cd する |
-| `gs`       | `git status`                                  | タイポ対策                       |
-| `tf`       | `terraform`                                   |                                  |
-| `g`        | `git`                                         |                                  |
-| `d`        | `docker`                                      |                                  |
-| `dc`       | `docker compose`                              |                                  |
-| `ddu`      | `docker compose down && docker comopse up -d` |                                  |
+| エイリアス  | 展開                                          | 備考                 |
+|--------|-----------------------------------------------|----------------------|
+| `l`    | `ls`                                          | ディレクトリ配下の一覧      |
+| `ll`   | `ls -alF`                                     | リスト表示              |
+| `sl`   | `ls`                                          | タイポ対策              |
+| `cd..` | `cd ..`                                       | タイポ対策              |
+| `..`   | `cd ..`                                       |                      |
+| `...`  | `cd ../../`                                   |                      |
+| `.2`   | `cd ../../`                                   |                      |
+| `.3`   | `cd ../../../`                                |                      |
+| `cg`   | `cd $(git rev-parse --show-toplevel)`         | Git リポジトリのトップに cd する |
+| `gs`   | `git status`                                  | タイポ対策              |
+| `tf`   | `terraform`                                   |                      |
+| `g`    | `git`                                         |                      |
+| `d`    | `docker`                                      |                      |
+| `dc`   | `docker compose`                              |                      |
+| `ddu`  | `docker compose down && docker comopse up -d` |                      |
 
 ### 主な Git コマンドのエイリアス
-| エイリアス | 展開                                                                                                         | 備考                                                        |
-| ---------- | ------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| `a`          | `add`                                                                                                          | ワークツリーのファイルをインデックスに登録する              |
-| `au`         | `add -u`                                                                                                       | インデックスに登録されているファイルに差分があれば登録する  |
-| `br`         | `branch`                                                                                                       | ブランチ                                                    |
-| `c`          | `commit`                                                                                                       | コミット                                                    |
-| `cam`        | `commit --amend -m`                                                                                            | メッセージを記載して amend                                  |
-| `caum`       | `commit --amend -am`                                                                                           | 更新ファイルを追加しメッセージを記載して amend              |
-| `cmm`        | `commit -m`                                                                                                    | メッセージを記載して commit                                 |
-| `cum`        | `commit -am`                                                                                                   | 更新ファイルを追加しメッセージを記載して commit             |
-| `co`         | `checkout`                                                                                                     | チェックアウト                                              |
-| `dns`        | `diff --name-status`                                                                                           | 差分種類のみ確認                                            |
-| `fsw`        | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch`                          | fzf を利用して switch                                       |
-| `fsn`        | `!git branch --no-merged origin/master --format='%(refname:short)' \| fzf \| xargs git switch`                 | マージされていないブランチに fzf を利用して switch          |
-| `fw`         | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch`                          | fw と同じ                                                   |
-| `graph`      | `log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'` | コミットグラフを表示                                        |
-| `l`          | `log`                                                                                                          | ログ                                                        |
-| `l5`         | `log --first-parent -n 5`                                                                                      | 5 個前までのログ                                            |
-| `l10`        | `log --first-parent -n 10`                                                                                     | 10 個前までのログ                                           |
-| `l15`        | `log --first-parent -n 15`                                                                                     | 15 個前までのログ                                           |
-| `pl`         | `pull`                                                                                                         | プル                                                        |
-| `poh`        | `push origin HEAD`                                                                                             | origin に現在のブランチを push                              |
-| `rst`        | `reset`                                                                                                        | リセット                                                    |
-| `rh`         | `reset --hard`                                                                                                 | ワークツリーとインデックスを指定の状態に変更（未指定:HEAD） |
-| `rmc`        | `rm --cached`                                                                                                  | インデックスへの登録のみ削除                                |
-| `s`          | `status`                                                                                                       | ステータスを表示                                            |
-| `ss`         | `status`                                                                                                       | ステータスを表示                                            |
-| `sw`         | `switch`                                                                                                       | ブランチを変更                                              |
-| `top`        | `rev-parse --show-toplevel`                                                                                    | Git リポジトリのトップレベルパスを表示                      |
-| `wip`        | `stash`                                                                                                        | 一時領域関連                                                |
-| `wipl`       | `stash list`                                                                                                   | 一時領域のリストを表示                                      |
-| `wips`       | `stash push`                                                                                                   | 更新内容を一時領域に保存                                    |
-| `wipp`       | `stash pop`                                                                                                    | 一時領域から更新を取得                                      |
+| エイリアス   | 展開                                                                                                           | 備考                                      |
+|---------|----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
+| `a`     | `add`                                                                                                          | ワークツリーのファイルをインデックスに登録する                 |
+| `au`    | `add -u`                                                                                                       | インデックスに登録されているファイルに差分があれば登録する       |
+| `br`    | `branch`                                                                                                       | ブランチ                                      |
+| `c`     | `commit`                                                                                                       | コミット                                      |
+| `cam`   | `commit --amend -m`                                                                                            | メッセージを記載して amend                        |
+| `caum`  | `commit --amend -am`                                                                                           | 更新ファイルを追加しメッセージを記載して amend          |
+| `cmm`   | `commit -m`                                                                                                    | メッセージを記載して commit                       |
+| `cum`   | `commit -am`                                                                                                   | 更新ファイルを追加しメッセージを記載して commit         |
+| `co`    | `checkout`                                                                                                     | チェックアウト                                   |
+| `dns`   | `diff --name-status`                                                                                           | 差分種類のみ確認                            |
+| `fsw`   | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch`                          | fzf を利用して switch                        |
+| `fsn`   | `!git branch --no-merged origin/master --format='%(refname:short)' \| fzf \| xargs git switch`                 | マージされていないブランチに fzf を利用して switch         |
+| `fw`    | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch`                          | fw と同じ                                   |
+| `graph` | `log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'` | コミットグラフを表示                              |
+| `l`     | `log`                                                                                                          | ログ                                        |
+| `l5`    | `log --first-parent -n 5`                                                                                      | 5 個前までのログ                               |
+| `l10`   | `log --first-parent -n 10`                                                                                     | 10 個前までのログ                              |
+| `l15`   | `log --first-parent -n 15`                                                                                     | 15 個前までのログ                              |
+| `pl`    | `pull`                                                                                                         | プル                                        |
+| `poh`   | `push origin HEAD`                                                                                             | origin に現在のブランチを push                   |
+| `rst`   | `reset`                                                                                                        | リセット                                      |
+| `rh`    | `reset --hard`                                                                                                 | ワークツリーとインデックスを指定の状態に変更（未指定:HEAD） |
+| `rmc`   | `rm --cached`                                                                                                  | インデックスへの登録のみ削除                        |
+| `s`     | `status`                                                                                                       | ステータスを表示                                |
+| `ss`    | `status`                                                                                                       | ステータスを表示                                |
+| `sw`    | `switch`                                                                                                       | ブランチを変更                                 |
+| `top`   | `rev-parse --show-toplevel`                                                                                    | Git リポジトリのトップレベルパスを表示                   |
+| `wip`   | `stash`                                                                                                        | 一時領域関連                              |
+| `wipl`  | `stash list`                                                                                                   | 一時領域のリストを表示                         |
+| `wips`  | `stash push`                                                                                                   | 更新内容を一時領域に保存                    |
+| `wipp`  | `stash pop`                                                                                                    | 一時領域から更新を取得                       |
 
 ## log
 

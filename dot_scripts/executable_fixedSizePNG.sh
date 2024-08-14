@@ -3,12 +3,12 @@
 # thanks to https://hostingstock.net/blog/20160206/
 
 check() {
-  convert --version >/dev/null || echo "Need to install Imagemagick" && exit 1
-  exiftool >/dev/null || echo "Need to install exiftool" && exit 1
+	convert --version >/dev/null || echo "Need to install Imagemagick" && exit 1
+	exiftool >/dev/null || echo "Need to install exiftool" && exit 1
 }
 get_random_text() {
-  text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$1" | head -n 1)
-  echo "$text"
+	text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$1" | head -n 1)
+	echo "$text"
 }
 
 check
@@ -23,17 +23,17 @@ text=$(get_random_text $text_length)
 
 # フォントはどうでもいい
 convert -size "${img_size}" "xc:#${hex_color}" \
-  -gravity Center -pointsize 72 -annotate 0 "640x640" \
-  -gravity Center -pointsize 16 -annotate "+0+80" "$text" \
-  "$img_name"
+	-gravity Center -pointsize 72 -annotate 0 "640x640" \
+	-gravity Center -pointsize 16 -annotate "+0+80" "$text" \
+	"$img_name"
 
 img_file_size=$(wc -c <"$img_name")
 extra_text_size=$((target_size - 21 - img_file_size))
 
 if [ ${extra_text_size} -lt 1 ]; then
-  echo too small target size
-  rm "$img_name"
-  exit 1
+	echo too small target size
+	rm "$img_name"
+	exit 1
 fi
 
 extra_text_fn=$(mktemp)
