@@ -44,6 +44,17 @@ rm ~/bin/chezmoi
   path = PATH_OF_ONLY_SOMECOMPANY_CONFIG_FILE
 ```
 
+### ssh鍵によるコミット署名設定
+
+以下のコマンドでssh鍵によるGitコミットの署名を設定可能。
+リポジトリごとに署名鍵を変更する場合は最後のコマンドをローカルとして各リポジトリで行うなどの工夫が必要。
+
+```sh
+git config gpg.format ssh
+git config commit.gpgsign true
+git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
+```
+
 ## 設定内容
 
 - パッケージ管理ツールを利用したセットアップ
@@ -94,6 +105,7 @@ rm ~/bin/chezmoi
 | `ddu`  | `docker compose down && docker comopse up -d` |                      |
 
 ### 主な Git コマンドのエイリアス
+
 | エイリアス   | 展開                                                                                                           | 備考                                      |
 |---------|----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
 | `a`     | `add`                                                                                                          | ワークツリーのファイルをインデックスに登録する                 |
