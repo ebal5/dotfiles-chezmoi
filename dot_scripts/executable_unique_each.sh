@@ -2,7 +2,7 @@
 
 # 一時ファイルの作成
 tempA=$(mktemp)
-tempB=`mktemp`
+tempB=$(mktemp)
 
 GREEN="\e[0;32m"
 RESET="\e[0m"
