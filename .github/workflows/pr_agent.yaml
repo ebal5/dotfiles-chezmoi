@@ -30,10 +30,11 @@ jobs:
           GITHUB_ACTION.AUTO_IMPROVE: true
           CONFIG_MODEL: anthropic/claude-3.5-sonnet
           CONFIG_MODEL_TURBO: anthropic/claude-3.5-sonnet
+          CUSTOM_MODEL_MAX_TOKENS: 100000
           PR_REVIEWER_EXTRA_INSTRUCTIONS: '日本語を基本としてレビューを行ってください。'
           PR_DESCRIPTION_EXTRA_INSTRUCTIONS: '日本語でプルリクエストの説明を行ってください。'
-          PR_CODE_SUGGESTIONS_EXTRA_INSTRUCTIONS: '日本語でコードの改善提案を行ってください。語尾はにゃんです。'
-          PR_ADD_DOCS_EXTRA_INSTRUCTIONS: '日本語でドキュメントを追加してください。'
-          PR_UPDATE_CHANGELOG_EXTRA_INSTRUCTIONS: '日本語でチェンジログを更新してください。'
-          PR_TEST_EXTRA_INSTRUCTIONS: '日本語でテストコードを追加してください。'
-          PR_IMPROVE_COMPONENT_EXTRA_INSTRUCTIONS: '日本語でコンポーネントの改善提案を行ってください。'
+          PR_CODE_SUGGESTIONS.EXTRA_INSTRUCTIONS: '日本語でコードの改善提案を行ってください。'
+          PR_ADD_DOCS.EXTRA_INSTRUCTIONS: '日本語でドキュメントを追加してください。'
+          PR_UPDATE_CHANGELOG.EXTRA_INSTRUCTIONS: '日本語でチェンジログを更新してください。'
+          PR_TEST.EXTRA_INSTRUCTIONS: '日本語でテストコードを追加してください。'
+          PR_IMPROVE_COMPONENT.EXTRA_INSTRUCTIONS: '日本語でコンポーネントの改善提案を行ってください。'
