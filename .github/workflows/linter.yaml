@@ -4,76 +4,24 @@ name: Lint All
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    branches:
-      - main
-      - master
-env:
-  APPLY_FIXES: all
-  APPLY_FIXES_EVENT: pull_request
-  APPLY_FIXES_MODE: commit
-
-concurrency:
-  group: ${{ github.ref }}-${{ github.workflow }}
-  cancel-in-progress: true
 
 jobs:
-  lint:
-    name: Lint Code Base
+  shfmt:
+    name: run shfmt
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      checks: write
       issues: write
       pull-requests: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+      - run: |
+          go install mvdan.cc/sh/v3/cmd/shfmt@latest
+          shfmt -i 2 -ci -w .
+      - name: suggester / shfmt
+        uses: reviewdog/action-suggester@v1
         with:
-          fetch-depth: 0
-
-      - name: Mega Linter
-        id: ml
-        uses: oxsecurity/megalinter@bacb5f8674e3730b904ca4d20c8bd477bc51b1a7 #v7.13.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          FILTER_REGEX_EXCLUDE: '\.tmpl$|\.gitignore$'
-          DISABLE: SHELL_SHFMT
-
-      - name: Archive production artifacts
-        if: success() || failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: MegaLinter reports
-          path: |
-            megalinter-reports
-            mega-linter.log
-
-      # Create pull request if applicable (for now works only on PR from same repository, not from forks)
-      - name: Create Pull Request with applied fixes
-        id: cpr
-        if: steps.ml.outputs.has_updated_sources == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'pull_request' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && !contains(github.event.head_commit.message, 'skip fix')
-        uses: peter-evans/create-pull-request@c5a7806660adbe173f04e3e038b0ccdcd758773c # v6.1.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "[MegaLinter] Apply linters automatic fixes"
-          title: "[MegaLinter] Apply linters automatic fixes"
-          labels: bot
-
-      - name: Create PR output
-        if: steps.ml.outputs.has_updated_sources == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'pull_request' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && !contains(github.event.head_commit.message, 'skip fix')
-        run: |
-          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
-          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
-
-      # Push new commit if applicable (for now works only on PR from same repository, not from forks)
-      - name: Prepare commit
-        if: steps.ml.outputs.has_updated_sources == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'commit' && github.ref != 'refs/heads/main' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && !contains(github.event.head_commit.message, 'skip fix')
-        run: sudo chown -Rc $UID .git/
-      - name: Commit and push applied linter fixes
-        if: steps.ml.outputs.has_updated_sources == 1 && (env.APPLY_FIXES_EVENT == 'all' || env.APPLY_FIXES_EVENT == github.event_name) && env.APPLY_FIXES_MODE == 'commit' && github.ref != 'refs/heads/main' && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) && !contains(github.event.head_commit.message, 'skip fix')
-        uses: stefanzweifel/git-auto-commit-action@8621497c8c39c72f3e2a999a26b4ca1b5058a842 # v5.0.1
-        with:
-          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
-          commit_message: "[MegaLinter] Apply linters fixes"
-          commit_user_name: megalinter-bot
-          commit_user_email: nicolas.vuillamy@ox.security
+          tool_name: shfmt
