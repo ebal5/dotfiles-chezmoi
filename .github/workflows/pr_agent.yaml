@@ -25,11 +25,12 @@ jobs:
           OPENAI.KEY: ${{ secrets.OPENAI_KEY }}
           OPENAI.API_BASE: ${{ secrets.OPENAI_API_BASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_MODEL: 'anthropic/claude-3.5-sonnet'
           GITHUB_ACTION.AUTO_REVIEW: true
           GITHUB_ACTION.AUTO_DESCRIBE: true
           GITHUB_ACTION.AUTO_IMPROVE: true
-          CONFIG.MODEL: anthropic/claude-3.5-sonnet
-          CONFIG.MODEL_TURBO: anthropic/claude-3.5-sonnet
+          CONFIG.MODEL: 'anthropic/claude-3.5-sonnet'
+          CONFIG.MODEL_TURBO: 'anthropic/claude-3.5-sonnet'
           CONFIG.CUSTOM_MODEL_MAX_TOKENS: 100000
           PR_REVIEWER_EXTRA_INSTRUCTIONS: '日本語を基本としてレビューを行ってください。'
           PR_DESCRIPTION_EXTRA_INSTRUCTIONS: '日本語でプルリクエストの説明を行ってください。'
