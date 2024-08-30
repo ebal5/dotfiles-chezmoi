@@ -28,8 +28,8 @@ jobs:
           GITHUB_ACTION.AUTO_REVIEW: true
           GITHUB_ACTION.AUTO_DESCRIBE: true
           GITHUB_ACTION.AUTO_IMPROVE: true
-          config.model: deepseek-coder
-          config.model_turbo: claude-3.5-sonnet
+          CONFIG.MODEL: claude-3.5-sonnet
+          CONFIG.MODEL_TURBO: claude-3.5-sonnet
           PR_REVIEWER.EXTRA_INSTRUCTIONS: '日本語を基本としてレビューを行ってください。'
           PR_DESCRIPTION.EXTRA_INSTRUCTIONS: '日本語でプルリクエストの説明を行ってください。'
           pr_code_suggestions.extra_instructions: '日本語でコードの改善提案を行ってください。'
