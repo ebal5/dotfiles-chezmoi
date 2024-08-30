@@ -18,8 +18,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - uses: actions/setup-go@v4
-      - run: go install mvdan.cc/sh/v3/cmd/shfmt@latest
-      - run: shfmt -i 2 -ci -w .
+      - run: |
+          go install mvdan.cc/sh/v3/cmd/shfmt@latest
+          shfmt -i 2 -ci -w .
       - name: suggester / shfmt
         uses: reviewdog/action-suggester@v1
         with:
