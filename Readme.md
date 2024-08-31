@@ -152,6 +152,15 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 
 NOTE: markdownlintによるチェックとの違いは要検証
 
+## test
+- 怒られるはず？
+## test2
+- リストや見出しは間を空ける事になっていたはず
+- リストの前後には空行を入れる事になっていたはず
+|-|-|
+|  |  |
+|-|-|
+
 ## log
 
 ### rtx -> mise への名前変更に追従
