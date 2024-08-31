@@ -22,6 +22,6 @@ jobs:
         uses: Codium-ai/pr-agent@v0.23
         # https://github.com/Codium-ai/pr-agent/blob/main/pr_agent/settings/configuration.toml
         env:
-          OPENAI.KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           OPENAI.API_BASE: ${{ secrets.OPENAI_API_BASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
