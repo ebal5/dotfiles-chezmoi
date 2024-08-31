@@ -1,0 +1,46 @@
+[config]
+model = "openrouter/anthropic/claude-3.5-sonnet"
+model_turbo = "openrouter/anthropic/claude-3.5-sonnet"
+fallback_models = ["openrouter/anthropic/claude-3.5-sonnet", "openrouter/openai/gpt-4o", "gpt-4o"]
+custom_model_max_tokens = 100000
+
+[pr_reviewer]
+require_score_review=true
+require_estimate_effort_to_review=true
+require_security_review=true
+extra_instructions="日本語でレビューを行ってください。"
+
+[pr_description]
+extra_instructions="日本語でプルリクエストの説明を行ってください。"
+
+[pr_code_suggestions]
+extra_instructions="日本語でコードの改善提案を行ってください。"
+
+[pr_add_docs]
+extra_instructions="日本語でドキュメントを追加してください。"
+
+[pr_update_changelog]
+extra_instructions="日本語でチェンジログを更新してください。"
+
+[pr_test]
+extra_instructions="日本語でテストコードを追加してください。"
+
+[pr_improve_component]
+extra_instructions="日本語でコンポーネントの改善提案を行ってください。"
+
+# [github_action]
+# auto_review = true
+# auto_describe = true
+# auto_improve = true
+# auto_add_docs = true
+# auto_update_changelog = true
+# auto_test = true
+# auto_improve_component = true
+
+[github_app]
+bot_user="PR Agent[bot]"
+
+[litellm]
+enabla_collbacks=true
+success_callbacks=["langfuse"]
+failure_callback = ["langfuse"]
