@@ -25,5 +25,6 @@ jobs:
           # OPENAI.KEY: ${{ secrets.OPENAI_KEY }}
           OPENAI.KEY: dummy_key
           # OPENAI.API_BASE: ${{ secrets.OPENAI_API_BASE }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENAI_KEY }}
+          # OPENROUTER_API_KEY: ${{ secrets.OPENAI_KEY }}
+          GROQ.KEY: ${{ secrets.GROQ_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

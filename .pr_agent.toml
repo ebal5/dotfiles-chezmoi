@@ -1,8 +1,8 @@
 [config]
-model = "openrouter/anthropic/claude-3.5-sonnet"
-model_turbo = "openrouter/anthropic/claude-3.5-sonnet"
-fallback_models = ["openrouter/anthropic/claude-3.5-sonnet", "openai/gpt-4o", "gpt-4o"]
-custom_model_max_tokens = 100000
+model = " llama-3.1-70b-versatile"
+model_turbo = " llama-3.1-70b-versatile"
+fallback_models = ["llama3-70b-8192"]
+# custom_model_max_tokens = 100000
 
 [pr_reviewer]
 require_score_review=true
