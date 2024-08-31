@@ -150,6 +150,8 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 
 フォルダ内の Markdown ファイルは更新時にmarkdownlint-cli2によってチェックされている。
 
+NOTE: markdownlintによるチェックとの違いは要検証
+
 ## log
 
 ### rtx -> mise への名前変更に追従
