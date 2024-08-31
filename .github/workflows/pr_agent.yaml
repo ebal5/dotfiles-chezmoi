@@ -25,15 +25,7 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTION.AUTO_REVIEW: true
-          GITHUB_ACTION.AUTO_DESCRIBE: true
-          GITHUB_ACTION.AUTO_IMPROVE: true
-          CONFIG.MODEL: claude-3.5-sonnet
-          CONFIG.MODEL_TURBO: claude-3.5-sonnet
           PR_REVIEWER.EXTRA_INSTRUCTIONS: '日本語を基本としてレビューを行ってください。'
           PR_DESCRIPTION.EXTRA_INSTRUCTIONS: '日本語でプルリクエストの説明を行ってください。'
-          pr_code_suggestions.extra_instructions: '日本語でコードの改善提案を行ってください。'
-          pr_add_docs.extra_instructions: '日本語でドキュメントを追加してください。'
-          pr_update_changelog.extra_instructions: '日本語でチェンジログを更新してください。'
-          pr_test.extra_instructions: '日本語でテストコードを追加してください。'
-          pr_improve_component.extra_instructions: '日本語でコンポーネントの改善提案を行ってください。'
+          PR_CODE_SUGGESTIONS.EXTRA_INSTRUCTIONS: '日本語でコードの改善提案を行ってください。'
+          PR_IMPROVE_COMPONENT.EXTRA_INSTRUCTIONS: '日本語でコンポーネントの改善提案を行ってください。'
