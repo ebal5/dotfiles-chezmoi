@@ -1,7 +1,7 @@
 [config]
 model = " llama-3.1-70b-versatile"
 model_turbo = " llama-3.1-70b-versatile"
-fallback_models = ["llama3-70b-8192"]
+fallback_models = ["groq/llama-3.1-70b-versatile", "groq/llama3-70b-8192"]
 # custom_model_max_tokens = 100000
 
 [pr_reviewer]
@@ -27,3 +27,6 @@ extra_instructions="日本語でテストコードを追加してください。
 
 [pr_improve_component]
 extra_instructions="日本語でコンポーネントの改善提案を行ってください。"
+
+[litellm]
+set_verbose=true
