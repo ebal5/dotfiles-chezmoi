@@ -25,6 +25,17 @@ jobs:
         uses: reviewdog/action-suggester@v1
         with:
           tool_name: shfmt
+      - name: install shellcheck
+        run: |
+          scversion="latest"
+          wget -qO- "https://github.com/koalaman/shellcheck/releases/download/${scversion?}/shellcheck-${scversion?}.linux.x86_64.tar.xz" | tar -xJv
+          sudo cp "shellcheck-${scversion}/shellcheck" /usr/local/bin/
+          rm -rf "shellcheck-${scversion}/shellcheck"
+      - run: shellcheck -f diff $(shfmt -f .) | patch -p1
+      - name: suggester / shellcheck
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: shellcheck
   markdownlint:
     name: run markdownlint
     runs-on: ubuntu-latest
@@ -37,8 +48,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-      - run: |
+      - name: Install markdownlint-cli2
+        run: |
           npm install -g markdownlint-cli2
+          markdownlint-cli2 .
       - name: suggester / markdownlint
         uses: reviewdog/action-suggester@v1
         with:
