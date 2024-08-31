@@ -82,8 +82,9 @@ which zoxide >/dev/null && eval "$(zoxide init bash)"
 which starship >/dev/null && eval "$(starship init bash)"
 
 # mcfly
-if which mcfly >/dev/null; then
+if which mcfly >/dev/null && [ -z "$MCFLY_LOADED" ]; then
   eval "$(mcfly init bash)"
   export MCFLY_FUZZY=2
-  export MCFLY_RESULTS=32
+  export MCFLY_RESULTS=20
+  export MCFLY_LOADED=1
 fi
