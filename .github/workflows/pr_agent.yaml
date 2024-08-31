@@ -23,7 +23,7 @@ jobs:
         # https://github.com/Codium-ai/pr-agent/blob/main/pr_agent/settings/configuration.toml
         env:
           # OPENAI.KEY: ${{ secrets.OPENAI_KEY }}
-          OPENAI.KEY: dummy_key
+          # OPENAI.KEY: dummy_key
           # OPENAI.API_BASE: ${{ secrets.OPENAI_API_BASE }}
           # OPENROUTER_API_KEY: ${{ secrets.OPENAI_KEY }}
           # GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
