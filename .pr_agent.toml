@@ -1,8 +1,4 @@
 [config]
-model = "claude-3-5-sonnet"
-model_turbo = "claude-3-5-sonnet"
-# fallback_models = ["claude-3-5-sonnet"]
-# custom_model_max_tokens = 100000
 
 [pr_reviewer]
 require_score_review=true
@@ -27,6 +23,3 @@ extra_instructions="日本語でテストコードを追加してください。
 
 [pr_improve_component]
 extra_instructions="日本語でコンポーネントの改善提案を行ってください。"
-
-[litellm]
-set_verbose=true
