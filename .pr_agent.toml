@@ -1,7 +1,7 @@
 [config]
-model = "anthropic/claude-3.5-sonnet"
-model_turbo = "anthropic/claude-3.5-sonnet"
-fallback_models = ["claude-3.5-sonnet", "openai/gpt-4o", "gpt-4o"]
+model = "openrouter/anthropic/claude-3.5-sonnet"
+model_turbo = "openrouter/anthropic/claude-3.5-sonnet"
+fallback_models = ["openrouter/anthropic/claude-3.5-sonnet", "openai/gpt-4o", "gpt-4o"]
 custom_model_max_tokens = 100000
 
 [pr_reviewer]
