@@ -33,6 +33,7 @@ sudo apt install -y \
   libz-dev \
   miller \
   nmap \
+  protobuf-compiler \
   ripgrep \
   socat \
   tk-dev \
@@ -50,10 +51,12 @@ sudo apt install -y \
 {{ end }}
 [ ! -e "$HOME/.cargo/env" ] && curl https://sh.rustup.rs -sSf | sh
 cargo="$HOME/.cargo/bin/cargo"
+$cargo install cargo-update
 $cargo install git-delta
 $cargo install hyperfine
 $cargo install jnv
 $cargo install lsd
+$cargo install mcfly
 $cargo install sd
 $cargo install starship --locked
 
@@ -74,8 +77,10 @@ $mise use -yg zoxide
 # rye
 curl -sSf https://rye.astral.sh/get | bash
 
+# Bitwarden SSH Agent
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
 cd ~/.bw-ssh-agent
 git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2 2>&1 > /dev/null
 cd $HOME
+
 {{ end }}

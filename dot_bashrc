@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # If not running interactively, don't do anything
 case $- in
 *i*) ;;
@@ -64,9 +66,9 @@ if ! shopt -oq posix; then
 fi
 
 if [ -x "$HOME/.local/bin/mise" ]; then
-  eval "$($HOME/.local/bin/mise activate bash)"
-  eval "$($HOME/.local/bin/mise completion bash)"
-  eval "$($HOME/.local/bin/mise env -s bash)"
+  eval "$("$HOME"/.local/bin/mise activate bash)"
+  eval "$("$HOME"/.local/bin/mise completion bash)"
+  eval "$("$HOME"/.local/bin/mise env -s bash)"
 fi
 
 if [ -e "$HOME/.cargo/env" ]; then
@@ -79,16 +81,9 @@ which zoxide >/dev/null && eval "$(zoxide init bash)"
 
 which starship >/dev/null && eval "$(starship init bash)"
 
-# hstr
-if which hstr >/dev/null; then
-  export HSTR_CONFIG=hicolor
-  shopt -s histappend
-  export HISTFILESIZE=100000
-  export HISTSIZE=${HISTFILESIZE}
-  # ensure synchronization between bash memory and history file
-  export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
-  # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
-  if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
-  # if this is interactive shell, then bind 'kill last command' to Ctrl-x k
-  if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hstr -k \C-j"'; fi
+# mcfly
+if which mcfly >/dev/null; then
+  eval "$(mcfly init bash)"
+  export MCFLY_FUZZY=2
+  export MCFLY_RESULTS=32
 fi
