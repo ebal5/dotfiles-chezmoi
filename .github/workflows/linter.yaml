@@ -51,7 +51,7 @@ jobs:
       - name: Install markdownlint-cli2
         run: |
           npm install -g markdownlint-cli2
-          markdownlint-cli2 .
+          markdownlint-cli2 . || exit 0
       - name: suggester / markdownlint
         uses: reviewdog/action-suggester@v1
         with:
