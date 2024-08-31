@@ -140,6 +140,16 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `wips`  | `stash push`                                                                                                   | 更新内容を一時領域に保存                    |
 | `wipp`  | `stash pop`                                                                                                    | 一時領域から更新を取得                       |
 
+## チェック内容
+
+### shfmt
+
+シェルスクリプトファイルは更新時にshfmtによってチェックされている。
+
+### markdownlint-cli2
+
+フォルダ内の Markdown ファイルは更新時にmarkdownlint-cli2によってチェックされている。
+
 ## log
 
 ### rtx -> mise への名前変更に追従
