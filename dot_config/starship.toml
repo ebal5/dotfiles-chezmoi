@@ -13,7 +13,8 @@ ap-northeast-1 = "ap-ne-1"
 format = '[\[$symbol($subscription)\]]($style) '
 
 [cmd_duration]
-min_time = 10_000  # Show command duration over 10,000 milliseconds (=10 sec)
+min_time = 5_000  # Show command duration over 5,000 milliseconds (=5 sec)
+show_milliseconds = true
 format = '⌛ [$duration]($style)'
 
 [container]
@@ -21,7 +22,7 @@ format = '[$symbol \[$name\]]($style) '
 
 [directory]
 truncation_length = 2
-truncate_to_repo = false
+truncate_to_repo = true
 home_symbol = "🏠"
 
 [git_branch]
