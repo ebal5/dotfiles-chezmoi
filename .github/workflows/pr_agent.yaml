@@ -25,7 +25,7 @@ jobs:
           OPENAI_KEY: ${{ secrets.OPENAI_KEY }}
           OPENAI_API_BASE: ${{ secrets.OPENAI_API_BASE }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PR_REVIEWER.EXTRA_INSTRUCTIONS: '日本語を基本としてレビューを行ってください。'
-          PR_DESCRIPTION.EXTRA_INSTRUCTIONS: '日本語でプルリクエストの説明を行ってください。'
-          PR_CODE_SUGGESTIONS.EXTRA_INSTRUCTIONS: '日本語でコードの改善提案を行ってください。'
-          PR_IMPROVE_COMPONENT.EXTRA_INSTRUCTIONS: '日本語でコンポーネントの改善提案を行ってください。'
+          PR_REVIEWER.EXTRA_INSTRUCTIONS: 'Write review in Japanese. 日本語でレビューを行ってください。'
+          PR_DESCRIPTION.EXTRA_INSTRUCTIONS: 'Write description in Japanese. 説明は日本語である必要があります。'
+          PR_CODE_SUGGESTIONS.EXTRA_INSTRUCTIONS: 'Write code suggestions in Japanese. コードの改善提案は日本語で行う必要があります。'
+          PR_IMPROVE_COMPONENT.EXTRA_INSTRUCTIONS: 'Write component improvements in Japanese. コンポーネントの改善提案は日本語で行う必要があります。'
