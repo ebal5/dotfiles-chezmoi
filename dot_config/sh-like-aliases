@@ -45,9 +45,9 @@ wsl() {
   alias pbpaste='win32yank.exe -o'
   function open() {
     if [ $# -lt 1 ]; then
-      cmd.exe /c start $(wslpath -w .) &>/dev/null
+      cmd.exe /c start "$(wslpath -w .)" &>/dev/null
     else
-      cmd.exe /c start $(wslpath -w $1) &>/dev/null
+      cmd.exe /c start "$(wslpath -w $1)" &>/dev/null
     fi
   }
 }
@@ -59,9 +59,9 @@ linux() {
 
 if [[ $(uname -a) =~ (microsoft) ]]; then
   wsl
-elif [ $(uname) == 'Linux' ]; then
+elif [ "$(uname)" == 'Linux' ]; then
   linux
-elif [ $(uname) == 'Darwin' ]; then
+elif [ "$(uname)" == 'Darwin' ]; then
   mac
 fi
 alias teee="tee >(pbcopy)"
@@ -77,3 +77,6 @@ alias dps="docker compose ps"
 # 1文字系
 alias d="docker"
 alias g="git"
+
+# npxによるツール群
+alias claude="npx @anthropic-ai/claude-code"
