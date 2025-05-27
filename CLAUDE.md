@@ -16,12 +16,15 @@ Ubuntu環境向けのChezmoiで管理された個人用dotfilesリポジトリ�
 - `chezmoi cd` - chezmoiソースディレクトリに移動
 
 ### リントと品質チェック
+
 - `shfmt -i 2 -ci -w .` - シェルスクリプトを2スペースインデントでフォーマット
 - `shellcheck $(shfmt -f .)` - シェルスクリプトの問題をチェック
 - `markdownlint-cli2 .` - Markdownファイルをリント
 
 ### Git操作
+
 dot_gitconfigで定義された豊富なGitエイリアスを含む:
+
 - `g s` / `gs` - Git status
 - `g c` / `g cmm` - メッセージ付きGit commit
 - `g poh` - origin HEADにpush
@@ -31,18 +34,21 @@ dot_gitconfigで定義された豊富なGitエイリアスを含む:
 ## アーキテクチャ
 
 ### 設定構造
+
 - `dot_*` ファイル: ホームディレクトリにシンボリックリンクされる直接的なdotfiles
 - `dot_config/`: .configディレクトリ用の設定ファイル
 - `dot_scripts/`: カスタムスクリプトディレクトリ
 - `executable_once_*`: 異なるプラットフォーム用の一回限りのセットアップスクリプト
 
 ### 主要コンポーネント
+
 - **シェル環境**: Starshipプロンプト付きBash、豊富なエイリアス
 - **ツール管理**: バージョン管理用のmise（旧rtx）
 - **Git設定**: Deltaディフビューア、包括的なエイリアス
 - **開発ツール**: mise経由での各種開発ツールの統合セットアップ
 
 ### エイリアスシステム
+
 リポジトリは2層のエイリアスを定義:
 
 1. `dot_config/sh-like-aliases`のBashエイリアス（ナビゲーション、docker、gitショートカット）
