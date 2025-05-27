@@ -49,6 +49,7 @@ dot_gitconfigで定義された豊富なGitエイリアスを含む:
 2. `dot_gitconfig`のGitエイリアス（gitコマンドショートカット）
 
 ## プラットフォームサポート
+
 - 主要: Ubuntu/WSL2
 - セットアップスクリプト: Ubuntu（`executable_once_setup_ubuntu.sh.tmpl`）
 - Windows サポート: PowerShellセットアップスクリプト利用可能
