@@ -1,2 +1,33 @@
+# Chezmoi ignore file
+# このファイルは、chezmoiがホームディレクトリに適用しないファイルやディレクトリを指定します。
+# 新しいドキュメントファイルや一時ファイルを作成した場合は、
+# 必要に応じてこのファイルに追記してください。
+
+# Documentation files - ドキュメントファイル
+README.md
 Readme.md
+readme.md
+MIGRATION.md
+CHANGELOG.md
+*.md
+
+# Development and maintenance files - 開発・メンテナンス用ファイル
+CLAUDE.md
+.gitignore
+.github/
+
+# Backup files - バックアップファイル
 bakups/
+*.bak
+*.backup
+*~
+
+# Temporary files - 一時ファイル
+*.tmp
+*.temp
+
+# IDE and editor files - IDE・エディタファイル
+.vscode/
+.idea/
+*.swp
+*.swo
