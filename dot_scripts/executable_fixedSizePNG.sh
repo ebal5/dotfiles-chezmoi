@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# thanks to https://hostingstock.net/blog/20160206/
+# 参考: https://hostingstock.net/blog/20160206/
 
-# Check dependencies
+# 依存関係チェック
 check_dependencies() {
   local deps=("$@")
   for dep in "${deps[@]}"; do
@@ -25,7 +25,7 @@ check() {
   fi
 }
 
-# Initialize cleanup
+# クリーンアップの初期化
 extra_text_fn=""
 cleanup() {
   [[ -n "$extra_text_fn" && -f "$extra_text_fn" ]] && rm -f "$extra_text_fn" 2>/dev/null || true
@@ -41,7 +41,7 @@ get_random_text() {
   LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$length" | head -n 1
 }
 
-# Validate arguments
+# 引数の検証
 if [[ $# -lt 1 ]]; then
   echo "Usage: $0 <target_size> [output_filename]" >&2
   echo "Example: $0 1024 myimage.png" >&2
@@ -53,7 +53,7 @@ if ! [[ "$1" =~ ^[0-9]+$ ]] || [[ "$1" -le 0 ]]; then
   exit 1
 fi
 
-# Check required commands
+# 必要なコマンドのチェック
 check_dependencies convert exiftool hexdump mktemp wc fold tr head
 
 target_size=$1
