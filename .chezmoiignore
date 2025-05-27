@@ -4,15 +4,9 @@
 # 必要に応じてこのファイルに追記してください。
 
 # Documentation files - ドキュメントファイル
-README.md
-Readme.md
-readme.md
-MIGRATION.md
-CHANGELOG.md
 *.md
 
 # Development and maintenance files - 開発・メンテナンス用ファイル
-CLAUDE.md
 .gitignore
 .github/
 
