@@ -44,7 +44,7 @@ fi
 
 # Zsh completion
 if [[ -d /usr/share/zsh/site-functions ]]; then
-    fpath=(/usr/share/zsh/site-functions $fpath)
+  fpath=(/usr/share/zsh/site-functions $fpath)
 fi
 
 # Tool integrations
