@@ -14,6 +14,17 @@ check_dependencies() {
   done
 }
 
+check() {
+  if ! convert --version >/dev/null; then
+    echo "Need to install Imagemagick"
+    exit 1
+  fi
+  if ! exiftool >/dev/null; then
+    echo "Need to install exiftool"
+    exit 1
+  fi
+}
+
 # Initialize cleanup
 extra_text_fn=""
 cleanup() {
