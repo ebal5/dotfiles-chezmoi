@@ -15,6 +15,11 @@ Ubuntu環境向けのChezmoiで管理された個人用dotfilesリポジトリ�
 - `chezmoi diff` - ソースとターゲット状態の差分を表示
 - `chezmoi cd` - chezmoiソースディレクトリに移動
 
+### ファイル管理とIgnore設定
+
+- `.chezmoiignore` - ホームディレクトリに適用しないファイルを指定
+- 新しいドキュメントファイルや開発用ファイルを追加した場合は、必要に応じて`.chezmoiignore`に追記
+
 ### リントと品質チェック
 
 - `shfmt -i 2 -ci -w .` - シェルスクリプトを2スペースインデントでフォーマット
