@@ -55,7 +55,7 @@ if [[ -x "$HOME/.local/bin/mise" ]]; then
 fi
 
 if [[ -e "$HOME/.cargo/env" ]]; then
-    . "$HOME/.cargo/env"
+  . "$HOME/.cargo/env"
 fi
 
 which zoxide >/dev/null && eval "$(zoxide init zsh)"
