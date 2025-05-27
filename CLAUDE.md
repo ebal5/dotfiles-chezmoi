@@ -44,6 +44,7 @@ dot_gitconfigで定義された豊富なGitエイリアスを含む:
 
 ### エイリアスシステム
 リポジトリは2層のエイリアスを定義:
+
 1. `dot_config/sh-like-aliases`のBashエイリアス（ナビゲーション、docker、gitショートカット）
 2. `dot_gitconfig`のGitエイリアス（gitコマンドショートカット）
 
