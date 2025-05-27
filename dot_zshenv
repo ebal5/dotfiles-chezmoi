@@ -1,4 +1,4 @@
-[[ -e "$HOME/.profile" ]] && . $HOME/.profile
+[[ -e "$HOME/.profile" ]] && . "$HOME/.profile"
 
 # config for ssh-agent
 SSH_AGENT_ENV=$HOME/.ssh/agent-env
@@ -6,6 +6,6 @@ if [[ -r $SSH_AGENT_ENV ]]; then
     . $SSH_AGENT_ENV >/dev/null
 fi
 if [[ -z "$SSH_AGENT_PID" ]] || ! kill -0 $SSH_AGENT_PID 2>/dev/null; then
-    ssh-agent >$SSH_AGENT_ENV
+    ssh-agent > "$SSH_AGENT_ENV" && chmod 600 "$SSH_AGENT_ENV"
     . $SSH_AGENT_ENV >/dev/null
 fi

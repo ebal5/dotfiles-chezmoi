@@ -23,14 +23,14 @@ setopt NO_BEEP
 
 # Completion system
 autoload -Uz compinit
-compinit
+compinit -C
 
 # Color support
 autoload -U colors && colors
 
 # Custom prompt with git branch
 setopt PROMPT_SUBST
-PS1='%n@%m %1~ $(git branch 2>/dev/null | grep '"'"'^\*'"'"' | cut -d'"'"' '"'"' -f2)
+PS1='%n@%m %1~ $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 %T %# '
 
 # Enable color support of ls and add handy aliases
@@ -58,14 +58,14 @@ if [[ -e "$HOME/.cargo/env" ]]; then
   . "$HOME/.cargo/env"
 fi
 
-which zoxide >/dev/null && eval "$(zoxide init zsh)"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
 [[ -e "$HOME/.config/sh-like-aliases" ]] && . "$HOME/.config/sh-like-aliases"
 
-which starship >/dev/null && eval "$(starship init zsh)"
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 
 # mcfly
-if which mcfly >/dev/null && [[ -z "$MCFLY_LOADED" ]]; then
+if command -v mcfly >/dev/null 2>&1 && [[ -z "$MCFLY_LOADED" ]]; then
   eval "$(mcfly init zsh)"
   export MCFLY_FUZZY=2
   export MCFLY_RESULTS=20
