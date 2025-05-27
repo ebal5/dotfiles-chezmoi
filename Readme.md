@@ -2,6 +2,7 @@
 
 Chezmoi を利用して作成した dotfiles。
 動作確認は今のところ Ubuntu のみ。
+Bash と Zsh に対応。
 
 ## installation
 
@@ -58,7 +59,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 ## 設定内容
 
 - パッケージ管理ツールを利用したセットアップ
-- Bash
+- Bash / Zsh 対応（共通エイリアス、個別設定ファイル）
 - SSH キーの共有（Bitwarden 利用）
   - <https://github.com/joaojacome/bitwarden-ssh-agent> の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
@@ -68,6 +69,12 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
   - diff として delta を利用
   - 便利エイリアスを登録（よく使うコマンドの短縮など）
 - 作成したスクリプトの共有
+
+### Zsh 固有の設定
+
+- 履歴設定（重複除去、共有履歴など）
+- オートコンプリーション
+- 各種ツールとの統合（mise、starship、mcfly など）
 
 [chezmoi's doc](https://www.chezmoi.io)
 
@@ -84,7 +91,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 - Git:リポジトリの状態を表示（`!`: 差分あり、など）
 - 2 行目プロンプトに時刻を表示
 
-### 主な Bash 用エイリアス
+### 主なシェル用エイリアス（Bash / Zsh 共通）
 
 | エイリアス  | 展開                                          | 備考                 |
 |--------|-----------------------------------------------|----------------------|
@@ -152,41 +159,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 
 NOTE: markdownlintによるチェックとの違いは要検証
 
-## test
-- 怒られるはず？
-## test2
-- リストや見出しは間を空ける事になっていたはず
-- リストの前後には空行を入れる事になっていたはず
-|-|-|
-|  |  |
-|-|-|
+## その他
 
-## log
-
-### rtx -> mise への名前変更に追従
-
-mise のインストールを含めたマイグレーションスクリプト。
-以下 3 つについては mise 標準のマイグレーションではだめなことがわかっているので自前で実施。
-
-- Git の再インストール
-- Python の再インストール
-- Ruby の再インストール
-
-```shell
-if [ ! -x "$HOME/.local/bin/mise" ]; then
-  gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
-  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh
-  sh ./install.sh
-  rm ./install.sh
-fi
-if [ -x "$HOME/.local/share/rtx/bin/rtx" ]; then
-  "$HOME/.local/share/rtx/bin/rtx" uninstall git --all
-  "$HOME/.local/bin/mise" use -yg git
-  for v in $(~/.local/share/rtx/bin/rtx ls python | cut -d " " -f 2); do
-    "$HOME/.local/bin/mise" install -y python@$v
-  done
-  for v in $(~/.local/share/rtx/bin/rtx ls ruby | cut -d " " -f 2); do
-    "$HOME/.local/bin/mise" install -y ruby@$v
-  done
-fi
-```
+- マイグレーション履歴は [MIGRATION.md](MIGRATION.md) を参照
+- 機能拡張や問題報告は Issues へ
