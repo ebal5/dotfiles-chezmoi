@@ -1,5 +1,7 @@
 # Migration Log
 
+このファイルには過去の重要な変更やマイグレーション手順を記録しています。
+
 ## rtx -> mise への名前変更に追従
 
 mise のインストールを含めたマイグレーションスクリプト。
@@ -10,11 +12,15 @@ mise のインストールを含めたマイグレーションスクリプト。
 - Ruby の再インストール
 
 ```shell
+set -euo pipefail
+IFS=$'\n\t'
+
 if [ ! -x "$HOME/.local/bin/mise" ]; then
   gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
-  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh
-  sh ./install.sh
-  rm ./install.sh
+  tmpfile=$(mktemp)
+  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > "$tmpfile"
+  sh "$tmpfile"
+  rm -f "$tmpfile"
 fi
 if [ -x "$HOME/.local/share/rtx/bin/rtx" ]; then
   "$HOME/.local/share/rtx/bin/rtx" uninstall git --all
