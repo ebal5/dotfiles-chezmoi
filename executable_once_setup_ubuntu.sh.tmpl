@@ -78,8 +78,13 @@ curl -sSf https://rye.astral.sh/get | bash
 
 # Bitwarden SSH Agent
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
-cd ~/.bw-ssh-agent
-git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2 2>&1 > /dev/null
-cd $HOME
+if ! cd ~/.bw-ssh-agent; then
+  echo "Warning: Failed to change directory to ~/.bw-ssh-agent" >&2
+else
+  git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2 2>&1 > /dev/null
+fi
+if ! cd "$HOME"; then
+  echo "Warning: Failed to change directory to $HOME" >&2
+fi
 
 {{ end }}
