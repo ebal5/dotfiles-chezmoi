@@ -3,8 +3,14 @@
 # thanks to https://hostingstock.net/blog/20160206/
 
 check() {
-	convert --version >/dev/null || echo "Need to install Imagemagick" && exit 1
-	exiftool >/dev/null || echo "Need to install exiftool" && exit 1
+	if ! convert --version >/dev/null; then
+		echo "Need to install Imagemagick"
+		exit 1
+	fi
+	if ! exiftool >/dev/null; then
+		echo "Need to install exiftool"
+		exit 1
+	fi
 }
 get_random_text() {
 	text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$1" | head -n 1)
