@@ -80,7 +80,7 @@ GitHub Actionsが自動実行:
 
 ### Bitwarden SSH Agent
 
-- **リポジトリ**: https://github.com/joaojacome/bitwarden-ssh-agent.git
+- **リポジトリ**: <https://github.com/joaojacome/bitwarden-ssh-agent.git>
 - **コミットハッシュ**: `6237a3604d640533ad4123d23e23ddfd4e3666d2`
 - **検証日**: 2025-05-27
 - **検証者**: ebal5
