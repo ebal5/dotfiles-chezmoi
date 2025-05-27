@@ -13,8 +13,8 @@ check() {
   fi
 }
 get_random_text() {
-	text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$1" | head -n 1)
-	echo "$text"
+  text=$(LC_CTYPE=C tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$1" | head -n 1)
+  echo "$text"
 }
 
 check
@@ -37,9 +37,9 @@ img_file_size=$(wc -c <"$img_name")
 extra_text_size=$((target_size - 21 - img_file_size))
 
 if [ ${extra_text_size} -lt 1 ]; then
-	echo too small target size
-	rm "$img_name"
-	exit 1
+  echo too small target size
+  rm "$img_name"
+  exit 1
 fi
 
 extra_text_fn=$(mktemp)
