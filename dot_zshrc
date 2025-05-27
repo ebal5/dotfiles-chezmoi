@@ -66,8 +66,8 @@ which starship >/dev/null && eval "$(starship init zsh)"
 
 # mcfly
 if which mcfly >/dev/null && [[ -z "$MCFLY_LOADED" ]]; then
-    eval "$(mcfly init zsh)"
-    export MCFLY_FUZZY=2
-    export MCFLY_RESULTS=20
-    export MCFLY_LOADED=1
+  eval "$(mcfly init zsh)"
+  export MCFLY_FUZZY=2
+  export MCFLY_RESULTS=20
+  export MCFLY_LOADED=1
 fi
