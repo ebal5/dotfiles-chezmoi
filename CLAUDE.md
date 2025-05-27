@@ -9,6 +9,7 @@ Ubuntu環境向けのChezmoiで管理された個人用dotfilesリポジトリ�
 ## 主要コマンド
 
 ### Chezmoi管理
+
 - `chezmoi apply` - 設定変更をホームディレクトリに適用
 - `chezmoi edit <file>` - 設定ファイルを編集
 - `chezmoi diff` - ソースとターゲット状態の差分を表示
