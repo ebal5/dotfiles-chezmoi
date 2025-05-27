@@ -55,6 +55,7 @@ dot_gitconfigで定義された豊富なGitエイリアスを含む:
 - Windows サポート: PowerShellセットアップスクリプト利用可能
 
 ## 品質保証
+
 GitHub Actionsが自動実行:
 - シェルスクリプト用shfmtフォーマット
 - シェルスクリプト解析用shellcheck
