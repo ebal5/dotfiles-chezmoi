@@ -49,9 +49,9 @@ fi
 
 # Tool integrations
 if [[ -x "$HOME/.local/bin/mise" ]]; then
-    eval "$("$HOME"/.local/bin/mise activate zsh)"
-    eval "$("$HOME"/.local/bin/mise completion zsh)"
-    eval "$("$HOME"/.local/bin/mise env -s zsh)"
+  eval "$("$HOME"/.local/bin/mise activate zsh)"
+  eval "$("$HOME"/.local/bin/mise completion zsh)"
+  eval "$("$HOME"/.local/bin/mise env -s zsh)"
 fi
 
 if [[ -e "$HOME/.cargo/env" ]]; then
