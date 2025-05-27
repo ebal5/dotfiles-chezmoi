@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Check dependencies
+# 依存関係チェック
 check_dependencies() {
   local deps=("$@")
   for dep in "${deps[@]}"; do
@@ -12,7 +12,7 @@ check_dependencies() {
   done
 }
 
-# Initialize temporary files and cleanup function
+# 一時ファイルとクリーンアップ関数の初期化
 tempA=""
 tempB=""
 tempA_sorted=""
@@ -27,10 +27,10 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Check required commands
+# 必要なコマンドのチェック
 check_dependencies sort comm mktemp
 
-# Create secure temporary files
+# セキュアな一時ファイルの作成
 tempA=$(mktemp) && chmod 600 "$tempA"
 tempB=$(mktemp) && chmod 600 "$tempB"
 tempA_sorted="${tempA}_sorted"
@@ -51,7 +51,7 @@ echo ""
 sort "$tempA" >"$tempA_sorted"
 sort "$tempB" >"$tempB_sorted"
 
-# Create output files and track them for cleanup
+# 出力ファイルの作成とクリーンアップ用の追跡
 output_files=("unique_to_A.txt" "unique_to_B.txt")
 
 # commコマンドを使用して、それぞれのファイルに特有の行を抽出
