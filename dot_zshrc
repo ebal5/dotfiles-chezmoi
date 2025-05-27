@@ -1,0 +1,73 @@
+#!/bin/zsh
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
+# History configuration
+export HISTSIZE=100000
+export SAVEHIST=100000
+export HISTFILE=~/.zsh_history
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+setopt APPEND_HISTORY
+setopt EXTENDED_HISTORY
+setopt SHARE_HISTORY
+
+# Options
+setopt AUTO_CD
+setopt EXTENDED_GLOB
+setopt NO_BEEP
+
+# Completion system
+autoload -Uz compinit
+compinit -C
+
+# Color support
+autoload -U colors && colors
+
+# Custom prompt with git branch
+setopt PROMPT_SUBST
+PS1='%n@%m %1~ $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+%T %# '
+
+# Enable color support of ls and add handy aliases
+if [[ -x /usr/bin/dircolors ]]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  alias grep='grep --color=auto'
+  alias fgrep='fgrep --color=auto'
+  alias egrep='egrep --color=auto'
+fi
+
+# Zsh completion
+if [[ -d /usr/share/zsh/site-functions ]]; then
+  fpath=(/usr/share/zsh/site-functions $fpath)
+fi
+
+# Tool integrations
+if [[ -x "$HOME/.local/bin/mise" ]]; then
+  eval "$("$HOME"/.local/bin/mise activate zsh)"
+  eval "$("$HOME"/.local/bin/mise completion zsh)"
+  eval "$("$HOME"/.local/bin/mise env -s zsh)"
+fi
+
+if [[ -e "$HOME/.cargo/env" ]]; then
+  . "$HOME/.cargo/env"
+fi
+
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
+
+[[ -e "$HOME/.config/sh-like-aliases" ]] && . "$HOME/.config/sh-like-aliases"
+
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
+# mcfly
+if command -v mcfly >/dev/null 2>&1 && [[ -z "$MCFLY_LOADED" ]]; then
+  eval "$(mcfly init zsh)"
+  export MCFLY_FUZZY=2
+  export MCFLY_RESULTS=20
+  export MCFLY_LOADED=1
+fi
