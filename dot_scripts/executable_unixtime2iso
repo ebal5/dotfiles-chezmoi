@@ -1,3 +1,32 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
+# Check dependencies
+check_dependencies() {
+  local deps=("$@")
+  for dep in "${deps[@]}"; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+      echo "Error: $dep is required but not installed." >&2
+      exit 1
+    fi
+  done
+}
+
+# Validate arguments
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <unix_timestamp>" >&2
+  echo "Example: $0 1640995200" >&2
+  exit 1
+fi
+
+# Validate timestamp format (should be numeric)
+if ! [[ "$1" =~ ^[0-9]+$ ]]; then
+  echo "Error: Invalid timestamp format. Expected numeric value." >&2
+  exit 1
+fi
+
+# Check required commands
+check_dependencies date
+
+# Convert Unix timestamp to ISO-8601 format
 date -d "@$1" --iso-8601=seconds
