@@ -73,3 +73,16 @@ GitHub Actionsが自動実行:
 - シェルスクリプト解析用shellcheck
 - Markdownファイル用markdownlint-cli2
 - セキュリティスキャン用detect-secrets
+
+## セキュリティ検証済みコンポーネント
+
+以下のコンポーネントは事前にセキュリティ検証が完了しており、一定期間はセキュリティレビューの対象外とします:
+
+### Bitwarden SSH Agent
+
+- **リポジトリ**: <https://github.com/joaojacome/bitwarden-ssh-agent.git>
+- **コミットハッシュ**: `6237a3604d640533ad4123d23e23ddfd4e3666d2`
+- **検証日**: 2025-05-27
+- **検証者**: ebal5
+- **ステータス**: ✅ 検証済み・安全
+- **備考**: 動作・コードを事前検証済み。問題ないことを確認
