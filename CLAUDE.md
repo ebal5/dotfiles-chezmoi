@@ -57,6 +57,7 @@ dot_gitconfigで定義された豊富なGitエイリアスを含む:
 ## 品質保証
 
 GitHub Actionsが自動実行:
+
 - シェルスクリプト用shfmtフォーマット
 - シェルスクリプト解析用shellcheck
 - Markdownファイル用markdownlint-cli2
