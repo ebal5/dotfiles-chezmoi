@@ -49,6 +49,53 @@
 	wips = stash push
 	wipp = stash pop
 
+	# よく使うコマンドの短縮
+	ps = push                                    # プッシュ
+	psf = push --force-with-lease               # 安全な強制プッシュ
+	psu = push -u origin HEAD                   # upstream設定付きプッシュ
+	f = fetch                                   # フェッチ
+	fa = fetch --all                            # 全リモートフェッチ
+	d = diff                                    # 差分表示
+	dc = diff --cached                          # ステージ済み差分
+	ds = diff --staged                          # ステージ済み差分（エイリアス）
+	dt = difftool                               # 差分ツール
+	r = remote                                  # リモート表示
+	rv = remote -v                              # リモート詳細表示
+	ra = remote add                             # リモート追加
+
+	# 便利なコマンド組み合わせ
+	acp = !git add -A && git commit -m          # 全追加してコミット
+	acps = !git add -A && git commit -m \"$1\" && git push origin HEAD  # 全追加・コミット・プッシュ
+	sync = !git pull origin main && git push origin HEAD  # main同期してプッシュ
+	unstage = !git diff --cached --name-only | fzf -m | xargs -r git restore --staged  # fzfで選択的アンステージ
+	uncommit = reset --soft HEAD~1              # 直前コミットを取り消し、変更は保持
+	discard = restore --                        # ファイルの変更を破棄
+	clean-branches = !git branch --merged | grep -v '\\*\\|main\\|master' | xargs -n 1 git branch -d  # マージ済みブランチ削除
+	save = !git add -A && git commit -m 'WIP: savepoint'  # WIP保存
+
+	# ログ系
+	ll = log --oneline                          # ワンライン表示
+	la = log --oneline --all                    # 全ブランチをワンライン表示
+	lg = log --oneline --graph --all            # 全ブランチをグラフ表示
+	today = log --since=\"1 day ago\" --oneline     # 今日のコミット
+	yesterday = log --since=\"2 days ago\" --until=\"1 day ago\" --oneline  # 昨日のコミット
+
+	# ブランチ管理
+	bd = branch -d                              # ブランチ削除
+	bdd = branch -D                             # 強制ブランチ削除
+	current = rev-parse --abbrev-ref HEAD       # 現在のブランチ名
+	upstream = !git branch --set-upstream-to=origin/$(git current)  # upstream設定
+
+	# 情報表示
+	aliases = config --get-regexp alias         # エイリアス一覧
+	last = log -1 HEAD                          # 最後のコミット
+	size = count-objects -vH                    # リポジトリサイズ
+	files = diff --name-only                    # 変更ファイル一覧
+
+	# fzf連携の拡張
+	fco = !git branch --all | grep -v HEAD | sed 's|^[* ] ||' | sed 's|remotes/origin/||' | sort -u | fzf | xargs git checkout  # fzfでブランチ選択・チェックアウト
+	flog = !git log --oneline | fzf | awk '{print $1}' | xargs git show  # fzfでコミット選択・表示
+
 [merge]
 	ff = false
 
