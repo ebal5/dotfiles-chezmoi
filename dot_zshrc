@@ -71,3 +71,9 @@ if command -v mcfly >/dev/null 2>&1 && [[ -z "$MCFLY_LOADED" ]]; then
   export MCFLY_RESULTS=20
   export MCFLY_LOADED=1
 fi
+
+# keybindings
+if uname -a | grep microsoft >/dev/null 2>&1; then
+  bindkey '^[[1;5D' backward-word
+  bindkey '^[[1;5C' forward-word
+fi
