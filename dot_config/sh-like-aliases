@@ -80,3 +80,15 @@ alias g="git"
 
 # npxによるツール群
 alias claude="npx @anthropic-ai/claude-code"
+
+# fzf便利ユーティリティ
+alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"
+alias fzgb="$HOME/.scripts/fzf_utils.sh git-branch"
+alias fzgl="$HOME/.scripts/fzf_utils.sh git-log"
+alias fzff="$HOME/.scripts/fzf_utils.sh file-search"
+alias fzpk="$HOME/.scripts/fzf_utils.sh process-kill"
+alias fzsh="$HOME/.scripts/fzf_utils.sh ssh-host"
+alias fzgd="$HOME/.scripts/fzf_utils.sh git-diff"
+alias fzdi="$HOME/.scripts/fzf_utils.sh docker-image"
+# recent-dirは特別処理が必要（cdを実行する必要があるため）
+fzcd() { local dir=$($HOME/.scripts/fzf_utils.sh recent-dir); [[ -n "$dir" ]] && eval "$dir"; }
