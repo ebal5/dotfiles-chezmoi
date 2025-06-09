@@ -250,7 +250,7 @@ case "${1:-}" in
   process-kill | fzpk)
     process_kill
     ;;
-  ssh-host|fzsh)
+  ssh-host | fzsh)
     ssh_host
     ;;
   git-diff|fzgd)
