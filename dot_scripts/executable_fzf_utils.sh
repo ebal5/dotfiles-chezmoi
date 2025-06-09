@@ -244,7 +244,7 @@ case "${1:-}" in
   git-log | fzgl)
     git_log
     ;;
-  file-search|fzff)
+  file-search | fzff)
     file_search
     ;;
   process-kill|fzpk)
