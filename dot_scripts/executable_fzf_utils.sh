@@ -34,9 +34,9 @@ EOF
 # Docker Container Selector
 docker_container() {
   check_dependencies docker fzf
-  
+
   local container
-  container=$(docker ps -a --format "{{.Names}}" | \
+  container=$(docker ps -a --format "{{.Names}}" |
     fzf --preview 'docker inspect --format="
 🐳 Container: {1}
 📦 Image: {{.Config.Image}}
@@ -63,7 +63,7 @@ docker_container() {
       --bind="ctrl-l:execute(docker logs {} | less)" \
       --bind="ctrl-s:execute(docker start {})" \
       --bind="ctrl-k:execute(docker stop {})")
-  
+
   if [[ -n "$container" ]]; then
     echo "Selected container: $container"
     docker exec -it "$container" bash 2>/dev/null || docker exec -it "$container" sh
@@ -73,19 +73,19 @@ docker_container() {
 # Git Branch Selector
 git_branch() {
   check_dependencies git fzf
-  
+
   if ! git rev-parse --git-dir >/dev/null 2>&1; then
     echo "Error: Not in a git repository" >&2
     exit 1
   fi
-  
+
   local branch
-  branch=$(git branch -a --format="%(refname:short)" | \
-    sed 's/^origin\///' | sort -u | \
+  branch=$(git branch -a --format="%(refname:short)" |
+    sed 's/^origin\///' | sort -u |
     fzf --preview 'git log --oneline --graph --date=short --pretty="format:%C(auto)%cd %h%d %s" $(git merge-base HEAD {}) | head -20' \
       --preview-window=right:50% \
       --header="Select branch to checkout")
-  
+
   if [[ -n "$branch" ]]; then
     git checkout "$branch"
   fi
@@ -94,20 +94,20 @@ git_branch() {
 # Git Log Explorer
 git_log() {
   check_dependencies git fzf
-  
+
   if ! git rev-parse --git-dir >/dev/null 2>&1; then
     echo "Error: Not in a git repository" >&2
     exit 1
   fi
-  
+
   local commit
-  commit=$(git log --oneline --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" | \
+  commit=$(git log --oneline --graph --color=always --format="%C(auto)%h%d %s %C(black)%C(bold)%cr" |
     fzf --ansi \
       --preview 'git show --color=always {2}' \
       --preview-window=right:60% \
       --header="Browse commits (Enter: show, Ctrl-C: checkout)" \
       --bind="ctrl-c:execute(git checkout {2})+abort")
-  
+
   if [[ -n "$commit" ]]; then
     local hash
     hash=$(echo "$commit" | awk '{print $2}')
@@ -118,20 +118,20 @@ git_log() {
 # File Search
 file_search() {
   check_dependencies fzf
-  
+
   local file
   if command -v rg >/dev/null 2>&1; then
-    file=$(rg --files --hidden --follow --glob '!.git' | \
+    file=$(rg --files --hidden --follow --glob '!.git' |
       fzf --preview 'bat --color=always --style=header,grid --line-range=:300 {}' \
         --preview-window=right:60%)
   elif command -v fd >/dev/null 2>&1; then
-    file=$(fd --type f --hidden --follow --exclude .git | \
+    file=$(fd --type f --hidden --follow --exclude .git |
       fzf --preview 'cat {}' --preview-window=right:60%)
   else
-    file=$(find . -type f -not -path '*/\.git/*' | \
+    file=$(find . -type f -not -path '*/\.git/*' |
       fzf --preview 'cat {}' --preview-window=right:60%)
   fi
-  
+
   if [[ -n "$file" ]]; then
     "${EDITOR:-vim}" "$file"
   fi
@@ -140,13 +140,13 @@ file_search() {
 # Process Killer
 process_kill() {
   check_dependencies ps fzf
-  
+
   local pid
-  pid=$(ps -ef | sed 1d | \
+  pid=$(ps -ef | sed 1d |
     fzf --multi --header="Select processes to kill (Tab: multi-select)" \
-      --preview 'echo {}' --preview-window=up:3:wrap | \
+      --preview 'echo {}' --preview-window=up:3:wrap |
     awk '{print $2}')
-  
+
   if [[ -n "$pid" ]]; then
     echo "Killing process(es): $pid"
     echo "$pid" | xargs kill
@@ -156,19 +156,19 @@ process_kill() {
 # SSH Host Selector
 ssh_host() {
   check_dependencies fzf
-  
+
   local ssh_config="$HOME/.ssh/config"
   if [[ ! -f "$ssh_config" ]]; then
     echo "Error: SSH config file not found at $ssh_config" >&2
     exit 1
   fi
-  
+
   local host
-  host=$(grep "^Host " "$ssh_config" | awk '{print $2}' | grep -v '*' | \
+  host=$(grep "^Host " "$ssh_config" | awk '{print $2}' | grep -v '*' |
     fzf --preview 'grep -A 10 "^Host {}" ~/.ssh/config' \
       --preview-window=right:50% \
       --header="Select SSH host")
-  
+
   if [[ -n "$host" ]]; then
     ssh "$host"
   fi
@@ -177,18 +177,18 @@ ssh_host() {
 # Git Diff Viewer
 git_diff() {
   check_dependencies git fzf
-  
+
   if ! git rev-parse --git-dir >/dev/null 2>&1; then
     echo "Error: Not in a git repository" >&2
     exit 1
   fi
-  
+
   local file
-  file=$(git diff --name-only | \
+  file=$(git diff --name-only |
     fzf --preview 'git diff --color=always {}' \
       --preview-window=right:60% \
       --header="Select file to view diff")
-  
+
   if [[ -n "$file" ]]; then
     git diff "$file" | less -R
   fi
@@ -197,15 +197,15 @@ git_diff() {
 # Docker Image Manager
 docker_image() {
   check_dependencies docker fzf
-  
+
   local image
-  image=$(docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedAt}}\t{{.Size}}" | \
-    tail -n +2 | \
+  image=$(docker images --format "table {{.Repository}}\t{{.Tag}}\t{{.ID}}\t{{.CreatedAt}}\t{{.Size}}" |
+    tail -n +2 |
     fzf --header="Select Docker image (Enter: inspect, Ctrl-R: run, Ctrl-D: delete)" \
       --preview 'docker inspect {3}' --preview-window=right:60% \
       --bind="ctrl-r:execute(docker run -it {1}:{2})" \
       --bind="ctrl-d:execute(docker rmi {3})")
-  
+
   if [[ -n "$image" ]]; then
     local image_id
     image_id=$(echo "$image" | awk '{print $3}')
@@ -216,18 +216,18 @@ docker_image() {
 # Recent Directory Navigator
 recent_dir() {
   check_dependencies fzf
-  
+
   local recent_dirs="$HOME/.local/share/recent_dirs"
   if [[ ! -f "$recent_dirs" ]]; then
     mkdir -p "$(dirname "$recent_dirs")"
     dirs -p > "$recent_dirs" 2>/dev/null || echo "$PWD" > "$recent_dirs"
   fi
-  
+
   local dir
-  dir=$(cat "$recent_dirs" | \
+  dir=$(cat "$recent_dirs" |
     fzf --preview 'ls -la {}' --preview-window=right:50% \
       --header="Select directory")
-  
+
   if [[ -n "$dir" && -d "$dir" ]]; then
     echo "cd \"$dir\""
   fi
