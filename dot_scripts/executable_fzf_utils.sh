@@ -241,7 +241,7 @@ case "${1:-}" in
   git-branch | fzgb)
     git_branch
     ;;
-  git-log|fzgl)
+  git-log | fzgl)
     git_log
     ;;
   file-search|fzff)
