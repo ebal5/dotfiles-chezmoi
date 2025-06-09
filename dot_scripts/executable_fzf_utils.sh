@@ -247,7 +247,7 @@ case "${1:-}" in
   file-search | fzff)
     file_search
     ;;
-  process-kill|fzpk)
+  process-kill | fzpk)
     process_kill
     ;;
   ssh-host|fzsh)
