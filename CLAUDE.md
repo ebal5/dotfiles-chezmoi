@@ -156,6 +156,7 @@ GitHub Actionsが自動実行:
 ### 主要なfzfコマンド
 
 - `fzdc` - Dockerコンテナ選択・操作
+- `fzds` - Dockerコンテナ選択（名前のみ出力）
 - `fzgb` - Git ブランチ選択・チェックアウト
 - `fzgl` - Git ログ閲覧
 - `fzff` - ファイル検索・編集

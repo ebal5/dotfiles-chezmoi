@@ -83,6 +83,7 @@ alias claude="npx @anthropic-ai/claude-code"
 
 # fzf便利ユーティリティ
 alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"
+alias fzds="$HOME/.scripts/fzf_utils.sh docker-container-select"
 alias fzgb="$HOME/.scripts/fzf_utils.sh git-branch"
 alias fzgl="$HOME/.scripts/fzf_utils.sh git-log"
 alias fzff="$HOME/.scripts/fzf_utils.sh file-search"
