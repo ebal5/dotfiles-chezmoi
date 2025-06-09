@@ -19,15 +19,16 @@ show_usage() {
 Usage: $0 <command>
 
 Available commands:
-  docker-container (fzdc) - Select and inspect Docker containers
-  git-branch (fzgb)      - Select and checkout Git branches
-  git-log (fzgl)         - Browse Git commit history
-  file-search (fzff)     - Search and edit project files
-  process-kill (fzpk)    - Select and kill processes
-  ssh-host (fzsh)        - Select SSH hosts from config
-  git-diff (fzgd)        - View diff of changed files
-  docker-image (fzdi)    - Manage Docker images
-  recent-dir (fzcd)      - Navigate to recent directories
+  docker-container (fzdc)        - Select and inspect Docker containers
+  docker-container-select (fzds) - Select Docker container (output name only)
+  git-branch (fzgb)              - Select and checkout Git branches
+  git-log (fzgl)                 - Browse Git commit history
+  file-search (fzff)             - Search and edit project files
+  process-kill (fzpk)            - Select and kill processes
+  ssh-host (fzsh)                - Select SSH hosts from config
+  git-diff (fzgd)                - View diff of changed files
+  docker-image (fzdi)            - Manage Docker images
+  recent-dir (fzcd)              - Navigate to recent directories
 EOF
 }
 
@@ -67,6 +68,41 @@ docker_container() {
   if [[ -n "$container" ]]; then
     echo "Selected container: $container"
     docker exec -it "$container" bash 2>/dev/null || docker exec -it "$container" sh
+  fi
+}
+
+# Docker Container Selector (Simple Selection)
+docker_container_select() {
+  check_dependencies docker fzf
+
+  local container
+  container=$(docker ps -a --format "{{.Names}}" |
+    fzf --preview 'docker inspect --format="
+🐳 Container: {1}
+📦 Image: {{.Config.Image}}
+{{if eq .State.Status \"running\"}}🟢{{else}}🔴{{end}} Status: {{.State.Status}}
+🌐 IP: {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}
+🔌 Ports: {{range \$p, \$conf := .NetworkSettings.Ports}}{{\$p}} {{end}}
+📅 Created: {{.Created | printf \"%.19s\"}}
+⏰ Started: {{.State.StartedAt | printf \"%.19s\"}}
+🏷️ Project: {{index .Config.Labels \"com.docker.compose.project\"}} 
+⚙️ Service: {{index .Config.Labels \"com.docker.compose.service\"}} 
+🔄 Restart: {{.HostConfig.RestartPolicy.Name}}
+📊 Exit Code: {{.State.ExitCode}}
+
+【Environment Variables】
+{{range .Config.Env}}• {{.}}
+{{end}}
+
+【Mounts】
+{{range .Mounts}}• {{.Source}} → {{.Destination}} ({{.Type}})
+{{end}}
+" {}' \
+      --preview-window=right:60% \
+      --header="Select container (Enter: output name for use with docker commands)")
+
+  if [[ -n "$container" ]]; then
+    echo "$container"
   fi
 }
 
@@ -237,6 +273,9 @@ recent_dir() {
 case "${1:-}" in
   docker-container | fzdc)
     docker_container
+    ;;
+  docker-container-select | fzds)
+    docker_container_select
     ;;
   git-branch | fzgb)
     git_branch

@@ -26,6 +26,37 @@ fzdc
   - `Ctrl-S`: コンテナ開始
   - `Ctrl-K`: コンテナ停止
 
+### 1.1. Docker Container Simple Selector (`fzds`)
+
+Dockerコンテナを選択し、コンテナ名のみを出力します。
+
+```bash
+fzds
+```
+
+**機能:**
+
+- 全コンテナの一覧表示
+- リッチなプレビュー（ステータス、IP、ポート、環境変数など）
+- 選択したコンテナ名を標準出力に出力
+- 他のDockerコマンドと組み合わせて使用可能
+
+**使用例:**
+
+```bash
+# ログを表示
+docker logs $(fzds)
+
+# コンテナを停止
+docker stop $(fzds)
+
+# コンテナを再起動
+docker restart $(fzds)
+
+# コンテナの詳細情報を表示
+docker inspect $(fzds)
+```
+
 ### 2. Git Branch Selector (`fzgb`)
 
 Gitブランチを選択してチェックアウトします。
