@@ -235,7 +235,7 @@ recent_dir() {
 
 # メイン処理
 case "${1:-}" in
-  docker-container|fzdc)
+  docker-container | fzdc)
     docker_container
     ;;
   git-branch|fzgb)
