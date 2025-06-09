@@ -238,7 +238,7 @@ case "${1:-}" in
   docker-container | fzdc)
     docker_container
     ;;
-  git-branch|fzgb)
+  git-branch | fzgb)
     git_branch
     ;;
   git-log|fzgl)
