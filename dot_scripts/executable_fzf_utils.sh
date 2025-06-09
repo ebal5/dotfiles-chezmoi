@@ -220,7 +220,7 @@ recent_dir() {
   local recent_dirs="$HOME/.local/share/recent_dirs"
   if [[ ! -f "$recent_dirs" ]]; then
     mkdir -p "$(dirname "$recent_dirs")"
-    dirs -p > "$recent_dirs" 2>/dev/null || echo "$PWD" > "$recent_dirs"
+    dirs -p >"$recent_dirs" 2>/dev/null || echo "$PWD" >"$recent_dirs"
   fi
 
   local dir
