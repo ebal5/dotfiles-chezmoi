@@ -1,7 +1,7 @@
 ---
 # Pre-commit configuration for dotfiles repository
-# Install: pip install pre-commit && pre-commit install
-# Run manually: pre-commit run --all-files
+# Install: uvx pre-commit install
+# Run manually: uvx pre-commit run --all-files
 
 repos:
   # Shell script formatting and linting

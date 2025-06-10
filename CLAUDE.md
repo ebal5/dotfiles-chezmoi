@@ -31,14 +31,11 @@ Ubuntu環境向けのChezmoiで管理された個人用dotfilesリポジトリ�
 コミット時の自動フォーマット・リントを有効にするには:
 
 ```bash
-# pre-commitのインストール
-pip install pre-commit
-
 # フックの有効化（リポジトリ初期化時に実行）
-pre-commit install
+uvx pre-commit install
 
 # 手動実行（全ファイル対象）
-pre-commit run --all-files
+uvx pre-commit run --all-files
 ```
 
 設定済みのフック:
