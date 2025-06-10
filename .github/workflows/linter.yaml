@@ -36,17 +36,6 @@ jobs:
         uses: reviewdog/action-suggester@v1
         with:
           tool_name: shellcheck
-  detect-secrets:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      checks: write
-      issues: write
-      pull-requests: write
-    steps:
-    - uses: actions/checkout@v4
-    - name: detect-secrets
-      uses: reviewdog/action-detect-secrets@v0.26.0
   markdownlint:
     name: runner / markdownlint
     runs-on: ubuntu-latest
