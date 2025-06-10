@@ -26,6 +26,29 @@ Ubuntu環境向けのChezmoiで管理された個人用dotfilesリポジトリ�
 - `shellcheck $(shfmt -f .)` - シェルスクリプトの問題をチェック
 - `markdownlint-cli2 .` - Markdownファイルをリント
 
+### Pre-commitフック
+
+コミット時の自動フォーマット・リントを有効にするには:
+
+```bash
+# フックの有効化（リポジトリ初期化時に実行）
+uvx pre-commit install
+
+# 手動実行（全ファイル対象）
+uvx pre-commit run --all-files
+```
+
+設定済みのフック:
+
+- **shfmt**: シェルスクリプトの自動フォーマット（2スペースインデント）
+- **shellcheck**: シェルスクリプトの静的解析
+- **markdownlint**: Markdownファイルの自動修正
+- **detect-secrets**: 機密情報の検出
+- **trailing-whitespace**: 行末空白の除去
+- **end-of-file-fixer**: ファイル末尾改行の統一
+- **check-yaml**: YAML構文チェック
+- **check-merge-conflict**: マージコンフリクトマーカーの検出
+
 ### Git操作
 
 dot_gitconfigで定義された豊富なGitエイリアスを含む:

@@ -9,6 +9,8 @@
 # Development and maintenance files - 開発・メンテナンス用ファイル
 .gitignore
 .github/
+.pre-commit-config.yaml
+.secrets.baseline
 
 # Backup files - バックアップファイル
 bakups/
