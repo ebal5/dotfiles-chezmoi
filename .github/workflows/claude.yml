@@ -29,6 +29,11 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Install uv and uvx
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
       - name: Run Claude Code
         id: claude
         uses: anthropics/claude-code-action@beta
