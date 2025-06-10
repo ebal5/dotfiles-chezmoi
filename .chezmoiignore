@@ -12,6 +12,11 @@
 .pre-commit-config.yaml
 .secrets.baseline
 
+# Linter configuration files - リンター設定ファイル
+.markdownlint-cli2.yaml
+.markdownlint.yaml
+.shellcheckrc
+
 # Backup files - バックアップファイル
 bakups/
 *.bak

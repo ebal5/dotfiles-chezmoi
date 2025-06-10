@@ -28,7 +28,9 @@ check() {
 # クリーンアップの初期化
 extra_text_fn=""
 cleanup() {
-  [[ -n "$extra_text_fn" && -f "$extra_text_fn" ]] && rm -f "$extra_text_fn" 2>/dev/null || true
+  if [[ -n "$extra_text_fn" && -f "$extra_text_fn" ]]; then
+    rm -f "$extra_text_fn" 2>/dev/null
+  fi
 }
 trap cleanup EXIT
 

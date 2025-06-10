@@ -46,8 +46,8 @@ docker_container() {
 🔌 Ports: {{range \$p, \$conf := .NetworkSettings.Ports}}{{\$p}} {{end}}
 📅 Created: {{.Created | printf \"%.19s\"}}
 ⏰ Started: {{.State.StartedAt | printf \"%.19s\"}}
-🏷️ Project: {{index .Config.Labels \"com.docker.compose.project\"}} 
-⚙️ Service: {{index .Config.Labels \"com.docker.compose.service\"}} 
+🏷️ Project: {{index .Config.Labels \"com.docker.compose.project\"}}
+⚙️ Service: {{index .Config.Labels \"com.docker.compose.service\"}}
 🔄 Restart: {{.HostConfig.RestartPolicy.Name}}
 📊 Exit Code: {{.State.ExitCode}}
 
@@ -85,8 +85,8 @@ docker_container_select() {
 🔌 Ports: {{range \$p, \$conf := .NetworkSettings.Ports}}{{\$p}} {{end}}
 📅 Created: {{.Created | printf \"%.19s\"}}
 ⏰ Started: {{.State.StartedAt | printf \"%.19s\"}}
-🏷️ Project: {{index .Config.Labels \"com.docker.compose.project\"}} 
-⚙️ Service: {{index .Config.Labels \"com.docker.compose.service\"}} 
+🏷️ Project: {{index .Config.Labels \"com.docker.compose.project\"}}
+⚙️ Service: {{index .Config.Labels \"com.docker.compose.service\"}}
 🔄 Restart: {{.HostConfig.RestartPolicy.Name}}
 📊 Exit Code: {{.State.ExitCode}}
 
@@ -200,7 +200,7 @@ ssh_host() {
   fi
 
   local host
-  host=$(grep "^Host " "$ssh_config" | awk '{print $2}' | grep -v '*' |
+  host=$(grep "^Host " "$ssh_config" | awk '{print $2}' | grep -v '\*' |
     fzf --preview 'grep -A 10 "^Host {}" ~/.ssh/config' \
       --preview-window=right:50% \
       --header="Select SSH host")
@@ -260,9 +260,8 @@ recent_dir() {
   fi
 
   local dir
-  dir=$(cat "$recent_dirs" |
-    fzf --preview 'ls -la {}' --preview-window=right:50% \
-      --header="Select directory")
+  dir=$(fzf --preview 'ls -la {}' --preview-window=right:50% \
+    --header="Select directory" <"$recent_dirs")
 
   if [[ -n "$dir" && -d "$dir" ]]; then
     echo "cd \"$dir\""
@@ -292,13 +291,13 @@ case "${1:-}" in
   ssh-host | fzsh)
     ssh_host
     ;;
-  git-diff|fzgd)
+  git-diff | fzgd)
     git_diff
     ;;
-  docker-image|fzdi)
+  docker-image | fzdi)
     docker_image
     ;;
-  recent-dir|fzcd)
+  recent-dir | fzcd)
     recent_dir
     ;;
   *)
