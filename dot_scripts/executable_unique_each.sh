@@ -22,7 +22,9 @@ output_files=()
 cleanup() {
   local files=("$tempA" "$tempB" "$tempA_sorted" "$tempB_sorted" "${output_files[@]}")
   for file in "${files[@]}"; do
-    [[ -n "$file" && -f "$file" ]] && rm -f "$file" 2>/dev/null || true
+    if [[ -n "$file" && -f "$file" ]]; then
+      rm -f "$file" 2>/dev/null
+    fi
   done
 }
 trap cleanup EXIT
