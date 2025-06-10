@@ -1,0 +1,19 @@
+# ShellCheck configuration file
+# This config works for both standalone usage and reviewdog integration
+
+# Use bash dialect by default
+shell=bash
+
+# Enable all optional checks
+enable=all
+
+# Disable warnings for sourcing files that may not exist
+# This is common in dotfiles that source optional configuration
+disable=SC1091
+
+# Disable warnings about unused variables in some contexts
+# Useful for template variables and environment setup scripts
+# disable=SC2034
+
+# Format for error reporting (useful for reviewdog integration)
+format=tty
