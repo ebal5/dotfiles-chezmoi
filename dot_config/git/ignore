@@ -1,0 +1,282 @@
+# User-level Git ignore file
+# This file will be located at ~/.config/git/ignore after chezmoi apply
+
+# =================================
+# Claude Code Local Settings
+# =================================
+**/.claude/settings.local.json
+.claude/scripts.local/
+settings.local.json
+
+# =================================
+# Mise/RTX Tool Version Manager
+# =================================
+mise.toml
+.mise.toml
+.rtxrc
+.tool-versions
+
+# =================================
+# OS Generated Files
+# =================================
+
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.tmp
+*.temp
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+
+# Linux
+.directory
+.fuse_hidden*
+.Trash-*
+.nfs*
+
+# =================================
+# Development Tools Local Settings
+# =================================
+
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.vscode/tasks.json
+.history/
+
+# JetBrains IDEs
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+.idea/aws.xml
+.idea/contentModel.xml
+.idea/dataSources.ids
+.idea/dataSources.local.xml
+.idea/sqlDataSources.xml
+.idea/dynamic.xml
+.idea/uiDesigner.xml
+.idea/gradle.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+.idea/modules.xml
+.idea/inspectionProfiles/
+.idea/artifacts/
+
+# Vim/Neovim
+.netrwhist
+*~
+.*.sw[a-p]
+.s[a-v][a-z]
+Session.vim
+Sessionx.vim
+.viminfo
+.nvimlog
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+*_archive
+ltximg/**
+*.rel
+
+# =================================
+# Security Sensitive Files
+# =================================
+
+# SSH Keys
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.envrc
+
+# API Keys & Tokens
+.secrets
+.token
+.credentials
+*api_key*
+*secret*
+*password*
+auth.json
+.netrc
+
+# =================================
+# Build and Cache Directories
+# =================================
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv
+.env
+.venv/
+ENV/
+env/
+venv/
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.bundle/
+vendor/bundle
+.rspec
+.rvmrc
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Rust
+target/
+Cargo.lock
+
+# Java
+*.class
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# C/C++
+*.o
+*.so
+*.a
+*.exe
+*.out
+
+# =================================
+# Temporary Files and Logs
+# =================================
+
+# General temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+*.bak
+*.orig
+
+# Log files
+*.log
+logs/
+*.out
+
+# Cache files
+.cache/
+*.cache
+.parcel-cache/
+.next/
+.nuxt/
+.vuepress/dist
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# =================================
+# Documentation and Media
+# =================================
+
+# Compiled documentation
+docs/_build/
+site/
+
+# Large media files (uncomment if needed)
+# *.mp4
+# *.avi
+# *.mov
+# *.wmv
+# *.flv
+# *.webm
+# *.mp3
+# *.wav
+# *.flac
+# *.aac
+# *.ogg
+# *.wma
