@@ -7,6 +7,8 @@
 **/.claude/settings.local.json
 .claude/scripts.local/
 settings.local.json
+.claude/cache/
+.claude/*.log
 
 # =================================
 # Mise/RTX Tool Version Manager
@@ -26,7 +28,6 @@ mise.toml
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
 Icon?
 
 # Windows
@@ -93,7 +94,6 @@ Sessionx.vim
 .nvimlog
 
 # Emacs
-*~
 \#*\#
 /.emacs.desktop
 /.emacs.desktop.lock
@@ -172,7 +172,6 @@ wheels/
 .installed.cfg
 *.egg
 .venv
-.env
 .venv/
 ENV/
 env/
@@ -199,10 +198,8 @@ vendor/bundle
 *.exe
 *.exe~
 *.dll
-*.so
 *.dylib
 *.test
-*.out
 go.work
 
 # Rust
@@ -223,28 +220,23 @@ hs_err_pid*
 
 # C/C++
 *.o
-*.so
 *.a
 *.exe
-*.out
 
 # =================================
 # Temporary Files and Logs
 # =================================
 
 # General temporary files
-*.tmp
 *.temp
 *.swp
 *.swo
-*~
 *.bak
 *.orig
 
 # Log files
 *.log
 logs/
-*.out
 
 # Cache files
 .cache/
@@ -280,3 +272,106 @@ site/
 # *.aac
 # *.ogg
 # *.wma
+
+# =================================
+# Shell & Development Tools
+# =================================
+
+# Starship cache
+.starship/cache/
+
+# Shell history files that might leak into projects
+.bash_history
+.zsh_history
+.fish_history
+
+# fzf cache/history
+.fzf_history
+
+# =================================
+# Container & Development Environment
+# =================================
+
+# Docker Compose overrides
+docker-compose.override.yml
+.dockerignore.local
+
+# Vagrant
+.vagrant/
+Vagrantfile.local
+
+# Development containers
+.devcontainer/local/
+
+# =================================
+# Additional Package Managers
+# =================================
+
+# pip
+.pip_download_cache/
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Composer (PHP)
+composer.phar
+vendor/
+
+# Bundler (alternative Ruby path)
+.bundle/
+
+# =================================
+# Additional IDE & Editors
+# =================================
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Atom
+.atom/
+
+# Brackets
+.brackets.json
+
+# =================================
+# Profiling & Debugging
+# =================================
+
+# Core dumps
+core
+core.*
+
+# Profiling output
+*.prof
+callgrind.*
+
+# =================================
+# Cloud & Deployment
+# =================================
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# AWS
+.aws/config.local
+.aws/credentials.local
+
+# =================================
+# Shared Libraries (consolidated)
+# =================================
+
+# Shared object files
+*.so
+*.dll
+*.dylib
+
+# =================================
+# Output Files (consolidated)
+# =================================
+
+# Compiled output
+*.out
+*.exe

@@ -56,6 +56,20 @@ git config commit.gpgsign true
 git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 ```
 
+### ユーザーレベルGitignore設定
+
+このdotfilesは `~/.config/git/ignore` にユーザーレベルのgitignoreファイルを設定します。
+このファイルは全てのGitリポジトリで自動的に適用され、以下のような開発環境固有のファイルを無視します：
+
+- **Claude Code**: ローカル設定ファイル、キャッシュ、ログ
+- **開発ツール**: Mise/RTX設定、IDE固有ファイル、エディタ一時ファイル
+- **OS固有ファイル**: macOS、Windows、Linux生成ファイル
+- **セキュリティ**: 環境変数ファイル、SSHキー、APIトークン
+- **ビルド・キャッシュ**: 各言語のビルド成果物、パッケージマネージャーキャッシュ
+- **コンテナ**: Docker Compose overrides、Vagrantファイル
+
+プロジェクト固有のファイルを無視する場合は、各プロジェクトの `.gitignore` ファイルを使用してください。
+
 ## 設定内容
 
 - パッケージ管理ツールを利用したセットアップ
