@@ -1,0 +1,324 @@
+# User-level Git ignore file
+# Applied globally across all Git repositories
+
+# ========================================
+# Claude Code Settings (requested)
+# ========================================
+**/.claude/settings.local.json
+
+# ========================================
+# Mise/RTX Tool Version Manager (requested)
+# ========================================
+mise.toml
+.mise.toml
+.rtx.toml
+rtx.toml
+
+# ========================================
+# OS-generated Files (requested)
+# ========================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Icon?
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+.directory
+.fuse_hidden*
+.Trash-*
+.nfs*
+
+# ========================================
+# Development Tools Local Settings (requested)
+# ========================================
+# VS Code
+.vscode/settings.json
+.vscode/launch.json
+.vscode/extensions.json
+.vscode/tasks.json
+
+# JetBrains IDEs
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/jsLibraryMappings.xml
+
+# Vim/Neovim
+.nvimrc.local
+.vimrc.local
+Session.vim
+Sessionx.vim
+.netrwhist
+*~
+.vim/
+tags
+.tags
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+.org-id-locations
+*_archive
+*_flymake.*
+/eshell/history
+/eshell/lastdir
+/elpa/
+*.rel
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Atom
+.atom/
+
+# ========================================
+# Security-sensitive Files (requested)
+# ========================================
+# SSH keys and certificates
+*.pem
+*.key
+*.crt
+*.cer
+*.p12
+*.pfx
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+known_hosts
+authorized_keys
+
+# Environment files with secrets
+.env.local
+.env.*.local
+.env.secret
+.env.production
+.env.staging
+*.env
+
+# API keys and tokens
+.token
+.secrets
+secret.txt
+secrets.txt
+*.secret
+.apikey
+.api_key
+
+# Database dumps
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Docker secrets
+docker-compose.override.yml
+.dockerignore.local
+
+# AWS/Cloud credentials
+.aws/credentials
+.aws/config
+.gcloud/
+.azure/
+
+# GPG keys
+*.gpg
+*.asc
+secring.*
+
+# ========================================
+# Common Build and Cache Directories
+# ========================================
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+.npm
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.pytest_cache/
+.coverage
+.nyc_output
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.bundle/
+vendor/bundle
+lib/bundler/man/
+.rvmrc
+
+# Java
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Rust
+target/
+Cargo.lock
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# ========================================
+# Temporary and Log Files
+# ========================================
+*.tmp
+*.temp
+*.log
+*.bak
+*.swp
+*.swo
+*~
+.#*
+\#*\#
+
+# ========================================
+# Package Manager Lock Files (optional)
+# ========================================
+# Uncomment these if you want to ignore lock files globally
+# package-lock.json
+# yarn.lock
+# Pipfile.lock
+# poetry.lock
+# Gemfile.lock
+
+# ========================================
+# Local Development Configurations
+# ========================================
+.local/
+.vagrant/
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.*
+.vagrant
+
+# Docker
+.dockerignore.local
+docker-compose.local.yml
+docker-compose.dev.yml
+
+# ========================================
+# Editor and IDE Temporary Files
+# ========================================
+# Temporary files created by editors
+*.orig
+*.rej
+.*.sw[nop]
+.sw[nop]
+*.tmp
+*~
+
+# Kate
+.kate-swp
+.swp
+
+# KDevelop
+*.kdev4
+.kdev4/
+
+# Qt Creator
+CMakeLists.txt.user*
+
+# ========================================
+# Version Control
+# ========================================
+.svn/
+.hg/
+.bzr/
+CVS/
