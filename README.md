@@ -77,8 +77,12 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 - SSH キーの共有（Bitwarden 利用）
   - <https://github.com/joaojacome/bitwarden-ssh-agent> の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
+- [Nix](https://nixos.org/) による開発ツール管理
+  - CLI ツール（Starship、git-delta、lsd、mcfly など）を`flake.nix`で統合管理
+  - システム環境の再現性を向上
 - [Starship](https://starship.rs/ja-jp/)
-- [mise (alt asdf)](https://github.com/jdx/mise)
+- [mise (alt asdf)](https://github.com/jdx/mise)（プロジェクト単位のバージョン管理用）
+- [uv](https://docs.astral.sh/uv/)（Python パッケージ管理）
 - Git config
   - diff として delta を利用
   - 便利エイリアスを登録（よく使うコマンドの短縮など）
