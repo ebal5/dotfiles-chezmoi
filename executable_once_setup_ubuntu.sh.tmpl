@@ -4,20 +4,15 @@ sudo apt update
 sudo apt install -y \
   aria2 \
   autoconf \
-  bat \
   build-essential \
   cmake \
   curl \
   dirmngr \
-  fd-find \
-  fzf \
   gawk \
   gettext \
   gpg \
-  hexyl \
   htop \
   httpie \
-  jq \
   libbz2-dev \
   libcurl4-openssl-dev \
   libdb-dev \
@@ -33,7 +28,6 @@ sudo apt install -y \
   miller \
   nmap \
   protobuf-compiler \
-  ripgrep \
   socat \
   tk-dev \
   unzip \
@@ -48,16 +42,23 @@ sudo apt install -y \
   fonts-ipafont-gothic \
   fonts-ipafont-mincho
 {{ end }}
-[ ! -e "$HOME/.cargo/env" ] && curl https://sh.rustup.rs -sSf | sh
-cargo="$HOME/.cargo/bin/cargo"
-$cargo install cargo-update
-$cargo install git-delta
-$cargo install hyperfine
-$cargo install jnv
-$cargo install lsd
-$cargo install mcfly
-$cargo install sd
-$cargo install starship --locked
+
+# Install Nix
+if ! command -v nix >/dev/null 2>&1; then
+  curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
+
+# Enable Nix flakes support
+mkdir -p "$HOME/.config/nix"
+if ! grep -q "experimental-features = nix-command flakes" "$HOME/.config/nix/nix.conf" 2>/dev/null; then
+  echo "experimental-features = nix-command flakes" >> "$HOME/.config/nix/nix.conf"
+fi
+
+# Install tools via Nix flake (if flake.nix exists in dotfiles)
+if [ -f "$HOME/.local/share/chezmoi/flake.nix" ]; then
+  nix flake update "$HOME/.local/share/chezmoi" --no-write-lock-file 2>/dev/null || true
+fi
 
 if [ ! -x "$HOME/.local/bin/mise" ]; then
   gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
@@ -71,10 +72,6 @@ $mise use -yg chezmoi
 $mise use -yg git
 $mise use -yg node
 $mise use -yg python
-$mise use -yg zoxide
-
-# rye
-curl -sSf https://rye.astral.sh/get | bash
 
 # Bitwarden SSH Agent
 git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent

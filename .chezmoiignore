@@ -32,3 +32,6 @@ bakups/
 .idea/
 *.swp
 *.swo
+
+# Nix files - Nixファイル
+flake.lock
