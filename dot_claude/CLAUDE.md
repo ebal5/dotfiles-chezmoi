@@ -12,6 +12,10 @@ Use specialized tools instead of shell commands:
 - **Search files**: Use Glob/Grep tools (not `find`, `grep`)
 - **Explore codebase**: Use Task tool with Explore agent for open-ended searches
 
+## Python
+
+- **New projects**: Use `uv` for environment management and `ruff` for linting/formatting (unless otherwise specified in project CLAUDE.md)
+
 ## Docker
 
 - Use `docker compose` instead of the deprecated `docker-compose` command
