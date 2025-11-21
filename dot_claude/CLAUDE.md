@@ -33,7 +33,11 @@ Use specialized tools instead of shell commands:
 
 ## Quality Assurance
 
-- Run tests, linting, and formatting before pushing code
+- **Pre-push checks**: Run linting/formatting before pushing:
+  - Shell scripts: `shfmt -i 2 -ci -w .` and `shellcheck $(shfmt -f .)`
+  - Markdown: `markdownlint-cli2 .`
+  - Python: `ruff check --fix` and `ruff format`
+- Run tests if available before pushing code
 
 ## Communication
 
