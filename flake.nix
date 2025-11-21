@@ -12,6 +12,10 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
+        packages.default = pkgs.writeShellScriptBin "dotfiles" ''
+          echo "Dotfiles management environment (Chezmoi-based)"
+        '';
+
         devShells.default = pkgs.mkShell {
           buildInputs = with pkgs; [
             # Rust-based CLI tools
