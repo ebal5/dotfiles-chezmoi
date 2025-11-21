@@ -58,39 +58,30 @@ git checkout claude/add-nix-setup-script-011CV5zfmr9cCtxc5ecFTHxz
 chezmoi apply
 ```
 
-#### 5. Nix 環境からツールを読み込む
-
-方法A: `nix develop` を使用（開発シェルアプローチ）
+#### 5. Nix プロファイルにツールをインストール
 
 ```bash
 cd ~/.local/share/chezmoi
-nix develop  # Nix 環境を読み込んだシェルを開始
+nix profile install .
 ```
 
-方法B: `nix profile` を使用（システムワイドなアプローチ）
+これにより、flake.nix に定義されたすべてのツールがユーザープロファイルにインストールされます。
+
+#### 6. Zsh/Bash 設定の確認と更新
+
+Nix プロファイルを読み込むための設定を追加します。
+dotfiles の `dot_zshrc` (または `dot_bashrc`) に以下が **含まれていることを確認**：
 
 ```bash
-nix profile install github:nixos/nixpkgs/nixos-unstable#starship \
-  github:nixos/nixpkgs/nixos-unstable#git-delta \
-  github:nixos/nixpkgs/nixos-unstable#lsd \
-  github:nixos/nixpkgs/nixos-unstable#mcfly \
-  github:nixos/nixpkgs/nixos-unstable#sd \
-  github:nixos/nixpkgs/nixos-unstable#jnv \
-  github:nixos/nixpkgs/nixos-unstable#hyperfine \
-  github:nixos/nixpkgs/nixos-unstable#uv \
-  github:nixos/nixpkgs/nixos-unstable#zoxide
+# Nix profile setup
+if [ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
 ```
 
-または
+この設定により、`~/.nix-profile/bin` が PATH に追加され、Nix でインストールしたツールが利用可能になります。
 
-```bash
-cd ~/.local/share/chezmoi
-nix profile install ./flake.nix#devShells.default.buildInputs
-```
-
-#### 6. Bash/Zsh 設定の確認と更新
-
-`~/.bashrc` or `~/.zshrc` から以下を確認・削除：
+また、以下を確認・削除：
 
 ```bash
 # 削除対象（Nix で管理されるようになったため不要）
@@ -102,10 +93,10 @@ fi
 $mise use -yg zoxide
 ```
 
-`zoxide` は Nix で管理されるため、既に dotfiles の`.bashrc` に以下が含まれている場合は、そのまま動作します：
+`zoxide` は Nix で管理されるため、既に dotfiles に以下が含まれている場合は、そのまま動作します：
 
 ```bash
-which zoxide >/dev/null && eval "$(zoxide init bash)"
+command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 ```
 
 #### 7. 環境の確認

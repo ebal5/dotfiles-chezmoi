@@ -1,5 +1,5 @@
 {
-  description = "Development environment for dotfiles";
+  description = "User-wide CLI tools managed by Nix";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -12,12 +12,10 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in
       {
-        packages.default = pkgs.writeShellScriptBin "dotfiles" ''
-          echo "Dotfiles management environment (Chezmoi-based)"
-        '';
-
-        devShells.default = pkgs.mkShell {
-          buildInputs = with pkgs; [
+        # Main package output for user-wide installation
+        packages.default = pkgs.buildEnv {
+          name = "user-cli-tools";
+          paths = with pkgs; [
             # Rust-based CLI tools
             starship          # Shell prompt
             git-delta         # Improved git diff viewer
