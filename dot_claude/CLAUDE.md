@@ -14,7 +14,8 @@ Use specialized tools instead of shell commands:
 
 ## Python
 
-- **New projects**: Use `uv` for environment management and `ruff` for linting/formatting (unless otherwise specified in project CLAUDE.md)
+- **New projects**: Use `uv` for environment management and `ruff` for
+  linting/formatting (unless otherwise specified in project CLAUDE.md)
 
 ## Docker
 
@@ -22,7 +23,8 @@ Use specialized tools instead of shell commands:
 
 ## Git
 
-- **Gitignore**: Add credentials, secrets, sensitive data (`.env*`, `*.key`, `credentials.*`, etc.) to `.gitignore`
+- **Gitignore**: Add credentials, secrets, sensitive data
+  (`.env*`, `*.key`, `credentials.*`, etc.) to `.gitignore`
 
 ## Performance
 
@@ -39,6 +41,9 @@ Use specialized tools instead of shell commands:
 
 ## Workflow
 
-- **Incremental approach**: Break large changes into multiple smaller steps with verification after each step
-- **Confirmation**: Always confirm with the user before executing destructive operations (delete, overwrite, force push, etc.)
-- **Error handling**: Investigate and understand errors thoroughly rather than making assumptions or guessing solutions
+- **Incremental approach**: Break large changes into multiple smaller steps
+  with verification after each step
+- **Confirmation**: Always confirm with the user before executing destructive
+  operations (delete, overwrite, force push, etc.)
+- **Error handling**: Investigate and understand errors thoroughly rather than
+  making assumptions or guessing solutions
