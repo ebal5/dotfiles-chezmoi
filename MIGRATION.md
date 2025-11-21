@@ -188,4 +188,3 @@ if [ -x "$HOME/.local/share/rtx/bin/rtx" ]; then
   done
 fi
 ```
-
