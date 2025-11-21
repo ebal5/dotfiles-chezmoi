@@ -34,4 +34,5 @@ bakups/
 *.swo
 
 # Nix files - Nixファイル
+flake.nix
 flake.lock
