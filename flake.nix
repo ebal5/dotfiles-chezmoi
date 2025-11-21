@@ -18,7 +18,7 @@
           paths = with pkgs; [
             # Rust-based CLI tools
             starship          # Shell prompt
-            git-delta         # Improved git diff viewer
+            delta             # Improved git diff viewer
             lsd               # Modern ls replacement
             mcfly             # Terminal history search
             sd                # sed replacement
