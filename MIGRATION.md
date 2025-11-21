@@ -11,7 +11,8 @@ Cargo 経由での個別インストールから Nix による統合管理へ移
 - Nix がまだインストールされていない場合は以下でインストール：
 
 ```bash
-curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+curl --proto '=https' --tlsv1.2 -sSf -L \
+  https://install.determinate.systems/nix | sh -s -- install
 source ~/.nix-profile/etc/profile.d/nix.sh
 ```
 
@@ -135,7 +136,7 @@ chezmoi apply
 
 ### トラブルシューティング
 
-**ツールが見つからない**
+#### ツールが見つからない
 
 ```bash
 # Nix 環境が正しく設定されているか確認
@@ -146,7 +147,7 @@ source ~/.nix-profile/etc/profile.d/nix.sh
 nix develop ~/.local/share/chezmoi
 ```
 
-**PATH の問題**
+#### PATH の問題
 
 Nix でインストールしたツールが PATH に含まれていない場合：
 
