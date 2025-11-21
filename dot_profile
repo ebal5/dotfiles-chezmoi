@@ -4,4 +4,10 @@
 [ -d "$HOME/.scripts" ] && export PATH="$HOME/.scripts:$PATH"
 [ -d "/snap/bin" ] && export PATH="/snap/bin:$PATH"
 [ -d "$HOME/.rye" ] && . "$HOME/.rye/env"
+
+# WSL環境の場合、wslviewをブラウザとして設定
+if [ -n "${WSL_DISTRO_NAME:-}" ] || grep -qiE "(microsoft|wsl)" /proc/version 2>/dev/null; then
+  export BROWSER="wslview"
+fi
+
 true
