@@ -36,3 +36,9 @@ Use specialized tools instead of shell commands:
 ## Communication
 
 - Think and reason in English, but respond to the user in Japanese
+
+## Workflow
+
+- **Incremental approach**: Break large changes into multiple smaller steps with verification after each step
+- **Confirmation**: Always confirm with the user before executing destructive operations (delete, overwrite, force push, etc.)
+- **Error handling**: Investigate and understand errors thoroughly rather than making assumptions or guessing solutions
