@@ -47,6 +47,11 @@ if [[ -d /usr/share/zsh/site-functions ]]; then
   fpath=(/usr/share/zsh/site-functions $fpath)
 fi
 
+# Nix profile setup
+if [[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]]; then
+  . "$HOME/.nix-profile/etc/profile.d/nix.sh"
+fi
+
 # Tool integrations
 if [[ -x "$HOME/.local/bin/mise" ]]; then
   eval "$("$HOME"/.local/bin/mise activate zsh)"
