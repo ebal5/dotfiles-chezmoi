@@ -28,3 +28,11 @@ Use specialized tools instead of shell commands:
 
 - Be aware of token usage; use offset/limit when reading large files
 - Only read necessary parts of files
+
+## Quality Assurance
+
+- Run tests, linting, and formatting before pushing code
+
+## Communication
+
+- Think and reason in English, but respond to the user in Japanese
