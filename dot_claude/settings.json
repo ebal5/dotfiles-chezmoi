@@ -15,5 +15,18 @@
   },
   "permissions": {
     "allow": ["Skill"]
+  },
+  "extraKnownMarketplaces": {
+    "anthropic-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/skills"
+      }
+    }
+  },
+  "plugins": {
+    "enabledPlugins": {
+      "skill-generator@anthropic-agent-skills": true
+    }
   }
 }
