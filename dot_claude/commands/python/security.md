@@ -1,6 +1,6 @@
 ---
 description: banditでPythonコードのセキュリティスキャンを実行します
-allowed-tools: Bash
+allowed-tools: Bash(bandit:*), Bash(uv run bandit:*), Bash(uvx bandit:*)
 argument-hint: [スキャン対象ディレクトリ（デフォルト: src/）]
 ---
 

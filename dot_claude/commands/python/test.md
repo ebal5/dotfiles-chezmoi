@@ -1,6 +1,6 @@
 ---
 description: pytestでPythonテストを実行します（uv環境）
-allowed-tools: Bash
+allowed-tools: Bash(pytest:*), Bash(uv run pytest:*), Bash(uvx pytest:*)
 argument-hint: [テストパス（オプション）]
 ---
 

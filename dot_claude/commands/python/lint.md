@@ -1,6 +1,6 @@
 ---
 description: ruffでPythonコードのlint/formatを実行します（uv環境）
-allowed-tools: Bash
+allowed-tools: Bash(ruff:*), Bash(uv run ruff:*), Bash(uvx ruff:*)
 ---
 
 Pythonコードのlint/formatを実行してください。

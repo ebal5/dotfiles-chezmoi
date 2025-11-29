@@ -1,6 +1,6 @@
 ---
 description: docker composeでサービスを起動します
-allowed-tools: Bash
+allowed-tools: Bash(docker compose:*)
 argument-hint: [サービス名（オプション）]
 ---
 
