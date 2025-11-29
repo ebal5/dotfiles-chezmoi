@@ -178,6 +178,60 @@ GitHub Actionsが自動実行:
 - `git` (Git関連コマンド用)
 - `ripgrep`, `fd`, `bat` (推奨・性能向上)
 
+## Claude Code カスタムコマンド
+
+このリポジトリでは、Claude Code のグローバルカスタムコマンドを `dot_claude/commands/` で管理しています。
+
+### ディレクトリ構造
+
+```text
+dot_claude/
+├── commands/           # カスタムスラッシュコマンド
+│   ├── docker/
+│   │   └── compose-up.md
+│   ├── git/
+│   │   └── sync-from-origin.md
+│   └── python/
+│       ├── lint.md
+│       ├── test.md
+│       └── security.md
+├── executable_stop-hook-git-check.sh  # Stopフック
+├── settings.json       # グローバル設定
+└── CLAUDE.md           # ユーザーグローバル指示
+```
+
+`chezmoi apply` により `~/.claude/` に展開されます。
+
+### コマンドファイルの形式
+
+```markdown
+---
+description: コマンドの説明（/help で表示される）
+allowed-tools: Bash(command:*), Bash(other:*)
+argument-hint: [引数の説明（オプション）]
+---
+
+Claudeへの指示文をここに記述。
+```
+
+### allowed-tools の書き方
+
+- 最小権限の原則に従い、必要なコマンドのみ許可
+- `Bash` のみだと全コマンド実行可能になるため非推奨
+- 例: `Bash(docker compose:*)`, `Bash(uv run ruff:*)`
+
+### 新しいコマンドの追加
+
+1. `dot_claude/commands/<category>/<name>.md` を作成
+2. フロントマターに `description` と `allowed-tools` を記述
+3. `chezmoi apply` で `~/.claude/commands/` に展開
+4. `/category:name` で使用可能
+
+### 注意事項
+
+- `.chezmoiignore` でトップレベルの `*.md` は除外されているが、`dot_claude/` 内のファイルは適用対象
+- コマンドファイルはフロントマターから始まるため、markdownlint の MD041 ルールと互換性がない
+
 ## ドキュメント作成ガイドライン
 
 ### Markdownスタイル
