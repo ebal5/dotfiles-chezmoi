@@ -194,6 +194,8 @@ dot_claude/
 │   ├── mcp/
 │   │   ├── aws.md
 │   │   └── terraform.md
+│   ├── project/
+│   │   └── init.md     # プロジェクト初期設定
 │   └── python/
 │       ├── lint.md
 │       ├── test.md
@@ -230,6 +232,13 @@ Claudeへの指示文をここに記述。
 2. フロントマターに `description` と `allowed-tools` を記述
 3. `chezmoi apply` で `~/.claude/commands/` に展開
 4. `/category:name` で使用可能
+
+### プロジェクト初期化コマンド
+
+- `/project:init` - Claude Code用のプロジェクト初期設定
+  - `.gitignore`にClaude Code関連エントリを追加
+  - `.claude/`ディレクトリを作成
+  - `CLAUDE.md`の作成を提案
 
 ### MCPセットアップコマンド
 
