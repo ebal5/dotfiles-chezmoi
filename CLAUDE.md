@@ -191,10 +191,14 @@ dot_claude/
 │   │   └── compose-up.md
 │   ├── git/
 │   │   └── sync-from-origin.md
+│   ├── mcp/
+│   │   ├── aws.md
+│   │   └── terraform.md
 │   └── python/
 │       ├── lint.md
 │       ├── test.md
 │       └── security.md
+├── dot_mcp.json        # グローバルMCPサーバー設定
 ├── executable_stop-hook-git-check.sh  # Stopフック
 ├── settings.json       # グローバル設定
 └── CLAUDE.md           # ユーザーグローバル指示
@@ -226,6 +230,19 @@ Claudeへの指示文をここに記述。
 2. フロントマターに `description` と `allowed-tools` を記述
 3. `chezmoi apply` で `~/.claude/commands/` に展開
 4. `/category:name` で使用可能
+
+### MCPセットアップコマンド
+
+プロジェクトにMCPサーバーを追加するコマンド:
+
+- `/mcp:aws` - AWS MCPサーバーを追加
+  - 認証不要: `aws-knowledge`（ドキュメント）→ `.mcp.json`
+  - 認証必要: `aws-api`（CLI操作）→ `.claude/.mcp.json`（ユーザー確認後）
+- `/mcp:terraform` - Terraform MCPサーバーを追加
+  - 認証不要: `terraform`（Registry検索）→ `.mcp.json`
+  - 認証必要: `terraform-cloud`（HCP操作）→ `.claude/.mcp.json`（ユーザー確認後）
+
+認証が必要なサーバーは `.claude/.mcp.json` に追加され、`.gitignore` にも追記されます。
 
 ### 注意事項
 
