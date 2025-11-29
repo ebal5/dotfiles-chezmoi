@@ -1,0 +1,11 @@
+# markdownlint-cli2 configuration
+# https://github.com/DavidAnson/markdownlint-cli2
+
+# Claude Code slash commands use frontmatter and don't require first-line headings
+ignores:
+  - "dot_claude/commands/**"
+
+# Default rules
+config:
+  # Allow longer lines in code blocks
+  MD013: false
