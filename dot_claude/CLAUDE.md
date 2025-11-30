@@ -11,6 +11,9 @@ Use specialized tools instead of shell commands:
 - **Create files**: Use Write tool (not `echo`, `cat` heredoc)
 - **Search files**: Use Glob/Grep tools (not `find`, `grep`)
 - **Explore codebase**: Use Task tool with Explore agent for open-ended searches
+- **Claude Code docs**: Use Task tool with `claude-code-guide` subagent for
+  Claude Code features, settings, hooks, slash commands, MCP servers, etc.
+  Prefer this over web search for Claude Code documentation.
 
 ## Python
 

@@ -165,6 +165,100 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `wips`  | `stash push`                                                                                                   | 更新内容を一時領域に保存                    |
 | `wipp`  | `stash pop`                                                                                                    | 一時領域から更新を取得                       |
 
+## Claude Code 設定
+
+このdotfilesには[Claude Code](https://claude.ai/code)のグローバル設定が含まれています。
+`chezmoi apply`により`~/.claude/`に展開されます。
+
+### 含まれる設定
+
+| ファイル | 内容 |
+|---------|------|
+| `settings.json` | グローバル設定（権限、フック、モデル、プラグイン） |
+| `.mcp.json` | グローバルMCPサーバー設定 |
+| `CLAUDE.md` | 全プロジェクト共通の指示 |
+| `commands/` | カスタムスラッシュコマンド |
+| `stop-hook-git-check.sh` | 停止時のGit状態チェックフック |
+
+### カスタムスラッシュコマンド
+
+| コマンド | 説明 |
+|---------|------|
+| `/project:init` | プロジェクトのClaude Code初期設定 |
+| `/mcp:aws` | AWS MCPサーバーをプロジェクトに追加 |
+| `/mcp:terraform` | Terraform MCPサーバーをプロジェクトに追加 |
+| `/docker:compose-up` | Docker Composeでサービス起動 |
+| `/git:sync-from-origin` | 現在のブランチをoriginに強制同期 |
+| `/python:lint` | ruffでPythonコードをlint/format |
+| `/python:test` | pytestでテスト実行 |
+| `/python:security` | banditでセキュリティスキャン |
+
+### グローバルMCPサーバー
+
+認証不要で全プロジェクトで利用可能なMCPサーバー:
+
+| サーバー | 用途 |
+|---------|------|
+| context7 | ライブラリドキュメント検索 |
+| sequential-thinking | 複雑な問題の段階的思考支援 |
+| serena | IDEアシスタント機能 |
+
+### スキルジェネレーター
+
+[Anthropic公式のスキルジェネレータープラグイン](https://github.com/anthropics/skills)が有効化されています。
+
+#### 使い方
+
+1. Claude Codeで「〇〇のスキルを作成して」と依頼
+2. スキルジェネレーターが自動的にスキルファイルを生成
+3. 生成されたスキルは`.claude/skills/`に保存される
+
+#### スキルとは
+
+スキルはClaude Codeが特定のタスクを実行するための再利用可能な指示セットです。
+スラッシュコマンドとは異なり、Claudeが文脈に応じて自動的に使用します。
+
+```text
+.claude/skills/
+└── my-skill/
+    └── SKILL.md    # スキル定義ファイル
+```
+
+#### スキルファイルの形式
+
+```markdown
+---
+name: skill-name
+description: スキルの説明（Claudeが使用判断に利用）
+allowed-tools: Edit, Bash(npm:*)
+---
+
+# スキルの指示
+
+ここにClaude向けの詳細な指示を記述。
+```
+
+### 権限設定
+
+デフォルトで許可されている操作（確認なし）:
+
+- Git操作: fetch, checkout, add, commit, branch, reset
+- GitHub CLI: PR/Issue閲覧、ステータス確認
+- Web検索、ドキュメント取得
+
+確認が必要な操作（askリスト）:
+
+- `git push`, `git merge`
+- `gh issue create`, `gh pr create`, `gh label create`
+
+### 設定のカスタマイズ
+
+プロジェクト固有の設定は以下のファイルで上書き可能:
+
+- `.claude/settings.json` - プロジェクト共有設定
+- `.claude/settings.local.json` - ローカル専用設定（gitignore推奨）
+- `.claude/.mcp.json` - ローカル専用MCPサーバー（gitignore推奨）
+
 ## チェック内容
 
 ### shfmt
