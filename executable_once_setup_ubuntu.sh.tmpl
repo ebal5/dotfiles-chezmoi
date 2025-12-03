@@ -35,6 +35,11 @@ sudo apt install -y \
   vim \
   zlib1g-dev
 
+{{ if .chezmoi.kernel.osrelease | lower | contains "microsoft" }}
+# WSL環境用のツール
+sudo apt install -y wslu
+{{ end }}
+
 {{ if and (not (.chezmoi.kernel.osrelease | lower | contains "microsoft")) (.chezmoi.requireGUI) }}
 # フォントなど独立したLinuxで必要とされるもの
 sudo apt install -y \
