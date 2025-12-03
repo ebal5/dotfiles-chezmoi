@@ -1,0 +1,120 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "gitpython",
+#     "rich",
+# ]
+# ///
+"""Git リポジトリの統計情報を表示する."""
+
+import argparse
+import sys
+from datetime import datetime, timedelta
+from pathlib import Path
+
+from git import Repo
+from git.exc import InvalidGitRepositoryError
+from rich.console import Console
+from rich.table import Table
+
+
+def get_commits_in_range(
+    repo: Repo, since: datetime, until: datetime | None = None
+) -> list:
+    """指定期間のコミットを取得."""
+    kwargs = {"since": since.isoformat()}
+    if until:
+        kwargs["until"] = until.isoformat()
+    return list(repo.iter_commits("HEAD", **kwargs))
+
+
+def calc_stats(commits: list) -> dict[str, dict[str, int]]:
+    """コミットから著者ごとの統計を計算."""
+    stats: dict[str, dict[str, int]] = {}
+    for commit in commits:
+        author = commit.author.name or "Unknown"
+        if author not in stats:
+            stats[author] = {"commits": 0, "insertions": 0, "deletions": 0}
+        stats[author]["commits"] += 1
+        try:
+            total = commit.stats.total
+            stats[author]["insertions"] += total.get("insertions", 0)
+            stats[author]["deletions"] += total.get("deletions", 0)
+        except Exception:
+            pass
+    return stats
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Git リポジトリの統計情報を表示")
+    parser.add_argument(
+        "path",
+        nargs="?",
+        default=".",
+        help="リポジトリのパス (デフォルト: カレントディレクトリ)",
+    )
+    parser.add_argument(
+        "-d",
+        "--days",
+        type=int,
+        default=7,
+        help="集計期間（日数、デフォルト: 7）",
+    )
+    args = parser.parse_args()
+
+    console = Console()
+
+    try:
+        repo = Repo(Path(args.path).resolve(), search_parent_directories=True)
+    except InvalidGitRepositoryError:
+        print(f"Error: {args.path} is not a git repository", file=sys.stderr)
+        return 1
+
+    now = datetime.now()
+    since = now - timedelta(days=args.days)
+
+    commits = get_commits_in_range(repo, since)
+
+    if not commits:
+        console.print(f"[yellow]過去{args.days}日間のコミットはありません[/yellow]")
+        return 0
+
+    stats = calc_stats(commits)
+
+    # リポジトリ情報
+    repo_name = Path(repo.working_dir).name if repo.working_dir else "unknown"
+    console.print(f"\n[bold]{repo_name}[/bold] - 過去{args.days}日間の統計\n")
+
+    # 統計テーブル
+    table = Table(show_header=True, header_style="bold")
+    table.add_column("Author")
+    table.add_column("Commits", justify="right")
+    table.add_column("Insertions", justify="right", style="green")
+    table.add_column("Deletions", justify="right", style="red")
+
+    sorted_stats = sorted(stats.items(), key=lambda x: x[1]["commits"], reverse=True)
+    for author, data in sorted_stats:
+        table.add_row(
+            author,
+            str(data["commits"]),
+            f"+{data['insertions']}",
+            f"-{data['deletions']}",
+        )
+
+    console.print(table)
+
+    # サマリー
+    total_commits = sum(s["commits"] for s in stats.values())
+    total_insertions = sum(s["insertions"] for s in stats.values())
+    total_deletions = sum(s["deletions"] for s in stats.values())
+    console.print(
+        f"\n[dim]Total: {total_commits} commits, "
+        f"[green]+{total_insertions}[/green] / [red]-{total_deletions}[/red][/dim]\n"
+    )
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
