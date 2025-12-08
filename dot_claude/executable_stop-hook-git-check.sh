@@ -37,10 +37,28 @@ if [[ -n "$current_branch" ]]; then
       exit 2
     fi
   else
-    # Branch doesn't exist on remote - compare against default branch
-    unpushed=$(git rev-list "origin/HEAD..HEAD" --count 2>/dev/null) || unpushed=0
+    # Branch doesn't exist on remote - determine base branch for comparison
+    # Priority: 1. env var, 2. branch-specific git config, 3. repo-wide git config, 4. origin/HEAD
+    base_branch=""
+    if [[ -n "${CLAUDE_STOP_HOOK_BASE_BRANCH:-}" ]]; then
+      base_branch="$CLAUDE_STOP_HOOK_BASE_BRANCH"
+    elif base_branch=$(git config "branch.${current_branch}.stop-hook-base-branch" 2>/dev/null) && [[ -n "$base_branch" ]]; then
+      : # base_branch already set
+    elif base_branch=$(git config "stop-hook.base-branch" 2>/dev/null) && [[ -n "$base_branch" ]]; then
+      : # base_branch already set
+    else
+      base_branch="origin/HEAD"
+    fi
+
+    # Validate the base branch exists
+    if ! git rev-parse "$base_branch" >/dev/null 2>&1; then
+      echo "Warning: Configured base branch '$base_branch' does not exist. Skipping unpushed check." >&2
+      exit 0
+    fi
+
+    unpushed=$(git rev-list "${base_branch}..HEAD" --count 2>/dev/null) || unpushed=0
     if [[ "$unpushed" -gt 0 ]]; then
-      echo "Branch '$current_branch' has $unpushed unpushed commit(s) and no remote branch. Please push these changes to the remote repository." >&2
+      echo "Branch '$current_branch' has $unpushed unpushed commit(s) compared to '$base_branch'. Please push these changes to the remote repository." >&2
       exit 2
     fi
   fi
