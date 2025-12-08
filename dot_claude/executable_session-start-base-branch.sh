@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # SessionStart hook: Auto-detect base branch for stop hook comparison
 # This sets CLAUDE_STOP_HOOK_BASE_BRANCH environment variable
@@ -53,8 +54,8 @@ fi
 if [[ -n "$base_branch" ]]; then
   if [[ -z "${CLAUDE_ENV_FILE:-}" ]]; then
     echo "[SessionStart] Warning: CLAUDE_ENV_FILE is not set. Cannot export base branch." >&2
-  elif [[ ! -w "$CLAUDE_ENV_FILE" ]]; then
-    echo "[SessionStart] Warning: Cannot write to $CLAUDE_ENV_FILE" >&2
+  elif [[ -e "$CLAUDE_ENV_FILE" && ! -w "$CLAUDE_ENV_FILE" ]]; then
+    echo "[SessionStart] Warning: Cannot write to $CLAUDE_ENV_FILE (file not writable)" >&2
   elif grep -q "^export CLAUDE_STOP_HOOK_BASE_BRANCH=" "$CLAUDE_ENV_FILE" 2>/dev/null; then
     # Already set, skip to avoid duplicates
     :
