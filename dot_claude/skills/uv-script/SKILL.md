@@ -1,3 +1,8 @@
+---
+name: uv-script
+description: Create standalone Python scripts using uv shebang with PEP 723 inline metadata. Use when creating single-file Python tools or scripts that need dependency management without a full project setup.
+---
+
 # uv Shebang Python Script
 
 Pythonで単体スクリプトを作成する際に使用するスキル。
