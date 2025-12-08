@@ -50,10 +50,19 @@ if [[ -z "$base_branch" ]]; then
   fi
 fi
 
-if [[ -n "$base_branch" && -n "${CLAUDE_ENV_FILE:-}" ]]; then
-  echo "export CLAUDE_STOP_HOOK_BASE_BRANCH='$base_branch'" >>"$CLAUDE_ENV_FILE"
-  echo "[SessionStart] Auto-detected base branch: $base_branch" >&2
-elif [[ -z "$base_branch" ]]; then
+if [[ -n "$base_branch" ]]; then
+  if [[ -z "${CLAUDE_ENV_FILE:-}" ]]; then
+    echo "[SessionStart] Warning: CLAUDE_ENV_FILE is not set. Cannot export base branch." >&2
+  elif [[ ! -w "$CLAUDE_ENV_FILE" ]]; then
+    echo "[SessionStart] Warning: Cannot write to $CLAUDE_ENV_FILE" >&2
+  elif grep -q "^export CLAUDE_STOP_HOOK_BASE_BRANCH=" "$CLAUDE_ENV_FILE" 2>/dev/null; then
+    # Already set, skip to avoid duplicates
+    :
+  else
+    echo "export CLAUDE_STOP_HOOK_BASE_BRANCH='$base_branch'" >>"$CLAUDE_ENV_FILE"
+    echo "[SessionStart] Auto-detected base branch: $base_branch" >&2
+  fi
+else
   echo "[SessionStart] Warning: Could not detect base branch for '$current_branch'." >&2
   echo "  To set manually: git config branch.${current_branch}.stop-hook-base-branch <branch>" >&2
 fi

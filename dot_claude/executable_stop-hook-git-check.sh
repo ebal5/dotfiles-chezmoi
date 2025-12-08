@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Stop hook: Check for uncommitted/unpushed changes before session ends
+#
+# Exit codes:
+#   0 - OK, session can stop
+#   2 - Block session stop (uncommitted changes, untracked files, or unpushed commits)
+
 # Read the JSON input from stdin
 input=$(cat)
 
