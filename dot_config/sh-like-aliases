@@ -76,6 +76,14 @@ alias g="git"
 # npxによるツール群
 alias claude="npx @anthropic-ai/claude-code"
 
+# uvxによるPythonツール群
+alias ruff="uvx ruff"
+
+# bunxによるJS/TSツール群
+alias ccmanager="bunx ccmanager"
+alias ccusage="bunx ccusage"
+alias biome="bunx @biomejs/biome"
+
 # fzf便利ユーティリティ
 alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"
 alias fzds="$HOME/.scripts/fzf_utils.sh docker-container-select"
