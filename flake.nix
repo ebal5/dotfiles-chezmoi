@@ -28,6 +28,9 @@
             # Python ecosystem
             uv                # Fast Python package installer
 
+            # JavaScript/TypeScript ecosystem
+            bun               # Fast JS/TS runtime and package manager
+
             # Directory navigation
             zoxide            # Smart cd replacement
 
@@ -39,6 +42,13 @@
             hexyl             # Hex viewer
             curl              # Data transfer
             jq                # JSON processor
+
+            # TUI tools
+            oxker             # Docker container TUI manager
+            ov                # Feature-rich terminal pager
+
+            # Task management
+            pueue             # CLI task queue manager
           ];
         };
       }
