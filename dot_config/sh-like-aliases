@@ -78,11 +78,17 @@ alias claude="npx @anthropic-ai/claude-code"
 
 # uvxによるPythonツール群
 alias ruff="uvx ruff"
+alias bandit="uvx bandit"
+alias mypy="uvx mypy"
+alias pre-commit="uvx pre-commit"
 
 # bunxによるJS/TSツール群
 alias ccmanager="bunx ccmanager"
 alias ccusage="bunx ccusage"
 alias biome="bunx @biomejs/biome"
+alias serve="bunx serve"
+alias ncu="bunx npm-check-updates"
+alias degit="bunx degit"
 
 # fzf便利ユーティリティ
 alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"
