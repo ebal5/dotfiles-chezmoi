@@ -49,6 +49,9 @@
 
             # Task management
             pueue             # CLI task queue manager
+
+            # Git utilities
+            gibo              # gitignore boilerplates
           ];
         };
       }
