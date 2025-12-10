@@ -28,7 +28,7 @@
     "allow": [
       "Bash(git fetch:*)",
       "Bash(git merge-base:*)",
-      "Web Search(:*)",
+      "WebSearch(:*)",
       "Bash(gh pr status)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
