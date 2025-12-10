@@ -40,6 +40,19 @@ stmp() {
   cd "$dir" || return 1
 }
 
+# ディレクトリ作成してcd
+mkcd() {
+  mkdir -p "$1" && cd "$1" || return 1
+}
+
+# プロセス検索（grep自身を除外）
+psg() {
+  local pattern="$1"
+  local first="${pattern:0:1}"
+  local rest="${pattern:1}"
+  ps aux | grep -E "[$first]$rest"
+}
+
 # クリップボード
 # thanks to https://github.com/kenh0u/.dotfiles/blob/main/.bash_aliases
 # TODO: config for MacOS
