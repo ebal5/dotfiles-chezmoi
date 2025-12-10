@@ -94,6 +94,7 @@ alias ddw="docker compose down"
 alias ddu="docker compose down && docker compose up -d"
 alias ddown="docker compose down"
 alias dps="docker compose ps"
+alias dclean="docker system prune -f"
 
 # 1文字系
 alias d="docker"
