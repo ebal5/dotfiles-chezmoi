@@ -53,6 +53,11 @@ psg() {
   ps aux | grep -E "[$first]$rest"
 }
 
+# 2つのコマンド出力を比較
+cdiff() {
+  diff <(eval "$1") <(eval "$2")
+}
+
 # クリップボード
 # thanks to https://github.com/kenh0u/.dotfiles/blob/main/.bash_aliases
 # TODO: config for MacOS
