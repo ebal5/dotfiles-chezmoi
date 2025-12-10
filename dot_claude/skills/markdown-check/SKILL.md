@@ -4,8 +4,16 @@ description: |
   Markdownドキュメントの整合性と完全性をチェックする。
   リンク切れ確認、アンカー検証、外部URL検証、空セクション検出を行い、
   問題があれば修正案を提示する。
-  「Markdownチェック」「ドキュメント整合性」「リンク切れ確認」
-  「ドキュメントレビュー」「ドキュメント検証」などの依頼時に使用する。
+
+  以下の依頼時に使用:
+  - 「Markdownチェック」「ドキュメント整合性」「リンク切れ確認」
+  - 「ドキュメントレビュー」「ドキュメント検証」「ドキュメント品質」
+  - 「READMEのリンクを確認」「mdファイルを検証」「.mdをチェック」
+  - 「壊れたリンクを探して」「デッドリンク」「無効なリンク」
+  - 「broken links」「check markdown」「validate docs」「lint documentation」
+  - 「dead links」「invalid links」「link checker」「doc review」
+  - PR前のドキュメントチェック、ドキュメント更新後の確認
+  - 「ドキュメントに問題ないか」「リンクが正しいか」
 ---
 
 # Markdown Documentation Integrity Check
