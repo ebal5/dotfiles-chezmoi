@@ -32,6 +32,14 @@ which hstr >/dev/null && alias hh="hstr"
 which terraform >/dev/null && alias tf="terraform"
 [ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
 
+# 一時ディレクトリ作成してcd
+stmp() {
+  local dir
+  dir=$(mktemp -d -t "scratch.XXXXXX")
+  echo "Created: $dir"
+  cd "$dir" || return 1
+}
+
 # クリップボード
 # thanks to https://github.com/kenh0u/.dotfiles/blob/main/.bash_aliases
 # TODO: config for MacOS
