@@ -113,6 +113,7 @@ alias biome="bunx @biomejs/biome"
 alias serve="bunx serve"
 alias ncu="bunx npm-check-updates"
 alias degit="bunx degit"
+alias difit="bunx difit"
 
 # fzf便利ユーティリティ
 alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"
