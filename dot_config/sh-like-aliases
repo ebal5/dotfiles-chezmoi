@@ -32,6 +32,32 @@ which hstr >/dev/null && alias hh="hstr"
 which terraform >/dev/null && alias tf="terraform"
 [ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
 
+# 一時ディレクトリ作成してcd
+stmp() {
+  local dir
+  dir=$(mktemp -d -t "scratch.XXXXXX")
+  echo "Created: $dir"
+  cd "$dir" || return 1
+}
+
+# ディレクトリ作成してcd
+mkcd() {
+  mkdir -p "$1" && cd "$1" || return 1
+}
+
+# プロセス検索（grep自身を除外）
+psg() {
+  local pattern="$1"
+  local first="${pattern:0:1}"
+  local rest="${pattern:1}"
+  ps aux | grep -E "[$first]$rest"
+}
+
+# 2つのコマンド出力を比較
+cdiff() {
+  diff <(eval "$1") <(eval "$2")
+}
+
 # クリップボード
 # thanks to https://github.com/kenh0u/.dotfiles/blob/main/.bash_aliases
 # TODO: config for MacOS
@@ -68,13 +94,27 @@ alias ddw="docker compose down"
 alias ddu="docker compose down && docker compose up -d"
 alias ddown="docker compose down"
 alias dps="docker compose ps"
+alias dclean="docker system prune -f"
 
 # 1文字系
 alias d="docker"
 alias g="git"
 
-# npxによるツール群
-alias claude="npx @anthropic-ai/claude-code"
+# uvxによるPythonツール群
+alias ruff="uvx ruff"
+alias bandit="uvx bandit"
+alias mypy="uvx mypy"
+alias ty="uvx ty"
+alias pre-commit="uvx pre-commit"
+
+# bunxによるJS/TSツール群
+alias ccmanager="bunx ccmanager"
+alias ccusage="bunx ccusage"
+alias biome="bunx @biomejs/biome"
+alias serve="bunx serve"
+alias ncu="bunx npm-check-updates"
+alias degit="bunx degit"
+alias difit="bunx difit"
 
 # fzf便利ユーティリティ
 alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"

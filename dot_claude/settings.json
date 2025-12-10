@@ -28,10 +28,11 @@
     "allow": [
       "Bash(git fetch:*)",
       "Bash(git merge-base:*)",
-      "Web Search(:*)",
+      "WebSearch(:*)",
       "Bash(gh pr status)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
+      "Bash(git add:* && git commit:*)",
       "Bash(ls:*)",
       "Bash(gh issue edit:*)",
       "Bash(git switch:*)",
