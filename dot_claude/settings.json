@@ -28,7 +28,7 @@
     "allow": [
       "Bash(git fetch:*)",
       "Bash(git merge-base:*)",
-      "WebSearch(:*)",
+      "WebSearch",
       "Bash(gh pr status)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
@@ -70,9 +70,7 @@
       }
     }
   },
-  "plugins": {
-    "enabledPlugins": {
-      "skill-generator@anthropic-agent-skills": true
-    }
+  "enabledPlugins": {
+    "skill-generator@anthropic-agent-skills": true
   }
 }
