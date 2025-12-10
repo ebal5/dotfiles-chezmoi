@@ -7,8 +7,40 @@ set -euo pipefail
 #   0 - OK, session can stop
 #   2 - Block session stop (uncommitted changes, untracked files, or unpushed commits)
 
+# Check dependencies
+check_dependencies() {
+  local deps=("$@")
+  for dep in "${deps[@]}"; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+      echo "Error: $dep is required but not installed." >&2
+      exit 1
+    fi
+  done
+}
+
+check_dependencies jq git
+
+# Check for unpushed commits and exit with error if found
+check_unpushed_commits() {
+  local remote_ref="$1"
+  local branch_name="$2"
+  local unpushed
+
+  unpushed=$(git rev-list "${remote_ref}..HEAD" --count 2>/dev/null) || unpushed=0
+  if [[ "$unpushed" -gt 0 ]]; then
+    echo "Branch '$branch_name' has $unpushed unpushed commit(s) compared to '$remote_ref'. Please push these changes to the remote repository." >&2
+    exit 2
+  fi
+}
+
 # Read the JSON input from stdin
 input=$(cat)
+
+# Validate input is not empty
+if [[ -z "$input" ]]; then
+  echo "Error: No input provided to stop hook" >&2
+  exit 1
+fi
 
 # Check if stop hook is already active (recursion prevention)
 stop_hook_active=$(echo "$input" | jq -r '.stop_hook_active')
@@ -38,11 +70,7 @@ current_branch=$(git branch --show-current)
 if [[ -n "$current_branch" ]]; then
   if git rev-parse "origin/$current_branch" >/dev/null 2>&1; then
     # Branch exists on remote - compare against it
-    unpushed=$(git rev-list "origin/$current_branch..HEAD" --count 2>/dev/null) || unpushed=0
-    if [[ "$unpushed" -gt 0 ]]; then
-      echo "There are $unpushed unpushed commit(s) on branch '$current_branch'. Please push these changes to the remote repository." >&2
-      exit 2
-    fi
+    check_unpushed_commits "origin/$current_branch" "$current_branch"
   else
     # Branch doesn't exist on remote - determine base branch for comparison
     # Priority: 1. env var, 2. branch-specific git config, 3. repo-wide git config, 4. origin/HEAD
@@ -63,11 +91,7 @@ if [[ -n "$current_branch" ]]; then
       exit 0
     fi
 
-    unpushed=$(git rev-list "${base_branch}..HEAD" --count 2>/dev/null) || unpushed=0
-    if [[ "$unpushed" -gt 0 ]]; then
-      echo "Branch '$current_branch' has $unpushed unpushed commit(s) compared to '$base_branch'. Please push these changes to the remote repository." >&2
-      exit 2
-    fi
+    check_unpushed_commits "$base_branch" "$current_branch"
   fi
 fi
 

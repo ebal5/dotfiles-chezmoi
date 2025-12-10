@@ -43,9 +43,8 @@ for candidate in origin/main origin/master origin/develop; do
   fi
 done
 
-# Method 2: If no common base found, try to find the most recent common ancestor
+# Method 2: Fallback to origin/HEAD if no common base branch found
 if [[ -z "$base_branch" ]]; then
-  # Try origin/HEAD as fallback
   if git rev-parse "origin/HEAD" >/dev/null 2>&1; then
     base_branch="origin/HEAD"
   fi
@@ -60,7 +59,9 @@ if [[ -n "$base_branch" ]]; then
     # Already set, skip to avoid duplicates
     :
   else
-    echo "export CLAUDE_STOP_HOOK_BASE_BRANCH='$base_branch'" >>"$CLAUDE_ENV_FILE"
+    # Escape single quotes in base_branch to prevent injection
+    safe_base_branch="${base_branch//\'/\'\\\'\'}"
+    echo "export CLAUDE_STOP_HOOK_BASE_BRANCH='$safe_base_branch'" >>"$CLAUDE_ENV_FILE"
     echo "[SessionStart] Auto-detected base branch: $base_branch" >&2
   fi
 else
