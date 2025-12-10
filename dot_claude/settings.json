@@ -28,7 +28,7 @@
     "allow": [
       "Bash(git fetch:*)",
       "Bash(git merge-base:*)",
-      "WebSearch(:*)",
+      "WebSearch",
       "Bash(gh pr status)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
@@ -62,6 +62,7 @@
     "type": "command",
     "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); user=$(whoami); host=$(hostname -s); dir=$(basename \"$cwd\"); git_branch=\"\"; if cd \"$cwd\" 2>/dev/null && git rev-parse --git-dir > /dev/null 2>&1; then git_branch=$(git --no-optional-locks branch 2>/dev/null | grep '*' | colrm 1 2); [ -n \"$git_branch\" ] && git_branch=\" $git_branch\"; fi; time=$(date +%H:%M:%S); echo \"${user}@${host} ${dir}${git_branch}\"; echo \"${time}\""
   },
+  "alwaysThinkingEnabled": true,
   "extraKnownMarketplaces": {
     "anthropic-agent-skills": {
       "source": {
@@ -70,9 +71,7 @@
       }
     }
   },
-  "plugins": {
-    "enabledPlugins": {
-      "skill-generator@anthropic-agent-skills": true
-    }
+  "enabledPlugins": {
+    "skill-generator@anthropic-agent-skills": true
   }
 }
