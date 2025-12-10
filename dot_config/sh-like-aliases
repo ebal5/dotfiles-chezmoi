@@ -73,13 +73,11 @@ alias dps="docker compose ps"
 alias d="docker"
 alias g="git"
 
-# npxによるツール群
-alias claude="npx @anthropic-ai/claude-code"
-
 # uvxによるPythonツール群
 alias ruff="uvx ruff"
 alias bandit="uvx bandit"
 alias mypy="uvx mypy"
+alias ty="uvx ty"
 alias pre-commit="uvx pre-commit"
 
 # bunxによるJS/TSツール群
