@@ -80,6 +80,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 - [Nix](https://nixos.org/) による開発ツール管理
   - CLI ツール（Starship、git-delta、lsd、mcfly など）を`flake.nix`で統合管理
   - システム環境の再現性を向上
+  - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile install .`
 - [Starship](https://starship.rs/ja-jp/)
 - [mise (alt asdf)](https://github.com/jdx/mise)（プロジェクト単位のバージョン管理用）
 - [uv](https://docs.astral.sh/uv/)（Python パッケージ管理）
