@@ -72,6 +72,6 @@
     }
   },
   "enabledPlugins": {
-    "skill-generator@anthropic-agent-skills": true
+    "example-skills@anthropic-agent-skills": true
   }
 }
