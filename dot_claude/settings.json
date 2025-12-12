@@ -26,7 +26,16 @@
   },
   "permissions": {
     "allow": [
+      "Bash(bunx @biomejs/biome:*)",
+      "Bash(bunx ccmanager:*)",
+      "Bash(bunx ccusage:*)",
+      "Bash(bunx degit:*)",
+      "Bash(bunx difit:*)",
+      "Bash(bunx markdownlint-cli2:*)",
+      "Bash(bunx npm-check-updates:*)",
+      "Bash(bunx serve:*)",
       "Bash(cat:*)",
+      "Bash(chmod +x:*)",
       "Bash(docker compose logs:*)",
       "Bash(docker compose ps:*)",
       "Bash(docker image ls:*)",
@@ -52,7 +61,11 @@
       "Bash(mkdir -p:*)",
       "Bash(mkdir:*)",
       "Bash(rg:*)",
+      "Bash(uvx bandit:*)",
+      "Bash(uvx mypy:*)",
       "Bash(uvx pre-commit run:*)",
+      "Bash(uvx ruff:*)",
+      "Bash(uvx ty:*)",
       "Skill",
       "WebFetch(domain:docs.anthropic.com)",
       "WebSearch"
