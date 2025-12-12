@@ -70,8 +70,5 @@
         "repo": "anthropics/skills"
       }
     }
-  },
-  "enabledPlugins": {
-    "skill-generator@anthropic-agent-skills": true
   }
 }
