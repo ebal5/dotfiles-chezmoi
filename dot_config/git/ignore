@@ -133,8 +133,6 @@ id_ed25519
 .token
 .credentials
 *api_key*
-*secret*
-*password*
 auth.json
 .netrc
 
@@ -156,14 +154,10 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -203,7 +197,6 @@ vendor/bundle
 go.work
 
 # Rust
-target/
 Cargo.lock
 
 # Java
@@ -236,7 +229,6 @@ hs_err_pid*
 
 # Log files
 *.log
-logs/
 
 # Cache files
 .cache/
@@ -257,7 +249,6 @@ logs/
 
 # Compiled documentation
 docs/_build/
-site/
 
 # Large media files (uncomment if needed)
 # *.mp4
@@ -314,7 +305,6 @@ pip-delete-this-directory.txt
 
 # Composer (PHP)
 composer.phar
-vendor/
 
 # Bundler (alternative Ruby path)
 .bundle/
@@ -338,8 +328,7 @@ vendor/
 # =================================
 
 # Core dumps
-core
-core.*
+# core と core.* は汎用的すぎるため削除済み
 
 # Profiling output
 *.prof
