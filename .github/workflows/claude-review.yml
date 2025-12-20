@@ -66,9 +66,8 @@ jobs:
         uses: anthropics/claude-code-action@beta
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: "--model claude-haiku-4-5"
-          prompt: |
+          model: "claude-haiku-4-5"
+          direct_prompt: |
             ${{ matrix.review.emoji }} **${{ matrix.review.name }} review**
 
             ${{ matrix.review.prompt }}
-          allowed_tools: ""
