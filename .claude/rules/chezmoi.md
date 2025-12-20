@@ -5,6 +5,13 @@ description: Chezmoi設定管理ガイドライン
 
 # Chezmoi管理
 
+## 設定構造
+
+- `dot_*` ファイル: ホームディレクトリにシンボリックリンクされる直接的なdotfiles
+- `dot_config/`: ~/.config ディレクトリ用の設定ファイル
+- `dot_scripts/`: カスタムスクリプトディレクトリ
+- `executable_once_*`: 異なるプラットフォーム用の一回限りのセットアップスクリプト
+
 ## 基本コマンド
 
 - `chezmoi apply` - 設定変更をホームディレクトリに適用

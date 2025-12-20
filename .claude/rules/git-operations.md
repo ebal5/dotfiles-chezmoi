@@ -5,6 +5,13 @@ description: Git操作ガイドラインとClaude Code固有の制限
 
 # Git操作
 
+## Git設定の特徴
+
+- **Deltaディフビューア**: 見やすい差分表示
+- **包括的なエイリアス**: dot_gitconfigで定義
+
+## 主要なGitエイリアス
+
 dot_gitconfigで定義された豊富なGitエイリアスを含む:
 
 - `g s` / `gs` - Git status
