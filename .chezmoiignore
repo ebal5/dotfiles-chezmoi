@@ -36,3 +36,27 @@ bakups/
 # Nix files - Nixファイル
 flake.nix
 flake.lock
+
+# ========================================
+# Platform-specific ignores - プラットフォーム別除外
+# ========================================
+
+{{ if eq .chezmoi.os "windows" }}
+# Linux/Unix専用ファイル（Windowsでは除外）
+.bashrc
+.bash_profile
+.zshrc
+.zshenv
+.profile
+.scripts/
+.config/sh-like-aliases
+.config/tmux/
+executable_once_setup_ubuntu.sh.tmpl
+{{ end }}
+
+{{ if ne .chezmoi.os "windows" }}
+# Windows専用ファイル（Linux/macOSでは除外）
+.config/powershell/
+executable_once_setup_windows.ps1.tmpl
+run_after_setup_powershell_profile.ps1.tmpl
+{{ end }}

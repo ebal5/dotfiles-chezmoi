@@ -1,0 +1,224 @@
+{{ if eq .chezmoi.os "windows" }}
+# PowerShell Profile - synced with dotfiles
+# ==========================================
+
+# ========================================
+# エンコーディング設定
+# ========================================
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+
+# ========================================
+# ツール統合
+# ========================================
+
+# Starship prompt
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+  Invoke-Expression (&starship init powershell)
+}
+
+# zoxide (smarter cd)
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+  Invoke-Expression (& { (zoxide init powershell | Out-String) })
+}
+
+# fnm (Node.js version manager)
+if (Get-Command fnm -ErrorAction SilentlyContinue) {
+  fnm env --use-on-cd --shell power-shell | Out-String | Invoke-Expression
+}
+
+# ========================================
+# エイリアス - ls系
+# ========================================
+if (Get-Command lsd -ErrorAction SilentlyContinue) {
+  function Invoke-Lsd { lsd @args }
+  Set-Alias -Name ls -Value Invoke-Lsd -Option AllScope -Force
+  function Invoke-LsdLa { lsd -A @args }
+  Set-Alias -Name la -Value Invoke-LsdLa
+  function Invoke-LsdLl { lsd -alF @args }
+  Set-Alias -Name ll -Value Invoke-LsdLl
+  function Invoke-LsdLt { lsd -l -t -1 @args }
+  Set-Alias -Name lt -Value Invoke-LsdLt
+}
+Set-Alias -Name l -Value ls
+
+# ========================================
+# エイリアス - cd系
+# ========================================
+function Set-ParentLocation { Set-Location .. }
+Set-Alias -Name '..' -Value Set-ParentLocation
+
+function Set-ParentLocation2 { Set-Location ../.. }
+Set-Alias -Name '...' -Value Set-ParentLocation2
+
+function Set-ParentLocation3 { Set-Location ../../.. }
+Set-Alias -Name '....' -Value Set-ParentLocation3
+
+function Set-GitRoot {
+  $gitRoot = git rev-parse --show-toplevel 2>$null
+  if ($gitRoot) { Set-Location $gitRoot }
+  else { Write-Host "Not in a git repository" -ForegroundColor Red }
+}
+Set-Alias -Name cg -Value Set-GitRoot
+
+# ========================================
+# エイリアス - Git
+# ========================================
+function Invoke-GitStatus { git status @args }
+Set-Alias -Name gs -Value Invoke-GitStatus
+Set-Alias -Name gS -Value Invoke-GitStatus
+
+function Get-GitBranch {
+  git rev-parse --abbrev-ref HEAD 2>$null
+}
+
+# ========================================
+# エイリアス - Docker
+# ========================================
+function Invoke-DockerCompose { docker compose @args }
+Set-Alias -Name dc -Value Invoke-DockerCompose
+
+function Invoke-DockerComposeUp { docker compose up -d @args }
+Set-Alias -Name dup -Value Invoke-DockerComposeUp
+
+function Invoke-DockerComposeDown { docker compose down @args }
+Set-Alias -Name ddw -Value Invoke-DockerComposeDown
+Set-Alias -Name ddown -Value Invoke-DockerComposeDown
+
+function Invoke-DockerComposeRestart {
+  docker compose down @args
+  docker compose up -d @args
+}
+Set-Alias -Name ddu -Value Invoke-DockerComposeRestart
+
+function Invoke-DockerComposePs { docker compose ps @args }
+Set-Alias -Name dps -Value Invoke-DockerComposePs
+
+function Invoke-DockerClean { docker system prune -f }
+Set-Alias -Name dclean -Value Invoke-DockerClean
+
+# 1文字エイリアス
+Set-Alias -Name d -Value docker
+Set-Alias -Name g -Value git
+
+# ========================================
+# エイリアス - ユーティリティ
+# ========================================
+function Get-MyIP { curl icanhazip.com }
+Set-Alias -Name myip -Value Get-MyIP
+
+# クリップボード (win32yank)
+if (Get-Command win32yank.exe -ErrorAction SilentlyContinue) {
+  function Set-ClipboardFromPipe {
+    $input | win32yank.exe -i
+  }
+  Set-Alias -Name pbcopy -Value Set-ClipboardFromPipe
+  function Get-ClipboardContent { win32yank.exe -o }
+  Set-Alias -Name pbpaste -Value Get-ClipboardContent
+}
+
+# ========================================
+# エイリアス - Python/JS ツール (uv/bunx経由)
+# ========================================
+if (Get-Command uv -ErrorAction SilentlyContinue) {
+  function Invoke-Ruff { uvx ruff @args }
+  Set-Alias -Name ruff -Value Invoke-Ruff
+  function Invoke-Bandit { uvx bandit @args }
+  Set-Alias -Name bandit -Value Invoke-Bandit
+  function Invoke-Mypy { uvx mypy @args }
+  Set-Alias -Name mypy -Value Invoke-Mypy
+  function Invoke-PreCommit { uvx pre-commit @args }
+  Set-Alias -Name pre-commit -Value Invoke-PreCommit
+}
+
+# ========================================
+# 便利関数
+# ========================================
+
+# 一時ディレクトリを作成してcd
+function New-TempDir {
+  $dir = New-Item -ItemType Directory -Path (Join-Path $env:TEMP ([System.Guid]::NewGuid().ToString()))
+  Write-Host "Created: $($dir.FullName)"
+  Set-Location $dir
+}
+Set-Alias -Name stmp -Value New-TempDir
+
+# ディレクトリを作成してcd
+function New-DirAndEnter {
+  param([string]$Path)
+  New-Item -ItemType Directory -Path $Path -Force | Out-Null
+  Set-Location $Path
+}
+Set-Alias -Name mkcd -Value New-DirAndEnter
+
+# プロセス検索
+function Find-Process {
+  param([string]$Pattern)
+  Get-Process | Where-Object { $_.ProcessName -match $Pattern }
+}
+Set-Alias -Name psg -Value Find-Process
+
+# ========================================
+# fzf統合
+# ========================================
+if (Get-Command fzf -ErrorAction SilentlyContinue) {
+  # fzfのデフォルト設定
+  $env:FZF_DEFAULT_OPTS = '--height 40% --layout=reverse --border'
+
+  # Ctrl+R で履歴検索
+  Set-PSReadLineKeyHandler -Key Ctrl+r -ScriptBlock {
+    $command = Get-History | ForEach-Object { $_.CommandLine } |
+      Select-Object -Unique |
+      fzf --tac --no-sort
+    if ($command) {
+      [Microsoft.PowerShell.PSConsoleReadLine]::Insert($command)
+    }
+  }
+
+  # Git ブランチ選択
+  function Select-GitBranch {
+    $branch = git branch --all 2>$null |
+      ForEach-Object { $_.Trim() -replace '^\* ', '' } |
+      fzf --preview 'git log --oneline -10 {}'
+    if ($branch) {
+      $branch = $branch -replace 'remotes/origin/', ''
+      git checkout $branch
+    }
+  }
+  Set-Alias -Name fzgb -Value Select-GitBranch
+
+  # Git log 閲覧
+  function Show-GitLogFzf {
+    git log --oneline --color=always |
+      fzf --ansi --preview 'git show --color=always {1}'
+  }
+  Set-Alias -Name fzgl -Value Show-GitLogFzf
+
+  # ファイル検索 (fd + fzf)
+  if (Get-Command fd -ErrorAction SilentlyContinue) {
+    function Find-FileFzf {
+      $file = fd --type f --hidden --exclude .git |
+        fzf --preview 'bat --color=always --style=numbers --line-range=:500 {}'
+      if ($file) { & $env:EDITOR $file }
+    }
+    Set-Alias -Name fzff -Value Find-FileFzf
+  }
+}
+
+# ========================================
+# PSReadLine設定
+# ========================================
+if (Get-Module -ListAvailable -Name PSReadLine) {
+  Set-PSReadLineOption -PredictionSource History
+  Set-PSReadLineOption -PredictionViewStyle ListView
+  Set-PSReadLineOption -EditMode Emacs
+  Set-PSReadLineKeyHandler -Key UpArrow -Function HistorySearchBackward
+  Set-PSReadLineKeyHandler -Key DownArrow -Function HistorySearchForward
+}
+
+# ========================================
+# 環境変数
+# ========================================
+$env:EDITOR = "code --wait"
+
+{{ end }}
