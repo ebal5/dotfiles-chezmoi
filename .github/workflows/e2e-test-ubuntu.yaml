@@ -23,8 +23,8 @@ jobs:
 
       - name: Apply chezmoi (exclude scripts)
         run: |
-          "$HOME/.local/bin/chezmoi" init --source "$GITHUB_WORKSPACE" --exclude scripts --force
-          "$HOME/.local/bin/chezmoi" apply --exclude scripts --force
+          # Apply dotfiles directly from checkout directory
+          "$HOME/.local/bin/chezmoi" apply --source-path "$GITHUB_WORKSPACE" --exclude scripts --force
 
       - name: Verify dotfiles
         run: |

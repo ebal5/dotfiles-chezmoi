@@ -19,14 +19,16 @@ jobs:
       - name: Install chezmoi
         shell: pwsh
         run: |
-          (irm -useb get.chezmoi.io/ps1) | powershell -c -
-          Add-Content $env:GITHUB_PATH "$env:USERPROFILE\bin"
+          winget install --id twpayne.chezmoi --accept-source-agreements --accept-package-agreements
+          # Add to PATH for subsequent steps
+          $chezmoiPath = "$env:LOCALAPPDATA\Microsoft\WinGet\Links"
+          Add-Content $env:GITHUB_PATH $chezmoiPath
 
       - name: Apply chezmoi (exclude scripts)
         shell: pwsh
         run: |
-          & "$env:USERPROFILE\bin\chezmoi.exe" init --source "$env:GITHUB_WORKSPACE" --exclude scripts --force
-          & "$env:USERPROFILE\bin\chezmoi.exe" apply --exclude scripts --force
+          # Apply dotfiles directly from checkout directory
+          chezmoi apply --source-path "$env:GITHUB_WORKSPACE" --exclude scripts --force
 
       - name: Verify dotfiles
         shell: pwsh
@@ -70,7 +72,7 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "=== chezmoi managed files ==="
-          & "$env:USERPROFILE\bin\chezmoi.exe" managed --include files 2>$null
+          chezmoi managed --include files 2>$null
 
           Write-Host ""
           Write-Host "=== Home directory structure ==="
