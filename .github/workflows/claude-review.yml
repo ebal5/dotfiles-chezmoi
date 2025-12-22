@@ -23,7 +23,7 @@ jobs:
     strategy:
       matrix:
         review:
-          - name: security
+          - name: セキュリティ
             emoji: "\U0001F512"
             prompt: |
               セキュリティ観点でPRの変更をレビューしてください。
@@ -34,7 +34,8 @@ jobs:
               - 信頼できないソースからの実行
 
               問題があれば簡潔に指摘（各3行以内）。問題なければ「OK」のみ。
-          - name: shell-quality
+              必ず日本語で回答してください。
+          - name: シェルスクリプト品質
             emoji: "\U0001F41A"
             prompt: |
               シェルスクリプト品質の観点でPRの変更をレビューしてください。
@@ -45,7 +46,8 @@ jobs:
               - コマンド存在確認
 
               問題があれば簡潔に指摘（各3行以内）。問題なければ「OK」のみ。
-          - name: config-consistency
+              必ず日本語で回答してください。
+          - name: 設定整合性
             emoji: "\U0001F9E9"
             prompt: |
               設定ファイルの整合性・互換性の観点でPRの変更をレビューしてください。
@@ -56,6 +58,7 @@ jobs:
               - chezmoi テンプレート構文
 
               問題があれば簡潔に指摘（各3行以内）。問題なければ「OK」のみ。
+              必ず日本語で回答してください。
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -68,6 +71,6 @@ jobs:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           model: "claude-haiku-4-5"
           direct_prompt: |
-            ${{ matrix.review.emoji }} **${{ matrix.review.name }} review**
+            ${{ matrix.review.emoji }} **${{ matrix.review.name }}レビュー**
 
             ${{ matrix.review.prompt }}
