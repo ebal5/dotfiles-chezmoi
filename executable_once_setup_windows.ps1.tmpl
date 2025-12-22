@@ -1,69 +1,106 @@
 {{ if eq .chezmoi.os "windows" }}
-Get-Command winget
-if (-not $?) {
-  Write-Host "cannot use winget. will be stop..."
-  exit
+# Windows Setup Script with Error Handling
+# =========================================
+
+$ErrorActionPreference = "Continue"
+
+# winget存在確認
+if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+  Write-Host "Error: winget is not available. Aborting." -ForegroundColor Red
+  exit 1
+}
+
+# インストール関数（エラーハンドリング付き）
+$script:failedPackages = @()
+
+function Install-WingetPackages {
+  param(
+    [string]$Category,
+    [string[]]$Packages
+  )
+
+  Write-Host "`n========================================" -ForegroundColor Cyan
+  Write-Host " $Category" -ForegroundColor Cyan
+  Write-Host "========================================" -ForegroundColor Cyan
+
+  foreach ($pkg in $Packages) {
+    Write-Host "Installing: $pkg" -ForegroundColor Yellow
+    winget install --id $pkg --accept-source-agreements --accept-package-agreements -e
+    if ($LASTEXITCODE -ne 0) {
+      Write-Host "  -> Failed or already installed: $pkg" -ForegroundColor DarkYellow
+      $script:failedPackages += $pkg
+    } else {
+      Write-Host "  -> Success: $pkg" -ForegroundColor Green
+    }
+  }
 }
 
 # ========================================
-# 基本ツール・ユーティリティ
+# パッケージインストール
 # ========================================
-winget install `
-  7zip.7zip `
-  cURL.cURL `
-  Insecure.Nmap `
-  jqlang.jq `
-  Kitware.CMake `
-  Microsoft.PCManager `
-  Microsoft.VCRedist.2015+.x64 `
-  Microsoft.VCRedist.2015+.x86 `
-  vim.vim `
-  XP89DCGQ3K6VLD # powertoys
+
+Install-WingetPackages "基本ツール・ユーティリティ" @(
+  "7zip.7zip"
+  "cURL.cURL"
+  "Insecure.Nmap"
+  "jqlang.jq"
+  "Kitware.CMake"
+  "Microsoft.PCManager"
+  "Microsoft.VCRedist.2015+.x64"
+  "Microsoft.VCRedist.2015+.x86"
+  "vim.vim"
+  "XP89DCGQ3K6VLD"  # PowerToys
+)
+
+Install-WingetPackages "開発ツール・エディタ" @(
+  "Git.Git"
+  "Microsoft.VisualStudioCode"
+  "Nushell.Nushell"
+  "WinMerge.WinMerge"
+)
+
+Install-WingetPackages "Rust製CLIツール (Ubuntu Nix flakeと同期)" @(
+  "BurntSushi.ripgrep.MSVC"
+  "dandavison.delta"
+  "junegunn.fzf"
+  "lsd-rs.lsd"
+  "sharkdp.bat"
+  "sharkdp.fd"
+  "sharkdp.hexyl"
+  "Starship.Starship"
+  "ajeetdsouza.zoxide"
+)
+
+Install-WingetPackages "言語・ランタイム管理" @(
+  "astral-sh.uv"
+  "Schniz.fnm"
+)
+
+Install-WingetPackages "Chezmoi・SSH/認証関連" @(
+  "Bitwarden.Bitwarden"
+  "equalsraf.win32yank"
+  "jstarks.npiperelay"
+  "twpayne.chezmoi"
+  "Twilio.Authy"
+)
+
+Install-WingetPackages "その他アプリケーション" @(
+  "Obsidian.Obsidian"
+)
 
 # ========================================
-# 開発ツール・エディタ
+# 結果サマリー
 # ========================================
-winget install `
-  Git.Git `
-  Microsoft.VisualStudioCode `
-  Nushell.Nushell `
-  WinMerge.WinMerge
+Write-Host "`n========================================" -ForegroundColor Cyan
+Write-Host " インストール完了" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
 
-# ========================================
-# Rust製CLIツール (Ubuntu Nix flakeと同期)
-# ========================================
-winget install `
-  BurntSushi.ripgrep.MSVC `
-  dandavison.delta `
-  junegunn.fzf `
-  lsd-rs.lsd `
-  sharkdp.bat `
-  sharkdp.fd `
-  sharkdp.hexyl `
-  Starship.Starship `
-  ajeetdsouza.zoxide
-
-# ========================================
-# 言語・ランタイム管理
-# ========================================
-winget install `
-  astral-sh.uv `
-  Schniz.fnm
-
-# ========================================
-# Chezmoi・SSH/認証関連
-# ========================================
-winget install `
-  Bitwarden.Bitwarden `
-  equalsraf.win32yank `
-  jstarks.npiperelay `
-  twpayne.chezmoi `
-  Twilio.Authy
-
-# ========================================
-# その他アプリケーション
-# ========================================
-winget install `
-  Obsidian.Obsidian
+if ($script:failedPackages.Count -gt 0) {
+  Write-Host "`n以下のパッケージは失敗またはスキップされました:" -ForegroundColor Yellow
+  $script:failedPackages | ForEach-Object { Write-Host "  - $_" -ForegroundColor DarkYellow }
+  Write-Host "`n(既にインストール済みの場合もここに表示されます)" -ForegroundColor Gray
+} else {
+  Write-Host "`nすべてのパッケージが正常にインストールされました。" -ForegroundColor Green
+}
 
 {{ end }}
