@@ -27,7 +27,7 @@ jobs:
         shell: pwsh
         run: |
           # Link checkout to chezmoi's expected source directory
-          $chezmoiSource = "$env:LOCALAPPDATA\chezmoi"
+          $chezmoiSource = "$env:USERPROFILE\.local\share\chezmoi"
           New-Item -ItemType Directory -Path (Split-Path $chezmoiSource) -Force | Out-Null
           New-Item -ItemType Junction -Path $chezmoiSource -Target "$env:GITHUB_WORKSPACE" -Force | Out-Null
 
