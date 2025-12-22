@@ -29,7 +29,7 @@ jobs:
           # Create chezmoi config with required template variables
           mkdir -p "$HOME/.config/chezmoi"
           cat > "$HOME/.config/chezmoi/chezmoi.toml" << 'EOF'
-          [data]
+          [data.chezmoi]
             requireGUI = false
           EOF
 
