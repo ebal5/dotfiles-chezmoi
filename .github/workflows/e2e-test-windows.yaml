@@ -28,7 +28,7 @@ jobs:
         shell: pwsh
         run: |
           # Apply dotfiles directly from checkout directory
-          chezmoi apply --source-path "$env:GITHUB_WORKSPACE" --exclude scripts --force
+          chezmoi apply --source "$env:GITHUB_WORKSPACE" --exclude scripts --force
 
       - name: Verify dotfiles
         shell: pwsh

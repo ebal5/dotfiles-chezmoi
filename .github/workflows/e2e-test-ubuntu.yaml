@@ -24,7 +24,7 @@ jobs:
       - name: Apply chezmoi (exclude scripts)
         run: |
           # Apply dotfiles directly from checkout directory
-          "$HOME/.local/bin/chezmoi" apply --source-path "$GITHUB_WORKSPACE" --exclude scripts --force
+          "$HOME/.local/bin/chezmoi" apply --source "$GITHUB_WORKSPACE" --exclude scripts --force
 
       - name: Verify dotfiles
         run: |
