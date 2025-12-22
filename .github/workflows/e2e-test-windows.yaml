@@ -1,0 +1,83 @@
+name: E2E Test - Windows
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  e2e-test-windows:
+    name: Windows Dotfiles Setup
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        shell: pwsh
+        run: |
+          winget install --id twpayne.chezmoi --accept-source-agreements --accept-package-agreements
+          # Add to PATH for subsequent steps
+          $chezmoiPath = "$env:LOCALAPPDATA\Microsoft\WinGet\Links"
+          Add-Content $env:GITHUB_PATH $chezmoiPath
+
+      - name: Apply chezmoi (exclude scripts)
+        shell: pwsh
+        run: |
+          # Link checkout to chezmoi's expected source directory
+          $chezmoiSource = "$env:USERPROFILE\.local\share\chezmoi"
+          New-Item -ItemType Directory -Path (Split-Path $chezmoiSource) -Force | Out-Null
+          New-Item -ItemType Junction -Path $chezmoiSource -Target "$env:GITHUB_WORKSPACE" -Force | Out-Null
+
+          # Apply dotfiles (skip heavy setup scripts)
+          chezmoi apply --exclude scripts --force
+
+      - name: Verify dotfiles
+        shell: pwsh
+        run: |
+          Write-Host "=== Verifying dotfiles installation ==="
+
+          $expectedFiles = @(
+            "$env:USERPROFILE\.gitconfig"
+            "$env:USERPROFILE\.vimrc"
+          )
+
+          $errors = 0
+          foreach ($file in $expectedFiles) {
+            if (Test-Path $file) {
+              Write-Host "[OK] $file exists"
+            } else {
+              Write-Host "[ERROR] $file is missing"
+              $errors++
+            }
+          }
+
+          if (Test-Path "$env:USERPROFILE\.config") {
+            Write-Host "[OK] ~/.config directory exists"
+          } else {
+            Write-Host "[ERROR] ~/.config directory is missing"
+            $errors++
+          }
+
+          Write-Host ""
+          Write-Host "=== Summary ==="
+          if ($errors -eq 0) {
+            Write-Host "All dotfiles verified successfully!"
+            exit 0
+          } else {
+            Write-Host "$errors file(s) missing"
+            exit 1
+          }
+
+      - name: Show applied files
+        if: always()
+        shell: pwsh
+        run: |
+          Write-Host "=== chezmoi managed files ==="
+          chezmoi managed --include files 2>$null
+
+          Write-Host ""
+          Write-Host "=== Home directory structure ==="
+          Get-ChildItem -Force $env:USERPROFILE | Format-Table Name, LastWriteTime, Length
