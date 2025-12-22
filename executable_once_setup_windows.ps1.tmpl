@@ -5,34 +5,65 @@ if (-not $?) {
   exit
 }
 
+# ========================================
+# 基本ツール・ユーティリティ
+# ========================================
 winget install `
   7zip.7zip `
-  Bitwarden.Bitwarden `
-  BurntSushi.ripgrep.MSVC `
   cURL.cURL `
-  dandavison.delta `
-  equalsraf.win32yank `
-  Git.Git `
   Insecure.Nmap `
   jqlang.jq `
-  jstarks.npiperelay `
-  junegunn.fzf `
   Kitware.CMake `
   Microsoft.PCManager `
   Microsoft.VCRedist.2015+.x64 `
   Microsoft.VCRedist.2015+.x86 `
+  vim.vim `
+  XP89DCGQ3K6VLD # powertoys
+
+# ========================================
+# 開発ツール・エディタ
+# ========================================
+winget install `
+  Git.Git `
   Microsoft.VisualStudioCode `
   Nushell.Nushell `
-  Obsidian.Obsidian `
-  Rye.Rye `
+  WinMerge.WinMerge
+
+# ========================================
+# Rust製CLIツール (Ubuntu Nix flakeと同期)
+# ========================================
+winget install `
+  BurntSushi.ripgrep.MSVC `
+  dandavison.delta `
+  junegunn.fzf `
+  lsd-rs.lsd `
   sharkdp.bat `
   sharkdp.fd `
   sharkdp.hexyl `
   Starship.Starship `
-  Twilio.Authy `
+  ajeetdsouza.zoxide
+
+# ========================================
+# 言語・ランタイム管理
+# ========================================
+winget install `
+  astral-sh.uv `
+  Schniz.fnm
+
+# ========================================
+# Chezmoi・SSH/認証関連
+# ========================================
+winget install `
+  Bitwarden.Bitwarden `
+  equalsraf.win32yank `
+  jstarks.npiperelay `
   twpayne.chezmoi `
-  vim.vim `
-  WinMerge.WinMerge `
-  XP89DCGQ3K6VLD # powertoys
+  Twilio.Authy
+
+# ========================================
+# その他アプリケーション
+# ========================================
+winget install `
+  Obsidian.Obsidian
 
 {{ end }}

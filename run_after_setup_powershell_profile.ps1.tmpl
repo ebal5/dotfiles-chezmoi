@@ -1,0 +1,64 @@
+{{ if eq .chezmoi.os "windows" }}
+# PowerShell Profile Setup Script
+# ================================
+# このスクリプトはchezmoi apply後に実行され、
+# PowerShellプロファイルを$PROFILEの場所にコピーします。
+# OneDriveの有無に関わらず正しいパスに配置されます。
+
+$ErrorActionPreference = "SilentlyContinue"
+
+# ソースファイルのパス
+$sourceProfile = Join-Path $HOME ".config\powershell\profile.ps1"
+
+if (-not (Test-Path $sourceProfile)) {
+  Write-Host "Source profile not found: $sourceProfile" -ForegroundColor Yellow
+  exit 0
+}
+
+# PowerShell 5.x (Windows PowerShell) 用
+$ps5Profile = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
+$ps5Dir = Split-Path $ps5Profile -Parent
+
+if (-not (Test-Path $ps5Dir)) {
+  New-Item -ItemType Directory -Path $ps5Dir -Force | Out-Null
+  Write-Host "Created: $ps5Dir"
+}
+
+Copy-Item -Path $sourceProfile -Destination $ps5Profile -Force
+Write-Host "Copied profile to: $ps5Profile" -ForegroundColor Green
+
+# PowerShell 7+ (pwsh) 用
+$ps7Profile = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "PowerShell\Microsoft.PowerShell_profile.ps1"
+$ps7Dir = Split-Path $ps7Profile -Parent
+
+if (-not (Test-Path $ps7Dir)) {
+  New-Item -ItemType Directory -Path $ps7Dir -Force | Out-Null
+  Write-Host "Created: $ps7Dir"
+}
+
+Copy-Item -Path $sourceProfile -Destination $ps7Profile -Force
+Write-Host "Copied profile to: $ps7Profile" -ForegroundColor Green
+
+# OneDrive Documents への追加コピー（存在する場合）
+$oneDriveDocs = Join-Path $env:OneDrive "Documents"
+if ($env:OneDrive -and (Test-Path $oneDriveDocs)) {
+  # Windows PowerShell
+  $oneDrivePs5Dir = Join-Path $oneDriveDocs "WindowsPowerShell"
+  if (-not (Test-Path $oneDrivePs5Dir)) {
+    New-Item -ItemType Directory -Path $oneDrivePs5Dir -Force | Out-Null
+  }
+  Copy-Item -Path $sourceProfile -Destination (Join-Path $oneDrivePs5Dir "Microsoft.PowerShell_profile.ps1") -Force
+  Write-Host "Copied profile to OneDrive: $oneDrivePs5Dir" -ForegroundColor Green
+
+  # PowerShell 7+
+  $oneDrivePs7Dir = Join-Path $oneDriveDocs "PowerShell"
+  if (-not (Test-Path $oneDrivePs7Dir)) {
+    New-Item -ItemType Directory -Path $oneDrivePs7Dir -Force | Out-Null
+  }
+  Copy-Item -Path $sourceProfile -Destination (Join-Path $oneDrivePs7Dir "Microsoft.PowerShell_profile.ps1") -Force
+  Write-Host "Copied profile to OneDrive: $oneDrivePs7Dir" -ForegroundColor Green
+}
+
+Write-Host "`nPowerShell profile setup complete!" -ForegroundColor Cyan
+Write-Host "Restart your PowerShell session to apply changes." -ForegroundColor Cyan
+{{ end }}
