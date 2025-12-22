@@ -2,9 +2,8 @@ name: E2E Test - Windows
 
 on:
   push:
-    branches: [main, feat/e2e-test]
-  pull_request:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -27,8 +26,13 @@ jobs:
       - name: Apply chezmoi (exclude scripts)
         shell: pwsh
         run: |
-          # Apply dotfiles directly from checkout directory
-          chezmoi apply --source "$env:GITHUB_WORKSPACE" --exclude scripts --force
+          # Link checkout to chezmoi's expected source directory
+          $chezmoiSource = "$env:LOCALAPPDATA\chezmoi"
+          New-Item -ItemType Directory -Path (Split-Path $chezmoiSource) -Force | Out-Null
+          New-Item -ItemType Junction -Path $chezmoiSource -Target "$env:GITHUB_WORKSPACE" -Force | Out-Null
+
+          # Apply dotfiles (skip heavy setup scripts)
+          chezmoi apply --exclude scripts --force
 
       - name: Verify dotfiles
         shell: pwsh

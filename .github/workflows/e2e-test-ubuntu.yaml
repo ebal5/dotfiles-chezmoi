@@ -2,9 +2,8 @@ name: E2E Test - Ubuntu
 
 on:
   push:
-    branches: [main, feat/e2e-test]
-  pull_request:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -23,8 +22,12 @@ jobs:
 
       - name: Apply chezmoi (exclude scripts)
         run: |
-          # Apply dotfiles directly from checkout directory
-          "$HOME/.local/bin/chezmoi" apply --source "$GITHUB_WORKSPACE" --exclude scripts --force
+          # Link checkout to chezmoi's expected source directory
+          mkdir -p "$HOME/.local/share"
+          ln -s "$GITHUB_WORKSPACE" "$HOME/.local/share/chezmoi"
+
+          # Apply dotfiles (skip heavy setup scripts)
+          "$HOME/.local/bin/chezmoi" apply --exclude scripts --force
 
       - name: Verify dotfiles
         run: |
