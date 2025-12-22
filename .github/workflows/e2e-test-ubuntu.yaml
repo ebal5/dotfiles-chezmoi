@@ -1,0 +1,78 @@
+name: E2E Test - Ubuntu
+
+on:
+  push:
+    branches: [main, feat/e2e-test]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  e2e-test-ubuntu:
+    name: Ubuntu Dotfiles Setup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install chezmoi
+        run: |
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Apply chezmoi (exclude scripts)
+        run: |
+          "$HOME/.local/bin/chezmoi" init --source "$GITHUB_WORKSPACE" --exclude scripts --force
+          "$HOME/.local/bin/chezmoi" apply --exclude scripts --force
+
+      - name: Verify dotfiles
+        run: |
+          echo "=== Verifying dotfiles installation ==="
+
+          expected_files=(
+            "$HOME/.bashrc"
+            "$HOME/.bash_profile"
+            "$HOME/.profile"
+            "$HOME/.gitconfig"
+            "$HOME/.vimrc"
+            "$HOME/.zshrc"
+            "$HOME/.zshenv"
+          )
+
+          errors=0
+          for file in "${expected_files[@]}"; do
+            if [ -f "$file" ]; then
+              echo "[OK] $file exists"
+            else
+              echo "[ERROR] $file is missing"
+              errors=$((errors + 1))
+            fi
+          done
+
+          if [ -d "$HOME/.config" ]; then
+            echo "[OK] ~/.config directory exists"
+          else
+            echo "[ERROR] ~/.config directory is missing"
+            errors=$((errors + 1))
+          fi
+
+          echo ""
+          echo "=== Summary ==="
+          if [ $errors -eq 0 ]; then
+            echo "All dotfiles verified successfully!"
+            exit 0
+          else
+            echo "$errors file(s) missing"
+            exit 1
+          fi
+
+      - name: Show applied files
+        if: always()
+        run: |
+          echo "=== chezmoi managed files ==="
+          "$HOME/.local/bin/chezmoi" managed --include files || true
+
+          echo ""
+          echo "=== Home directory structure ==="
+          ls -la "$HOME" || true
