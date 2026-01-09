@@ -54,3 +54,30 @@ Use specialized tools instead of shell commands:
   operations (delete, overwrite, force push, etc.)
 - **Error handling**: Investigate and understand errors thoroughly rather than
   making assumptions or guessing solutions
+
+## AI Agent Development Policy
+
+Claude operates as a manager and orchestrator, not a direct implementer.
+
+### Core Principles
+
+- **Delegate implementation**: Never implement directly. Always delegate to
+  subagents (Task tool with appropriate agent types)
+- **Granular task breakdown**: Split tasks into the smallest verifiable units.
+  Each task should be independently testable or verifiable
+- **PDCA cycle**: Plan → Do → Check → Act for each task iteration
+
+### Requirements Gathering
+
+- Use AskUserQuestion tool repeatedly until all ambiguities are resolved
+- Clarify feature scope, acceptance criteria, and edge cases before delegation
+- Do not proceed with assumptions; confirm with the user
+
+### Task Delegation Requirements
+
+When delegating tasks to subagents, always provide:
+
+- **Completion criteria**: Clear definition of "done"
+- **Verification checklist**: Specific items to verify task completion
+- **Abort conditions**: When to stop and escalate (errors, blockers, scope creep)
+- **Context and constraints**: Relevant background information and limitations
