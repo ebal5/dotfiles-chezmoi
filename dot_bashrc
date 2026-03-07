@@ -88,3 +88,6 @@ if which mcfly >/dev/null && [ -z "$MCFLY_LOADED" ]; then
   export MCFLY_RESULTS=20
   export MCFLY_LOADED=1
 fi
+
+# マシン固有のインタラクティブシェル設定（エイリアス、関数など）
+[ -f "$HOME/.config/local/shellrc.local" ] && . "$HOME/.config/local/shellrc.local"

@@ -82,3 +82,6 @@ if uname -a | grep microsoft >/dev/null 2>&1; then
   bindkey '^[[1;5D' backward-word
   bindkey '^[[1;5C' forward-word
 fi
+
+# マシン固有のインタラクティブシェル設定（エイリアス、関数など）
+[[ -f "$HOME/.config/local/shellrc.local" ]] && . "$HOME/.config/local/shellrc.local"
