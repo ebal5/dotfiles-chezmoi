@@ -10,4 +10,7 @@ if [ -n "${WSL_DISTRO_NAME:-}" ] || grep -qiE "(microsoft|wsl)" /proc/version 2>
   export BROWSER="wslview"
 fi
 
+# マシン固有のログイン時設定（環境変数、PATHなど）
+[ -f "$HOME/.config/local/profile.local" ] && . "$HOME/.config/local/profile.local"
+
 true

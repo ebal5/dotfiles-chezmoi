@@ -32,6 +32,10 @@ rm ~/bin/chezmoi
 
 ## install 後の作業
 
+`~/.config/local/` にマシン固有の設定ファイルを作成する。
+
+### Git ユーザー設定
+
 `~/.config/local/git_user_config` に Git 用のユーザー設定を記述する。
 
 例: 基本のユーザー設定と、特定ディレクトリ配下の Git リポジトリのみで利用する設定を読み込む
@@ -43,6 +47,24 @@ rm ~/bin/chezmoi
 
 [includeIf "gitdir:~/Projects/SOME_COMPANY/"]
   path = PATH_OF_ONLY_SOMECOMPANY_CONFIG_FILE
+```
+
+### シェル用ローカル設定
+
+マシン固有のシェル設定を以下のファイルに記述する。ファイルが存在する場合のみ自動的に読み込まれる。
+
+| ファイル | タイミング | 用途 |
+| ------- | --------- | ---- |
+| `~/.config/local/profile.local` | ログイン時（1回） | 環境変数、PATH追加など |
+| `~/.config/local/shellrc.local` | インタラクティブシェル起動時 | エイリアス、関数など |
+
+例: GPU環境向けの設定
+
+```sh
+# ~/.config/local/profile.local
+export CUDA_HOME="/usr/local/cuda"
+export PATH="$CUDA_HOME/bin:$PATH"
+export LD_LIBRARY_PATH="$CUDA_HOME/lib64:${LD_LIBRARY_PATH:-}"
 ```
 
 ### ssh鍵によるコミット署名設定
