@@ -6,6 +6,7 @@
 # =================================
 **/.claude/settings.local.json
 .claude/scripts.local/
+.claude/worktrees/
 settings.local.json
 .claude/cache/
 .claude/*.log
