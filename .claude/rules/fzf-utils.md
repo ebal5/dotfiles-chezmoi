@@ -1,34 +1,16 @@
 ---
-paths: dot_config/sh-like-aliases, **/*fzf*
+paths: dot_config/sh-like-aliases, dot_scripts/*fzf*
 description: fzfユーティリティコマンド
 ---
 
 # fzfユーティリティ
 
-このリポジトリには、fzfベースの便利なユーティリティコマンドが含まれています。
+fzfベースのユーティリティコマンドは `dot_scripts/executable_fzf_utils.sh` で実装し、
+`dot_config/sh-like-aliases` でエイリアス定義している。
 
-## 主要なfzfコマンド
+## 修正時の注意
 
-- `fzdc` - Dockerコンテナ選択・操作
-- `fzds` - Dockerコンテナ選択（名前のみ出力）
-- `fzgb` - Git ブランチ選択・チェックアウト
-- `fzgl` - Git ログ閲覧
-- `fzff` - ファイル検索・編集
-- `fzpk` - プロセス選択・終了
-- `fzsh` - SSH ホスト選択・接続
-- `fzgd` - Git 差分表示
-- `fzdi` - Docker イメージ管理
-- `fzcd` - 最近のディレクトリ移動
-
-## 使用方法
-
-すべてのコマンドはエイリアスとして `dot_config/sh-like-aliases` で定義されており、シェル起動時に自動的に利用可能になります。
-
-詳細な使用方法は `FZF_UTILS.md` を参照してください。
-
-## 依存関係
-
-- `fzf` (必須)
-- `docker` (Docker関連コマンド用)
-- `git` (Git関連コマンド用)
-- `ripgrep`, `fd`, `bat` (推奨・性能向上)
+- 新しいfzfコマンドを追加する場合、実装は `dot_scripts/executable_fzf_utils.sh` に、
+  エイリアスは `dot_config/sh-like-aliases` に追記すること
+- 依存関係: `fzf`（必須）、`docker`/`git`（各コマンド用）、`ripgrep`/`fd`/`bat`（推奨）
+- 詳細な使用方法のドキュメントは `FZF_UTILS.md` を更新すること

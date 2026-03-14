@@ -1,6 +1,6 @@
 ---
-paths: "**/*mise*", ".tool-versions"
-description: miseツール管理ガイドライン
+paths: "**/*mise*", .tool-versions, executable_once_setup_*
+description: mise（ツールバージョン管理）
 ---
 
 # mise（ツールバージョン管理）
@@ -8,7 +8,7 @@ description: miseツール管理ガイドライン
 ## 概要
 
 mise（旧rtx）はプロジェクトごとのツールバージョン管理ツール。
-asdfの高速なRust実装として、Node.js、Python、Go等の開発ツールを管理。
+asdfの高速なRust実装として、Node.js、Python等の言語ランタイムを管理。
 
 ## 基本コマンド
 

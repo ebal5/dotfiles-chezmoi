@@ -1,35 +1,12 @@
 ---
-paths: dot_gitconfig, **/.git/**, **/.github/**
-description: Git操作ガイドラインとClaude Code固有の制限
+paths: dot_gitconfig, **/.github/**
+description: Git設定とGitHub Actions管理
 ---
 
 # Git操作
 
 ## Git設定の特徴
 
-- **Deltaディフビューア**: 見やすい差分表示
-- **包括的なエイリアス**: dot_gitconfigで定義
-
-## 主要なGitエイリアス
-
-dot_gitconfigで定義された豊富なGitエイリアスを含む:
-
-- `g s` / `gs` - Git status
-- `g c` / `g cmm` - メッセージ付きGit commit
-- `g poh` - origin HEADにpush
-- `g graph` - コミットグラフを表示
-- `g fsw` - fzfを使用したファジーブランチ切り替え
-
-## Claude Code での Git操作（重要）
-
-`git add` と `git commit` は `&&` で繋げず、別々のBash呼び出しで実行すること。
-許可ツール設定が個別コマンドパターンのため、連結すると毎回許可が必要になる。
-
-```bash
-# Good: 分割実行
-git add <files>
-git commit -m "..."
-
-# Bad: 連結実行（許可が必要になる）
-git add <files> && git commit -m "..."
-```
+- **Deltaディフビューア**: 構文ハイライト付きの差分表示
+- **ff=false**: マージ時はfast-forward無効（マージコミット作成）
+- **豊富なエイリアス**: `dot_gitconfig`で定義（fzf連携含む）
