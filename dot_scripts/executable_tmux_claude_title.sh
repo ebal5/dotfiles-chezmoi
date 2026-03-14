@@ -17,13 +17,10 @@ if [[ -z "${TMUX:-}" ]]; then
   exit 0
 fi
 
-window_id=$(tmux display-message -p '#I')
-save_file="/tmp/tmux_claude_title_${window_id}"
-
 case "$action" in
   "session-start")
-    # 現在のウィンドウ名を保存
-    tmux display-message -p '#W' >"$save_file"
+    # automatic-renameを無効化してタイトルを固定
+    tmux set-option -w automatic-rename off 2>/dev/null || true
     # ブランチ名を取得してタイトルに含める
     branch=$(git --no-optional-locks branch 2>/dev/null | grep '\*' | colrm 1 2) || branch=""
     if [[ -n "$branch" ]]; then
@@ -33,14 +30,8 @@ case "$action" in
     fi
     ;;
   "session-end")
-    # 保存した元のウィンドウ名を復元
-    if [[ -f "$save_file" ]]; then
-      saved_name=$(cat "$save_file")
-      tmux rename-window "$saved_name" 2>/dev/null || true
-      rm -f "$save_file"
-    else
-      tmux rename-window "$(basename "$(pwd)")" 2>/dev/null || true
-    fi
+    # automatic-renameを再有効化してシェル名を自動表示
+    tmux set-option -w automatic-rename on 2>/dev/null || true
     ;;
   *)
     echo "Unknown action: $action" >&2
