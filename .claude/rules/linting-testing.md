@@ -18,3 +18,7 @@ GitHub Actionsが以下を自動実行:
 - シェルスクリプト用shfmtフォーマット
 - シェルスクリプト解析用shellcheck
 - Markdownファイル用markdownlint-cli2
+
+## 統合 lint コマンド
+
+すべてのlintを一括実行するには `/lint:all` コマンドを使用。
