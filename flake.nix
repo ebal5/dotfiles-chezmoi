@@ -46,6 +46,7 @@
             # TUI tools
             oxker             # Docker container TUI manager
             ov                # Feature-rich terminal pager
+            glow              # Terminal Markdown renderer
 
             # Task management
             pueue             # CLI task queue manager
