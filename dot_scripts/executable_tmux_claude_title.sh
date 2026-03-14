@@ -3,14 +3,14 @@
 set -euo pipefail
 
 if [[ $# -ne 1 ]]; then
-  echo "Usage: $0 <session-start|worktree-create|worktree-remove|session-end>" >&2
+  echo "Usage: $0 <session-start|session-end>" >&2
   exit 1
 fi
 
 action="$1"
 
 # stdinを読み捨てる（フックはJSON入力を渡すため）
-input=$(cat)
+cat >/dev/null
 
 # tmux外では何もしない
 if [[ -z "${TMUX:-}" ]]; then
@@ -22,21 +22,15 @@ save_file="/tmp/tmux_claude_title_${window_id}"
 
 case "$action" in
   "session-start")
-    # 現在のウィンドウ名を保存してクロードタイトルに変更
+    # 現在のウィンドウ名を保存
     tmux display-message -p '#W' >"$save_file"
-    tmux rename-window "🤖 claude" 2>/dev/null || true
-    ;;
-  "worktree-create")
-    # worktree名を取得してタイトルに設定（stdoutはworktreeパス用に予約）
-    {
-      name=$(echo "$input" | jq -r '.name // empty' 2>/dev/null) || name=""
-      if [[ -n "$name" ]]; then
-        tmux rename-window "🤖 ${name}" 2>/dev/null || true
-      fi
-    } >/dev/null
-    ;;
-  "worktree-remove")
-    tmux rename-window "🤖 claude" 2>/dev/null || true
+    # ブランチ名を取得してタイトルに含める
+    branch=$(git --no-optional-locks branch 2>/dev/null | grep '\*' | colrm 1 2) || branch=""
+    if [[ -n "$branch" ]]; then
+      tmux rename-window "🤖 ${branch}" 2>/dev/null || true
+    else
+      tmux rename-window "🤖 claude" 2>/dev/null || true
+    fi
     ;;
   "session-end")
     # 保存した元のウィンドウ名を復元
