@@ -114,28 +114,6 @@
         ]
       }
     ],
-    "WorktreeCreate": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.scripts/tmux_claude_title.sh worktree-create"
-          }
-        ]
-      }
-    ],
-    "WorktreeRemove": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.scripts/tmux_claude_title.sh worktree-remove"
-          }
-        ]
-      }
-    ],
     "SessionEnd": [
       {
         "matcher": "",
