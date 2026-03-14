@@ -53,6 +53,9 @@
 
             # Git utilities
             gibo              # gitignore boilerplates
+
+            # Linters
+            actionlint        # GitHub Actions workflow linter
           ];
         };
       }
