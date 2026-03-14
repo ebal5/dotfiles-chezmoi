@@ -17,10 +17,22 @@
       "Bash(nix profile list *)",
       "Bash(actionlint *)",
       "Bash(shellcheck *)",
-      "Bash(shfmt *)"
+      "Bash(shfmt *)",
+      "Bash(gh pr list *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr diff *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr status *)",
+      "Bash(gh issue list *)",
+      "Bash(gh issue view *)",
+      "Bash(gh repo view *)"
     ],
     "deny": [],
     "ask": [
+      "Bash(gh api *)",
+      "Bash(gh pr create *)",
+      "Bash(gh pr merge *)",
+      "Bash(gh pr comment *)",
       "Bash(chezmoi add *)",
       "Bash(chezmoi edit *)",
       "Bash(chezmoi forget *)",
