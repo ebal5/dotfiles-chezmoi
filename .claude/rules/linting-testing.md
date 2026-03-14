@@ -1,5 +1,6 @@
 ---
-description: リント・テスト・品質保証ガイドライン
+paths: "**/*.sh", "**/*.bash", "**/*.md", .github/**
+description: リントと品質チェックのコマンドとCI設定
 ---
 
 # リントと品質チェック
