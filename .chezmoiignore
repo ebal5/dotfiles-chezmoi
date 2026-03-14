@@ -17,6 +17,10 @@
 .markdownlint.yaml
 .shellcheckrc
 
+# Symlink source files - シンボリックリンクのソースファイル
+.claude/settings.json.src
+.claude/.mcp.json.src
+
 # Backup files - バックアップファイル
 bakups/
 *.bak
