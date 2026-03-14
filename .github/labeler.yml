@@ -1,0 +1,37 @@
+shell-script:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.sh"
+          - "**/*.sh.tmpl"
+          - "**/*.bash"
+          - "**/dot_bashrc"
+          - "**/dot_bash_profile"
+          - "**/dot_zshrc"
+          - "**/dot_zshenv"
+          - "**/dot_profile"
+
+chezmoi:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".chezmoi*"
+          - "**/*.tmpl"
+          - ".chezmoiignore"
+          - ".chezmoiremove"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+
+configuration changes:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".claude/**"
+          - ".github/**"
+          - "**/dot_gitconfig"
+          - "**/dot_vimrc"
+          - "**/*.toml"
+          - "**/*.yaml"
+          - "**/*.yml"
+          - "**/*.json"
+          - "**/*.nix"
