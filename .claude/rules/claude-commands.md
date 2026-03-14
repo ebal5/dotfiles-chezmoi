@@ -25,9 +25,11 @@ dot_claude/
 │       ├── lint.md
 │       ├── test.md
 │       └── security.md
-├── dot_mcp.json        # グローバルMCPサーバー設定
+├── dot_mcp.json.src              # グローバルMCPサーバー設定（実体）
+├── symlink_dot_mcp.json.tmpl     # ↑へのシンボリックリンク
+├── settings.json.src             # グローバル設定（実体）
+├── symlink_settings.json.tmpl    # ↑へのシンボリックリンク
 ├── executable_stop-hook-git-check.sh  # Stopフック
-├── settings.json       # グローバル設定
 └── CLAUDE.md           # ユーザーグローバル指示
 ```
 
