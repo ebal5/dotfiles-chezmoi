@@ -18,6 +18,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - uses: actions/setup-go@v6
+        with:
+          go-version: stable
       - run: |
           go install mvdan.cc/sh/v3/cmd/shfmt@latest
           shfmt -i 2 -ci -w .
