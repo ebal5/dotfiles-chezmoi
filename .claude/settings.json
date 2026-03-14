@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(chezmoi cat *)",
+      "Bash(chezmoi data *)",
+      "Bash(chezmoi diff *)",
+      "Bash(chezmoi managed *)",
+      "Bash(chezmoi source-path *)",
+      "Bash(chezmoi status *)",
+      "Bash(chezmoi verify *)",
+      "Bash(find *)",
+      "Bash(nix build *)",
+      "Bash(nix flake *)",
+      "Bash(nix profile list *)",
+      "Bash(actionlint *)",
+      "Bash(shellcheck *)",
+      "Bash(shfmt *)"
+    ],
+    "deny": [],
+    "ask": [
+      "Bash(chezmoi add *)",
+      "Bash(chezmoi edit *)",
+      "Bash(chezmoi forget *)",
+      "Bash(chezmoi re-add *)",
+      "Bash(chezmoi remove *)",
+      "Bash(chezmoi update *)",
+      "Bash(nix profile install *)",
+      "Bash(nix profile remove *)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}
