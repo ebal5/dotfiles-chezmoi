@@ -111,6 +111,10 @@
       }
     }
   },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "teammateMode": "tmux",
   "enabledPlugins": {
     "commit-commands@claude-plugins-official": true,
     "document-skills@anthropic-agent-skills": true,
