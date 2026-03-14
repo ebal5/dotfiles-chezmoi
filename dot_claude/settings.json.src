@@ -105,26 +105,46 @@
   "hooks": {
     "SessionStart": [
       {
-        "type": "command",
-        "command": "~/.scripts/tmux_claude_title.sh session-start"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.scripts/tmux_claude_title.sh session-start"
+          }
+        ]
       }
     ],
     "WorktreeCreate": [
       {
-        "type": "command",
-        "command": "~/.scripts/tmux_claude_title.sh worktree-create"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.scripts/tmux_claude_title.sh worktree-create"
+          }
+        ]
       }
     ],
     "WorktreeRemove": [
       {
-        "type": "command",
-        "command": "~/.scripts/tmux_claude_title.sh worktree-remove"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.scripts/tmux_claude_title.sh worktree-remove"
+          }
+        ]
       }
     ],
     "SessionEnd": [
       {
-        "type": "command",
-        "command": "~/.scripts/tmux_claude_title.sh session-end"
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.scripts/tmux_claude_title.sh session-end"
+          }
+        ]
       }
     ]
   },
