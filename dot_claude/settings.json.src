@@ -1,5 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
       "Bash(bunx @biomejs/biome *)",
@@ -98,10 +101,6 @@
       "Bash(sudo *)"
     ]
   },
-  "statusLine": {
-    "type": "command",
-    "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); user=$(whoami); host=$(hostname -s); dir=$(basename \"$cwd\"); git_branch=\"\"; if cd \"$cwd\" 2>/dev/null && git rev-parse --git-dir > /dev/null 2>&1; then git_branch=$(git --no-optional-locks branch 2>/dev/null | grep '*' | colrm 1 2); [ -n \"$git_branch\" ] && git_branch=\" $git_branch\"; fi; time=$(date +%H:%M:%S); echo \"${user}@${host} ${dir}${git_branch}\"; echo \"${time}\""
-  },
   "hooks": {
     "SessionStart": [
       {
@@ -126,7 +125,18 @@
       }
     ]
   },
-  "alwaysThinkingEnabled": true,
+  "statusLine": {
+    "type": "command",
+    "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); user=$(whoami); host=$(hostname -s); dir=$(basename \"$cwd\"); git_branch=\"\"; if cd \"$cwd\" 2>/dev/null && git rev-parse --git-dir > /dev/null 2>&1; then git_branch=$(git --no-optional-locks branch 2>/dev/null | grep '*' | colrm 1 2); [ -n \"$git_branch\" ] && git_branch=\" $git_branch\"; fi; time=$(date +%H:%M:%S); echo \"${user}@${host} ${dir}${git_branch}\"; echo \"${time}\""
+  },
+  "enabledPlugins": {
+    "commit-commands@claude-plugins-official": true,
+    "document-skills@anthropic-agent-skills": true,
+    "feature-dev@claude-plugins-official": true,
+    "agent-sdk-dev@claude-plugins-official": true,
+    "code-simplifier@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
   "extraKnownMarketplaces": {
     "anthropic-agent-skills": {
       "source": {
@@ -135,15 +145,6 @@
       }
     }
   },
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
-  },
-  "teammateMode": "tmux",
-  "enabledPlugins": {
-    "commit-commands@claude-plugins-official": true,
-    "document-skills@anthropic-agent-skills": true,
-    "feature-dev@claude-plugins-official": true,
-    "agent-sdk-dev@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true
-  }
+  "alwaysThinkingEnabled": true,
+  "teammateMode": "tmux"
 }
