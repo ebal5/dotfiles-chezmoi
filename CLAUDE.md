@@ -44,6 +44,7 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 - `~/.config/local/profile.local` - ログイン環境変数
 - `~/.config/local/shellrc.local` - 対話シェル設定
 - `~/.config/local/git_user_config` - Gitユーザー情報
+- `~/.config/local/tmux_repo_names` - tmuxタイトル用リポジトリ短縮名
 
 ## 開発コマンド
 
