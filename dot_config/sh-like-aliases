@@ -129,3 +129,18 @@ alias fzgd="$HOME/.scripts/fzf_utils.sh git-diff"
 alias fzdi="$HOME/.scripts/fzf_utils.sh docker-image"
 # recent-dirは特別処理が必要（cdを実行する必要があるため）
 fzcd() { local dir=$($HOME/.scripts/fzf_utils.sh recent-dir); [[ -n "$dir" ]] && eval "$dir"; }
+
+# Claude Code worktree helper (temporary)
+cw() {
+  local name="${1:?Usage: cw <worktree-name>}"
+  local base="${2:-HEAD}"
+  local root
+  root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+    echo "cw: not in a git repository" >&2
+    return 1
+  }
+  local wt_dir="${root}/.claude/worktrees/${name}"
+  git worktree add "${wt_dir}" -b "${name}" "${base}" || return 1
+  cd "${wt_dir}" || return 1
+  claude --enable-auto-mode
+}
