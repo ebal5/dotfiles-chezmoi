@@ -46,6 +46,7 @@
       "Bash(gh variable list *)",
       "Bash(gh workflow list *)",
       "Bash(gh workflow view *)",
+      "Bash(jq *)",
       "Bash(git add *)",
       "Bash(git branch *)",
       "Bash(git check-ignore *)",
