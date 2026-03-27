@@ -1,9 +1,10 @@
 # markdownlint-cli2 configuration
 # https://github.com/DavidAnson/markdownlint-cli2
 
-# Claude Code slash commands use frontmatter and don't require first-line headings
+# Claude Code commands/skills use frontmatter and don't require first-line headings
 ignores:
   - "dot_claude/commands/**"
+  - "dot_claude/skills/**"
 
 # Default rules
 config:
