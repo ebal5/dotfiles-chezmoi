@@ -28,6 +28,11 @@ Use specialized tools instead of shell commands:
 
 - **Gitignore**: Add credentials, secrets, sensitive data
   (`.env*`, `*.key`, `credentials.*`, etc.) to `.gitignore`
+- **Worktree**: When working in a git worktree, always use the current
+  working directory (`pwd`) as the project root. Never follow
+  `git-common-dir` or `.git` file references back to the original clone
+  directory. All file reads, edits, searches, and glob operations must
+  target paths within the worktree directory, not the parent repository
 
 ## Performance
 
