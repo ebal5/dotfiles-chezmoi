@@ -61,6 +61,7 @@
             git               # Version control (latest from nixos-unstable)
             chezmoi           # Dotfiles manager
             bitwarden-cli     # Bitwarden CLI client
+            prek              # Fast pre-commit replacement (Rust)
 
             # Linters
             actionlint        # GitHub Actions workflow linter
