@@ -101,23 +101,8 @@ alias dclean="docker system prune -f"
 alias d="docker"
 alias g="git"
 
-# uvxによるPythonツール群
-alias ruff="uvx ruff"
-alias bandit="uvx bandit"
-alias mypy="uvx mypy"
-alias ty="uvx ty"
-
 # Nix管理ツール（pre-commit互換）
 alias pre-commit="prek"
-
-# bunxによるJS/TSツール群
-alias ccmanager="bunx ccmanager"
-alias ccusage="bunx ccusage"
-alias biome="bunx @biomejs/biome"
-alias serve="bunx serve"
-alias ncu="bunx npm-check-updates"
-alias degit="bunx degit"
-alias difit="bunx difit"
 
 # fzf便利ユーティリティ
 alias fzdc="$HOME/.scripts/fzf_utils.sh docker-container"
@@ -130,7 +115,10 @@ alias fzsh="$HOME/.scripts/fzf_utils.sh ssh-host"
 alias fzgd="$HOME/.scripts/fzf_utils.sh git-diff"
 alias fzdi="$HOME/.scripts/fzf_utils.sh docker-image"
 # recent-dirは特別処理が必要（cdを実行する必要があるため）
-fzcd() { local dir=$($HOME/.scripts/fzf_utils.sh recent-dir); [[ -n "$dir" ]] && eval "$dir"; }
+fzcd() {
+  local dir=$($HOME/.scripts/fzf_utils.sh recent-dir)
+  [[ -n "$dir" ]] && eval "$dir"
+}
 
 # Claude Code worktree helper (temporary)
 cw() {
