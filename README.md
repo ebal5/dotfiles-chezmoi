@@ -26,7 +26,7 @@ ${HOME}/once_setup_ubuntu.sh
   ${HOME}/bin/chezmoi cd
   git remote set-url origin git@github.com:ebal5/dotfiles-chezmoi.git
 )
-# 初期に使用したchezmoiを削除しmiseでインストールしたものを利用するようにする
+# 初期に使用したchezmoiを削除しNixでインストールしたものを利用するようにする
 rm ~/bin/chezmoi
 ```
 
@@ -100,16 +100,19 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
   - <https://github.com/joaojacome/bitwarden-ssh-agent> の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
 - [Nix](https://nixos.org/) による開発ツール管理
-  - CLI ツール（Starship、git-delta、lsd、mcfly など）を`flake.nix`で統合管理
+  - CLIツール・開発コマンドを`flake.nix`で統合管理（約30パッケージ）
+  - 主要ツール: git, fzf, ripgrep, fd, bat, starship, delta, lsd, mcfly, zoxide, xh, uv, bun, prek, actionlint など
+  - 全パッケージ一覧は[flake.nix](flake.nix)を参照
   - システム環境の再現性を向上
   - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile install .`
 - [Starship](https://starship.rs/ja-jp/)
-- [mise (alt asdf)](https://github.com/jdx/mise)（プロジェクト単位のバージョン管理用）
-- [uv](https://docs.astral.sh/uv/)（Python パッケージ管理）
+- [mise (alt asdf)](https://github.com/jdx/mise)（言語ランタイム管理: Node.js、Python）
+- [uv](https://docs.astral.sh/uv/)（Pythonパッケージ管理・uvxによるツール実行）
 - Git config
   - diff として delta を利用
   - 便利エイリアスを登録（よく使うコマンドの短縮など）
 - 作成したスクリプトの共有
+- [fzfユーティリティ](FZF_UTILS.md)（Docker、Git、ファイル検索、プロセス管理等のfzf連携コマンド）
 
 ### Zsh 固有の設定
 
@@ -125,68 +128,81 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 - 実行結果末尾に改行がない場合付与する
 - 設定したモジュールに関して、カッコ（"[" "]"）で囲い表示
 - AWS の日本リージョンに関しては短縮表記を利用
-- 実行に 10 秒以上かかったコマンドはかかった秒数を表示
+- 実行に 5 秒以上かかったコマンドはかかった秒数を表示
 - カレントディレクトリは直近 2 つのディレクトリのみ表示
 - Git:ブランチを表示（`main`および`master`の場合は表示しない）
 - Git:ワークツリーの追加行数・削除行数を表示
 - Git:リポジトリの状態を表示（`!`: 差分あり、など）
+- メモリ使用率が50%以上で表示
+- Azure サブスクリプション、Terraform ワークスペースを表示
+- コンテナ名を表示
 - 2 行目プロンプトに時刻を表示
 
 ### 主なシェル用エイリアス（Bash / Zsh 共通）
 
-| エイリアス  | 展開                                          | 備考                 |
-|--------|-----------------------------------------------|----------------------|
-| `l`    | `ls`                                          | ディレクトリ配下の一覧      |
-| `ll`   | `ls -alF`                                     | リスト表示              |
-| `sl`   | `ls`                                          | タイポ対策              |
-| `cd..` | `cd ..`                                       | タイポ対策              |
-| `..`   | `cd ..`                                       |                      |
-| `...`  | `cd ../../`                                   |                      |
-| `.2`   | `cd ../../`                                   |                      |
-| `.3`   | `cd ../../../`                                |                      |
-| `cg`   | `cd $(git rev-parse --show-toplevel)`         | Git リポジトリのトップに cd する |
-| `gs`   | `git status`                                  | タイポ対策              |
-| `tf`   | `terraform`                                   |                      |
-| `g`    | `git`                                         |                      |
-| `d`    | `docker`                                      |                      |
-| `dc`   | `docker compose`                              |                      |
-| `ddu`  | `docker compose down && docker compose up -d` |                      |
+| エイリアス | 展開 | 備考 |
+| --- | --- | --- |
+| `l` | `ls` | ディレクトリ配下の一覧 |
+| `ll` | `ls -alF` | リスト表示 |
+| `sl` | `ls` | タイポ対策 |
+| `cd..` | `cd ..` | タイポ対策 |
+| `..` | `cd ..` | |
+| `...` | `cd ../../` | |
+| `.2` | `cd ../../` | |
+| `.3` | `cd ../../../` | |
+| `cg` | `cd $(git rev-parse --show-toplevel)` | Gitリポジトリのトップにcdする |
+| `gs` | `git status` | タイポ対策 |
+| `tf` | `terraform` | |
+| `g` | `git` | |
+| `d` | `docker` | |
+| `dc` | `docker compose` | |
+| `ddu` | `docker compose down && docker compose up -d` | |
+| `dup` | `docker compose up -d` | Docker起動 |
+| `ddw` | `docker compose down` | Docker停止 |
+| `dps` | `docker compose ps` | Docker状態表示 |
+| `ruff` | `uvx ruff` | uvx経由のPython linter |
+| `mypy` | `uvx mypy` | uvx経由の型チェック |
+| `pre-commit` | `prek` | prek（Nix管理）へのエイリアス |
+
+上記は主要なエイリアスの抜粋です。bunxツール群（biome, ccusage等）、fzfユーティリティ（[FZF_UTILS.md](FZF_UTILS.md)参照）、便利関数（stmp, mkcd, psg等）を含む全一覧は[dot_config/sh-like-aliases](dot_config/sh-like-aliases)を参照してください。
 
 ### 主な Git コマンドのエイリアス
 
-| エイリアス   | 展開                                                                                                           | 備考                                      |
-|---------|----------------------------------------------------------------------------------------------------------------|-------------------------------------------|
-| `a`     | `add`                                                                                                          | ワークツリーのファイルをインデックスに登録する                 |
-| `au`    | `add -u`                                                                                                       | インデックスに登録されているファイルに差分があれば登録する       |
-| `br`    | `branch`                                                                                                       | ブランチ                                      |
-| `c`     | `commit`                                                                                                       | コミット                                      |
-| `cam`   | `commit --amend -m`                                                                                            | メッセージを記載して amend                        |
-| `caum`  | `commit --amend -am`                                                                                           | 更新ファイルを追加しメッセージを記載して amend          |
-| `cmm`   | `commit -m`                                                                                                    | メッセージを記載して commit                       |
-| `cum`   | `commit -am`                                                                                                   | 更新ファイルを追加しメッセージを記載して commit         |
-| `co`    | `checkout`                                                                                                     | チェックアウト                                   |
-| `dns`   | `diff --name-status`                                                                                           | 差分種類のみ確認                            |
-| `fsw`   | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch`                          | fzf を利用して switch                        |
-| `fsn`   | `!git branch --no-merged origin/master --format='%(refname:short)' \| fzf \| xargs git switch`                 | マージされていないブランチに fzf を利用して switch         |
-| `fw`    | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch`                          | fw と同じ                                   |
-| `graph` | `log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'` | コミットグラフを表示                              |
-| `l`     | `log`                                                                                                          | ログ                                        |
-| `l5`    | `log --first-parent -n 5`                                                                                      | 5 個前までのログ                               |
-| `l10`   | `log --first-parent -n 10`                                                                                     | 10 個前までのログ                              |
-| `l15`   | `log --first-parent -n 15`                                                                                     | 15 個前までのログ                              |
-| `pl`    | `pull`                                                                                                         | プル                                        |
-| `poh`   | `push origin HEAD`                                                                                             | origin に現在のブランチを push                   |
-| `rst`   | `reset`                                                                                                        | リセット                                      |
-| `rh`    | `reset --hard`                                                                                                 | ワークツリーとインデックスを指定の状態に変更（未指定:HEAD） |
-| `rmc`   | `rm --cached`                                                                                                  | インデックスへの登録のみ削除                        |
-| `s`     | `status`                                                                                                       | ステータスを表示                                |
-| `ss`    | `status`                                                                                                       | ステータスを表示                                |
-| `sw`    | `switch`                                                                                                       | ブランチを変更                                 |
-| `top`   | `rev-parse --show-toplevel`                                                                                    | Git リポジトリのトップレベルパスを表示                   |
-| `wip`   | `stash`                                                                                                        | 一時領域関連                              |
-| `wipl`  | `stash list`                                                                                                   | 一時領域のリストを表示                         |
-| `wips`  | `stash push`                                                                                                   | 更新内容を一時領域に保存                    |
-| `wipp`  | `stash pop`                                                                                                    | 一時領域から更新を取得                       |
+| エイリアス | 展開 | 備考 |
+| --- | --- | --- |
+| `a` | `add` | ワークツリーのファイルをインデックスに登録する |
+| `au` | `add -u` | インデックスに登録されているファイルに差分があれば登録する |
+| `br` | `branch` | ブランチ |
+| `c` | `commit` | コミット |
+| `cam` | `commit --amend -m` | メッセージを記載してamend |
+| `caum` | `commit --amend -am` | 更新ファイルを追加しメッセージを記載してamend |
+| `cmm` | `commit -m` | メッセージを記載してcommit |
+| `cum` | `commit -am` | 更新ファイルを追加しメッセージを記載してcommit |
+| `co` | `checkout` | チェックアウト |
+| `dns` | `diff --name-status` | 差分種類のみ確認 |
+| `fsw` | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch` | fzfを利用してswitch |
+| `fsn` | `!git branch --no-merged origin/master --format='%(refname:short)' \| fzf \| xargs git switch` | マージされていないブランチにfzfを利用してswitch |
+| `fw` | `!git for-each-ref --format '%(refname:short)' refs/heads \| fzf \| xargs git switch` | fwと同じ |
+| `graph` | `log --graph --date=short --decorate=short --pretty=format:'%Cgreen%h %Creset%cd %Cblue%cn %Cred%d %Creset%s'` | コミットグラフを表示 |
+| `l` | `log` | ログ |
+| `l5` | `log --first-parent -n 5` | 5個前までのログ |
+| `l10` | `log --first-parent -n 10` | 10個前までのログ |
+| `l15` | `log --first-parent -n 15` | 15個前までのログ |
+| `pl` | `pull` | プル |
+| `poh` | `push origin HEAD` | originに現在のブランチをpush |
+| `rst` | `reset` | リセット |
+| `rh` | `reset --hard` | ワークツリーとインデックスを指定の状態に変更（未指定:HEAD） |
+| `rmc` | `rm --cached` | インデックスへの登録のみ削除 |
+| `s` | `status` | ステータスを表示 |
+| `ss` | `status` | ステータスを表示 |
+| `sw` | `switch` | ブランチを変更 |
+| `top` | `rev-parse --show-toplevel` | Gitリポジトリのトップレベルパスを表示 |
+| `wip` | `stash` | 一時領域関連 |
+| `wipl` | `stash list` | 一時領域のリストを表示 |
+| `wips` | `stash push` | 更新内容を一時領域に保存 |
+| `wipp` | `stash pop` | 一時領域から更新を取得 |
+
+上記は主要なエイリアスの抜粋です。push/fetch系（ps, psf, psu, f, fa）、diff系（d, dc, ds）、ブランチ管理（bd, bdd, current, upstream）、便利コマンド（acp, sync, save, unstage, uncommit等）を含む全一覧は[dot_gitconfig](dot_gitconfig)を参照してください。
 
 ## Claude Code 設定
 
@@ -196,7 +212,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 ### 含まれる設定
 
 | ファイル | 内容 |
-|---------|------|
+| --- | --- |
 | `settings.json` | グローバル設定（権限、フック、モデル、プラグイン） |
 | `.mcp.json` | グローバルMCPサーバー設定 |
 | `CLAUDE.md` | 全プロジェクト共通の指示 |
@@ -206,7 +222,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 ### カスタムスラッシュコマンド
 
 | コマンド | 説明 |
-|---------|------|
+| --- | --- |
 | `/project:init` | プロジェクトのClaude Code初期設定 |
 | `/mcp:aws` | AWS MCPサーバーをプロジェクトに追加 |
 | `/mcp:terraform` | Terraform MCPサーバーをプロジェクトに追加 |
@@ -215,13 +231,16 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `/python:lint` | ruffでPythonコードをlint/format |
 | `/python:test` | pytestでテスト実行 |
 | `/python:security` | banditでセキュリティスキャン |
+| `/aws:enable-readonly` | AWS読み取り系コマンドの許可を追加 |
+| `/chezmoi:verify-sync` | chezmoiソースとデプロイ先の同期検証 |
+| `/lint:all` | 全ファイルタイプの統合lint/formatチェック |
 
 ### グローバルMCPサーバー
 
 認証不要で全プロジェクトで利用可能なMCPサーバー:
 
 | サーバー | 用途 |
-|---------|------|
+| --- | --- |
 | context7 | ライブラリドキュメント検索 |
 | sequential-thinking | 複雑な問題の段階的思考支援 |
 | serena | IDEアシスタント機能 |
@@ -235,6 +254,15 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 1. Claude Codeで「〇〇のスキルを作成して」と依頼
 2. スキルジェネレーターが自動的にスキルファイルを生成
 3. 生成されたスキルは`.claude/skills/`に保存される
+
+#### 同梱スキル
+
+| スキル | 説明 |
+| --- | --- |
+| `grill-me` | プランや設計を徹底的にヒアリング |
+| `handover` | セッション終了時の引き継ぎドキュメント作成 |
+| `markdown-check` | Markdownドキュメントの整合性・リンク切れ検証 |
+| `uv-script` | uvシバン付きスタンドアロンPythonスクリプト作成 |
 
 #### スキルとは
 
