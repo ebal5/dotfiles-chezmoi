@@ -127,7 +127,13 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
   Set-Alias -Name bandit -Value Invoke-Bandit
   function Invoke-Mypy { uvx mypy @args }
   Set-Alias -Name mypy -Value Invoke-Mypy
-  function Invoke-PreCommit { uvx pre-commit @args }
+}
+
+# ========================================
+# エイリアス - Nix/winget管理ツール
+# ========================================
+if (Get-Command prek -ErrorAction SilentlyContinue) {
+  function Invoke-PreCommit { prek @args }
   Set-Alias -Name pre-commit -Value Invoke-PreCommit
 }
 

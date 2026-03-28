@@ -106,7 +106,9 @@ alias ruff="uvx ruff"
 alias bandit="uvx bandit"
 alias mypy="uvx mypy"
 alias ty="uvx ty"
-alias pre-commit="uvx pre-commit"
+
+# Nix管理ツール（pre-commit互換）
+alias pre-commit="prek"
 
 # bunxによるJS/TSツール群
 alias ccmanager="bunx ccmanager"

@@ -23,6 +23,7 @@
             mcfly             # Terminal history search
             sd                # sed replacement
             jnv               # jq enhancement
+            xh                # HTTPie-compatible HTTP client
             hyperfine         # Benchmarking tool
 
             # Python ecosystem
@@ -53,6 +54,7 @@
 
             # Git utilities
             gibo              # gitignore boilerplates
+            prek              # Fast pre-commit replacement (Rust)
 
             # Linters
             actionlint        # GitHub Actions workflow linter
