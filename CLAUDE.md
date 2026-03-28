@@ -74,6 +74,11 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
   許可ツール設定が個別コマンドパターンのため、連結すると毎回許可確認が必要になる
 - `dot_claude/`内のファイルは`~/.claude/`に展開される（Claude Codeのグローバル設定）
 
+## Markdownテーブルスタイル
+
+CJK文字を含むテーブルはcompact style（`| --- |`セパレータ、最小パディング）で記述すること。
+aligned styleはCJK文字幅の違いでMD060違反となる。
+
 ## 詳細ガイドライン
 
 ファイルタイプ別の詳細は `.claude/rules/` を参照。
