@@ -10,7 +10,7 @@
 
 ---
 
-### Task 1: flake.nix — パッケージの追加・削除・整理
+## Task 1: flake.nix — パッケージの追加・削除・整理
 
 **Files:**
 
@@ -94,7 +94,7 @@ git commit -m "feat: reorganize Nix packages — add xh/zig/git/chezmoi/bw-cli/h
 
 ---
 
-### Task 2: setup_ubuntu.sh.tmpl — APTパッケージとmiseエントリの削除
+## Task 2: setup_ubuntu.sh.tmpl — APTパッケージとmiseエントリの削除
 
 **Files:**
 
@@ -181,7 +181,7 @@ git commit -m "feat: remove APT/mise packages migrated to Nix and unused package
 
 ---
 
-### Task 3: setup_windows.ps1.tmpl — wingetパッケージの追加・削除
+## Task 3: setup_windows.ps1.tmpl — wingetパッケージの追加・削除
 
 **Files:**
 
@@ -273,7 +273,7 @@ git commit -m "feat: add zig to winget, remove Nushell and PCManager"
 
 ---
 
-### Task 4: CLAUDE.md — パッケージ管理方針の追記
+## Task 4: CLAUDE.md — パッケージ管理方針の追記
 
 **Files:**
 
@@ -321,7 +321,7 @@ git commit -m "docs: update tool management policy with package manager roles"
 
 ---
 
-### Task 5: lint全体チェックと最終確認
+## Task 5: lint全体チェックと最終確認
 
 **Files:**
 
