@@ -15,7 +15,7 @@
 ## File Structure
 
 | File (chezmoi source) | Deployed to | Role |
-|---|---|---|
+| --- | --- | --- |
 | `dot_config/shim-definitions` | `~/.config/shim-definitions` | Tool definition file |
 | `run_after_generate_shims.sh.tmpl` | (executed only) | Shim generator script |
 
@@ -23,7 +23,7 @@
 
 Location: `dot_config/shim-definitions`
 
-```
+```txt
 # runner:package[:alias]
 # Lines starting with # and empty lines are ignored
 # When package contains @version, alias is required
@@ -100,7 +100,7 @@ These are replaced by the generated shim scripts.
 
 ## Initial Definition File Contents
 
-```
+```txt
 uvx:ruff
 uvx:bandit
 uvx:mypy

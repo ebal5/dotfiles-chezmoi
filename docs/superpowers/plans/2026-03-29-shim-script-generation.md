@@ -13,7 +13,7 @@
 ## File Map
 
 | Action | File (chezmoi source path) | Role |
-|---|---|---|
+| --- | --- | --- |
 | Create | `dot_config/shim-definitions` | Tool definition file |
 | Create | `run_after_generate_shims.sh.tmpl` | Shim generator script |
 | Modify | `dot_config/sh-like-aliases` (L104-120) | Remove uvx/bunx alias blocks |
@@ -28,7 +28,7 @@
 
 - [ ] **Step 1: Create the definition file with all current uvx/bunx aliases**
 
-```
+```txt
 # Shim definitions for uvx/bunx wrapper scripts
 # Format: runner:package[:alias]
 # - runner: uvx or bunx
