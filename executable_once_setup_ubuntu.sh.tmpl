@@ -2,7 +2,6 @@
 {{ if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "ubuntu") }}
 sudo apt update
 sudo apt install -y \
-  aria2 \
   autoconf \
   build-essential \
   cmake \
@@ -11,8 +10,6 @@ sudo apt install -y \
   gawk \
   gettext \
   gpg \
-  htop \
-  httpie \
   libbz2-dev \
   libcurl4-openssl-dev \
   libdb-dev \
@@ -20,15 +17,11 @@ sudo apt install -y \
   libgdbm-dev \
   liblzma-dev \
   libncursesw5-dev \
-  libnotify-bin \
   libreadline-dev \
   libsqlite3-dev \
   libssl-dev \
   libz-dev \
-  miller \
   nmap \
-  protobuf-compiler \
-  socat \
   tk-dev \
   unzip \
   uuid-dev \
@@ -72,9 +65,6 @@ if [ ! -x "$HOME/.local/bin/mise" ]; then
   rm ./install.sh
 fi
 mise="$HOME/.local/bin/mise"
-$mise use -yg bitwarden
-$mise use -yg chezmoi
-$mise use -yg git
 $mise use -yg node
 $mise use -yg python
 
