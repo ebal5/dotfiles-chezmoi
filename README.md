@@ -26,7 +26,7 @@ ${HOME}/once_setup_ubuntu.sh
   ${HOME}/bin/chezmoi cd
   git remote set-url origin git@github.com:ebal5/dotfiles-chezmoi.git
 )
-# 初期に使用したchezmoiを削除しmiseでインストールしたものを利用するようにする
+# 初期に使用したchezmoiを削除しNixでインストールしたものを利用するようにする
 rm ~/bin/chezmoi
 ```
 
@@ -100,16 +100,19 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
   - <https://github.com/joaojacome/bitwarden-ssh-agent> の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
 - [Nix](https://nixos.org/) による開発ツール管理
-  - CLI ツール（Starship、git-delta、lsd、mcfly など）を`flake.nix`で統合管理
+  - CLIツール・開発コマンドを`flake.nix`で統合管理（約30パッケージ）
+  - 主要ツール: git, fzf, ripgrep, fd, bat, starship, delta, lsd, mcfly, zoxide, xh, uv, bun, prek, actionlint など
+  - 全パッケージ一覧は[flake.nix](flake.nix)を参照
   - システム環境の再現性を向上
   - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile install .`
 - [Starship](https://starship.rs/ja-jp/)
-- [mise (alt asdf)](https://github.com/jdx/mise)（プロジェクト単位のバージョン管理用）
-- [uv](https://docs.astral.sh/uv/)（Python パッケージ管理）
+- [mise (alt asdf)](https://github.com/jdx/mise)（言語ランタイム管理: Node.js、Python）
+- [uv](https://docs.astral.sh/uv/)（Pythonパッケージ管理・uvxによるツール実行）
 - Git config
   - diff として delta を利用
   - 便利エイリアスを登録（よく使うコマンドの短縮など）
 - 作成したスクリプトの共有
+- [fzfユーティリティ](FZF_UTILS.md)（Docker、Git、ファイル検索、プロセス管理等のfzf連携コマンド）
 
 ### Zsh 固有の設定
 
@@ -125,11 +128,14 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 - 実行結果末尾に改行がない場合付与する
 - 設定したモジュールに関して、カッコ（"[" "]"）で囲い表示
 - AWS の日本リージョンに関しては短縮表記を利用
-- 実行に 10 秒以上かかったコマンドはかかった秒数を表示
+- 実行に 5 秒以上かかったコマンドはかかった秒数を表示
 - カレントディレクトリは直近 2 つのディレクトリのみ表示
 - Git:ブランチを表示（`main`および`master`の場合は表示しない）
 - Git:ワークツリーの追加行数・削除行数を表示
 - Git:リポジトリの状態を表示（`!`: 差分あり、など）
+- メモリ使用率が50%以上で表示
+- Azure サブスクリプション、Terraform ワークスペースを表示
+- コンテナ名を表示
 - 2 行目プロンプトに時刻を表示
 
 ### 主なシェル用エイリアス（Bash / Zsh 共通）
@@ -151,6 +157,14 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `d`    | `docker`                                      |                      |
 | `dc`   | `docker compose`                              |                      |
 | `ddu`  | `docker compose down && docker compose up -d` |                      |
+| `dup`  | `docker compose up -d`                        | Docker起動             |
+| `ddw`  | `docker compose down`                         | Docker停止             |
+| `dps`  | `docker compose ps`                           | Docker状態表示           |
+| `ruff` | `uvx ruff`                                    | uvx経由のPython linter    |
+| `mypy` | `uvx mypy`                                    | uvx経由の型チェック          |
+| `pre-commit` | `prek`                                  | prek（Nix管理）へのエイリアス |
+
+上記は主要なエイリアスの抜粋です。bunxツール群（biome, ccusage等）、fzfユーティリティ（[FZF_UTILS.md](FZF_UTILS.md)参照）、便利関数（stmp, mkcd, psg等）を含む全一覧は[dot_config/sh-like-aliases](dot_config/sh-like-aliases)を参照してください。
 
 ### 主な Git コマンドのエイリアス
 
@@ -188,6 +202,8 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `wips`  | `stash push`                                                                                                   | 更新内容を一時領域に保存                    |
 | `wipp`  | `stash pop`                                                                                                    | 一時領域から更新を取得                       |
 
+上記は主要なエイリアスの抜粋です。push/fetch系（ps, psf, psu, f, fa）、diff系（d, dc, ds）、ブランチ管理（bd, bdd, current, upstream）、便利コマンド（acp, sync, save, unstage, uncommit等）を含む全一覧は[dot_gitconfig](dot_gitconfig)を参照してください。
+
 ## Claude Code 設定
 
 このdotfilesには[Claude Code](https://claude.ai/code)のグローバル設定が含まれています。
@@ -215,6 +231,9 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `/python:lint` | ruffでPythonコードをlint/format |
 | `/python:test` | pytestでテスト実行 |
 | `/python:security` | banditでセキュリティスキャン |
+| `/aws:enable-readonly` | AWS読み取り系コマンドの許可を追加 |
+| `/chezmoi:verify-sync` | chezmoiソースとデプロイ先の同期検証 |
+| `/lint:all` | 全ファイルタイプの統合lint/formatチェック |
 
 ### グローバルMCPサーバー
 
@@ -235,6 +254,15 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 1. Claude Codeで「〇〇のスキルを作成して」と依頼
 2. スキルジェネレーターが自動的にスキルファイルを生成
 3. 生成されたスキルは`.claude/skills/`に保存される
+
+#### 同梱スキル
+
+| スキル | 説明 |
+|--------|------|
+| `grill-me` | プランや設計を徹底的にヒアリング |
+| `handover` | セッション終了時の引き継ぎドキュメント作成 |
+| `markdown-check` | Markdownドキュメントの整合性・リンク切れ検証 |
+| `uv-script` | uvシバン付きスタンドアロンPythonスクリプト作成 |
 
 #### スキルとは
 
