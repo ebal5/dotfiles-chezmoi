@@ -22,15 +22,17 @@
             lsd               # Modern ls replacement
             mcfly             # Terminal history search
             sd                # sed replacement
-            jnv               # jq enhancement
-            xh                # HTTPie-compatible HTTP client
             hyperfine         # Benchmarking tool
+            xh                # HTTP client (httpie replacement)
 
             # Python ecosystem
             uv                # Fast Python package installer
 
             # JavaScript/TypeScript ecosystem
             bun               # Fast JS/TS runtime and package manager
+
+            # Build tools
+            zig               # Zig build environment
 
             # Directory navigation
             zoxide            # Smart cd replacement
@@ -43,6 +45,9 @@
             hexyl             # Hex viewer
             curl              # Data transfer
             jq                # JSON processor
+            aria2             # Download utility
+            miller            # Data processing tool
+            htop              # Process monitor
 
             # TUI tools
             oxker             # Docker container TUI manager
@@ -52,8 +57,10 @@
             # Task management
             pueue             # CLI task queue manager
 
-            # Git utilities
-            gibo              # gitignore boilerplates
+            # Version control & dotfiles
+            git               # Version control (latest from nixos-unstable)
+            chezmoi           # Dotfiles manager
+            bitwarden-cli     # Bitwarden CLI client
             prek              # Fast pre-commit replacement (Rust)
 
             # Linters

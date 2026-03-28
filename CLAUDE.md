@@ -33,9 +33,11 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 
 ## ツール管理方針
 
-- **Nix**（`flake.nix`）: CLIツール（starship, delta, fzf, ripgrep等）の宣言的管理
-- **mise**: 言語ランタイム（Node.js, Python）とバージョン管理
-- 使い分け: CLIツールはNix、プロジェクト依存のランタイムはmise
+- **Nix**（`flake.nix`）: CLIツール・開発コマンドの宣言的管理（starship, delta, fzf, ripgrep, git, chezmoi等）
+- **APT**: システム基盤・ビルド依存（lib*-dev, build-essential等）+ ブートストラップ用最小限ツール + root権限で使うツール（nmap, vim）
+- **mise**: 言語ランタイムのみ（Node.js, Python）
+- **winget**（Windows）: Nix CLIツールのWindows対応版 + Windows専用アプリ
+- 判定基準: CLIツール→Nix、ビルド依存→APT、ランタイム→mise、root権限必要→APT
 
 ## 機械固有設定
 
