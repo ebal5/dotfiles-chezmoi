@@ -37,7 +37,8 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 - **APT**: システム基盤・ビルド依存（lib*-dev, build-essential等）+ ブートストラップ用最小限ツール + root権限で使うツール（nmap, vim）
 - **mise**: 言語ランタイムのみ（Node.js, Python）
 - **winget**（Windows）: Nix CLIツールのWindows対応版 + Windows専用アプリ
-- 判定基準: CLIツール→Nix、ビルド依存→APT、ランタイム→mise、root権限必要→APT
+- **uvx/bunx shim**（`dot_config/shim-definitions`）: `chezmoi apply`時に`~/.scripts/`へラッパースクリプトを自動生成。新ツール追加は定義ファイルに1行追加するだけ
+- 判定基準: CLIツール→Nix、ビルド依存→APT、ランタイム→mise、root権限必要→APT、Pythonツール(ruff等)→uvx shim、JSツール(markdownlint-cli2等)→bunx shim
 
 ## 機械固有設定
 
