@@ -25,12 +25,16 @@
       "Bash(gh pr status *)",
       "Bash(gh issue list *)",
       "Bash(gh issue view *)",
-      "Bash(gh repo view *)"
+      "Bash(gh repo view *)",
+      "Bash(git push *)",
+      "Bash(git stash *)",
+      "Bash(git worktree *)",
+      "Bash(gh pr create *)",
+      "Bash(markdownlint-cli2 *)"
     ],
     "deny": [],
     "ask": [
       "Bash(gh api *)",
-      "Bash(gh pr create *)",
       "Bash(gh pr merge *)",
       "Bash(gh pr comment *)",
       "Bash(chezmoi add *)",
