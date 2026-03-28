@@ -1,8 +1,10 @@
 ---
 name: dev-workflow
 description: |
-  開発作業のbrainstorm→plan→execute→wrap-upフローを定義する。
-  worktree内外どちらでも使用可能。自己完結型。
+  開発作業のフローを制御するオーケストレーションスキル。
+  worktree内外どちらでも使用可能。
+  実処理はsuperpowersや既存スキルに委譲し、フロー順序の制御と
+  worktree安全制約に専念する。
 
   以下の状況で使用:
   - 作業を開始するとき（worktree内外問わず）
@@ -11,13 +13,14 @@ description: |
 
   以下では使用しない:
   - 単純な質問や調査のみの場合
-allowed-tools: Read, Write, Edit, Glob, Grep, Skill, Bash(git branch:*), Bash(git worktree list:*), Bash(git log:*), Bash(git diff:*), Bash(git status:*), Bash(git add:*), Bash(git commit:*)
+allowed-tools: Read, Glob, Grep, Skill, Bash(git branch:*), Bash(git worktree list:*), Bash(git log:*), Bash(git diff:*), Bash(git status:*)
 ---
 
 # Dev Workflow
 
-開発フローを定義する自己完結型スキル。
-worktree 内外どちらでも動作する。
+開発フローを制御するオーケストレーションスキル。
+実処理は superpowers や既存スキルに委譲し、このスキルは
+**フロー順序の制御**と**worktree 安全制約**に専念する。
 
 ## 環境検出
 
@@ -27,8 +30,9 @@ worktree 内外どちらでも動作する。
 - **メインリポジトリ**: worktree 外で直接作業中
 
 <HARD-GATE>
-worktree 内の場合、このスキルは worktree を作成しない。
+worktree 内の場合、worktree を作成しない。
 git worktree add や EnterWorktree を呼ばないこと。
+superpowers:using-git-worktrees も呼ばないこと。
 worktree は既に存在する前提で動作する。
 </HARD-GATE>
 
@@ -41,9 +45,9 @@ worktree 内の場合、作業ディレクトリ（`pwd`）をプロジェクト
 
 | 規模 | 目安 | パス |
 | --- | --- | --- |
-| 小 | 1-2ファイルの軽微な変更、設定値修正 | **Light**: 会話内で合意→即実装（Phase 2を省略） |
-| 中 | 複数ファイル変更、新機能追加 | **Standard**: 会話内で計画→実装 |
-| 大 | アーキテクチャ変更、新ツール導入 | **Full**: spec + plan ドキュメント作成→実装 |
+| 小 | 1-2ファイルの軽微な変更、設定値修正 | **Light**: 会話内で合意→即実装 |
+| 中 | 複数ファイル変更、新機能追加 | **Standard**: 計画→実装 |
+| 大 | アーキテクチャ変更、新ツール導入 | **Full**: grill-me→brainstorm→plan→実装 |
 
 判断の補足:
 - ファイル数は参考値。テンプレート分岐の追加や既存設定への影響がある場合は
@@ -54,138 +58,85 @@ worktree 内の場合、作業ディレクトリ（`pwd`）をプロジェクト
 ## フロー概要
 
 ```text
-[環境検出] → スコープ判定 → Brainstorm → Plan → Execute → Wrap-up
+[環境検出] → スコープ判定 → Grill → Brainstorm → Plan → Execute → Wrap-up
 ```
 
-各フェーズに入口条件・出口条件がある。出口条件を満たすまで次に進まない。
-ただし、ユーザーが明示的にスキップを指示した場合は確認の上で次に進んでよい。
+ユーザーが明示的にスキップを指示した場合は確認の上で次に進んでよい。
 
 ---
 
-## Phase 1: Brainstorming（目的の具体化）
+## Phase 0: Grill（アイデアの深堀り）— Standard/Full
 
-**推奨モード**: Plan Mode
+**目的**: brainstorming の前に、目的・前提・制約を徹底的に問い直す
 
-### やること
+- `/grill-me` スキルに委譲する
+- ユーザーのアイデアや要件を批判的に掘り下げ、曖昧さや見落としを洗い出す
+- Light パスでは省略可（会話内で簡潔に要件確認するだけで十分）
 
-1. **プロジェクト状態を把握する**
-   - ファイル構成、docs/、最近のコミットを確認
-   - 既存の設計ドキュメントがあれば読む
+### 出口条件
 
-2. **Question-Firstで要件を明確化する**
-   - 目的、制約、成功基準が明確になるまで質問を続ける
-   - 選択肢を提示できる場合は Multiple Choice にする
-   - Full パスでは1メッセージ1質問を原則とする
-   - Light/Standard パスでは関連する質問を2-3個まとめてよい
-   - 曖昧なまま先に進まない
+- 目的と制約が明確になり、brainstorming に進む準備ができている
 
-3. **アプローチを2-3案提示する**（Standard/Full）
-   - 各案のトレードオフを説明
-   - 推奨案とその理由を明示
+---
 
-4. **設計をセクションごとに提示しユーザー承認を得る**（Full）
-   - 各セクションの複雑度に応じて分量を調整
-   - 各セクション提示後に確認を取る
+## Phase 1: Brainstorming（設計）— Standard/Full
 
-5. **設計ドキュメントを保存する**（Full のみ）
-   - `docs/specs/YYYY-MM-DD-<topic>-design.md` に保存
-   - コミットする
+- `superpowers:brainstorming` スキルに委譲する
+- **ただし**: worktree 内の場合、brainstorming の Phase 4
+  （worktree 作成）は**スキップすること**。worktree は既に存在する
+- Light パスでは省略し、会話内で合意を得て Phase 3 に直接進む
 
 ### 出口条件
 
 - 実装対象と成功基準が明確
 - Full: ユーザー承認済みの設計ドキュメントが存在する
-- Light/Standard: 会話内でユーザー合意が得られている
+- Standard: 会話内でユーザー合意が得られている
 
 ---
 
-## Phase 2: Planning（実装計画）
+## Phase 2: Planning（実装計画）— Standard/Full
 
-**推奨モード**: Plan Mode
-**Light パスではこのフェーズを省略し、Phase 3 に直接進む。**
+- `superpowers:writing-plans` スキルに委譲する
+- Light パスでは省略し、Phase 3 に直接進む
 
-### やること
+### 検証サイクルの補足
 
-1. **実装に必要なファイルを洗い出す**
-   - 作成・変更するファイルの一覧と各ファイルの責務
-   - 1ファイル1責務。大きすぎるファイルは分割を検討
+superpowers の計画テンプレートは TDD サイクルを前提とするが、
+プロジェクトにテストフレームワークがない場合（dotfiles 等）は
+以下の検証手段で代替する:
 
-2. **タスクを bite-size に分解する**
-   - 1ステップ = 1アクション（2-5分で完了する粒度）
-   - 各ステップに具体的なコードとコマンドを含める
-   - プレースホルダー禁止（TBD, TODO, "適切に処理" 等）
-   - 検証サイクル（後述）を各タスクに組み込む
-
-3. **計画ドキュメントを保存する**（Full のみ）
-   - `docs/plans/YYYY-MM-DD-<feature-name>.md` に保存
-   - コミットする
-   - Standard パスでは会話内の計画提示で十分
-
-4. **セルフレビューを実行する**
-   - 設計の全要件がタスクに反映されているか
-   - プレースホルダーが残っていないか
-   - 型名・関数名がタスク間で一貫しているか
-
-5. **ユーザーに計画を確認してもらう**
-
-### 検証サイクル
-
-プロジェクトのテスト手段に合わせて検証方法を選択する。
-
-**テストフレームワークがある場合（TDD）:**
-テスト作成 → 失敗確認 → 実装 → 成功確認 → コミット
-
-**dotfiles 等テストフレームワークがない場合:**
 - シェルスクリプト: `shellcheck` + `shfmt` で静的解析
 - テンプレート: `chezmoi execute-template` で展開確認
 - 設定ファイル: `chezmoi diff` で差分確認
 - Markdown: `markdownlint-cli2` でリント
-- 実装 → 検証コマンド実行 → コミット
 
 ### 出口条件
 
-- ユーザー承認済みの実装計画が存在する（会話内またはドキュメント）
-- 全要件がタスクとしてカバーされている
+- ユーザー承認済みの実装計画が存在する
 
 ---
 
 ## Phase 3: Execution（実装）
 
-**推奨モード**: Normal（信頼度に応じて Auto-Accept へ移行可）
-
-### やること
-
-1. **計画（ドキュメントまたは会話内の合意）を確認する**
-   - 不明点や懸念があれば実装前にユーザーに確認
-
-2. **タスクを順番に実行する**
-   - 各タスクの各ステップを計画通りに実行
-   - 検証ステップを飛ばさない
-   - ブロッカーに当たったら推測せず質問する
+- `superpowers:executing-plans` または
+  `superpowers:subagent-driven-development` に委譲する
+- Light パスでは計画なしで直接実装。検証は忘れずに行う
+- ブロッカーに当たったら推測せず質問する
 
 ### 出口条件
 
-- 計画の全ステップ完了
+- 計画の全ステップ完了（Light は合意内容の完了）
 - 検証（lint/テスト）全通過
 
 ---
 
 ## Phase 4: Wrap-up（完了処理）
 
-### やること
-
-1. **最終検証を実行する**
-   - lint/format チェック
-   - `git diff` で意図しない変更がないか確認
-
-2. **コミット・PR作成**
-   - `/commit-commands:commit-push-pr` でコミット・PR作成
-
-3. **セッション引き継ぎ記録を作成する**（長期作業の場合、任意）
-   - `/handover` で記録
-
-4. **古い worktree の掃除を提案する**（worktree 内の場合のみ）
-   - `git worktree list` で prunable があれば報告
+1. **最終検証**: lint/format チェック + `git diff` で意図しない変更がないか確認
+2. **コミット・PR**: `/commit-commands:commit-push-pr` で作成
+3. **引き継ぎ記録**（長期作業の場合、任意）: `/handover` で記録
+4. **worktree 掃除**（worktree 内の場合のみ）:
+   `git worktree list` で prunable があれば報告
 
 ### 出口条件
 
@@ -197,10 +148,12 @@ worktree 内の場合、作業ディレクトリ（`pwd`）をプロジェクト
 ## Gotchas
 
 - **worktree の二重作成禁止**: worktree 内の場合、
-  `git worktree add` を絶対に呼ばないこと
+  `git worktree add` や `superpowers:using-git-worktrees` を
+  絶対に呼ばないこと。brainstorming の Phase 4 もスキップすること
 - **作業ディレクトリの固定**: worktree 内の場合、`pwd` が
   プロジェクトルート。親リポジトリを参照しないこと
-- **Phase 1-2 での実装着手禁止**: brainstorming/planning 段階で
-  コード変更を始めない。Plan Mode を維持すること
-- **プレースホルダー禁止**: 計画内に TBD, TODO, "適切に処理" を
-  書かない。具体的なコードとコマンドを必ず含めること
+- **Phase 0-2 での実装着手禁止**: grill/brainstorming/planning 段階で
+  コード変更を始めないこと
+- **commit-commands プラグイン必須**: Phase 4 で
+  `/commit-commands:commit-push-pr` を使うため、
+  commit-commands プラグインが有効であること
