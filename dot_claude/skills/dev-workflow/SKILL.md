@@ -22,6 +22,16 @@ allowed-tools: Read, Glob, Grep, Skill, Bash(git branch:*), Bash(git worktree li
 実処理は superpowers や既存スキルに委譲し、このスキルは
 **フロー順序の制御**と**worktree 安全制約**に専念する。
 
+## 依存スキル
+
+このスキルは以下のスキル/プラグインに委譲する:
+
+- `superpowers:brainstorming` / `superpowers:writing-plans` /
+  `superpowers:executing-plans` / `superpowers:subagent-driven-development`
+- `/grill-me`（カスタムスキル）
+- `/commit-commands:commit-push-pr`（commit-commands プラグイン）
+- `/handover`（カスタムスキル、任意）
+
 ## 環境検出
 
 作業開始時に現在の環境を検出する。
@@ -45,13 +55,12 @@ worktree 内の場合、作業ディレクトリ（`pwd`）をプロジェクト
 
 | 規模 | 目安 | パス |
 | --- | --- | --- |
-| 小 | 1-2ファイルの軽微な変更、設定値修正 | **Light**: 会話内で合意→即実装 |
-| 中 | 複数ファイル変更、新機能追加 | **Standard**: 計画→実装 |
-| 大 | アーキテクチャ変更、新ツール導入 | **Full**: grill-me→brainstorm→plan→実装 |
+| 小 | 設定値修正、typo修正、エイリアス追加など1-2ファイルの軽微な変更 | **Light**: 会話内で合意→即実装 |
+| 中 | 新ツールの設定追加、複数ファイルにまたがる変更、テンプレート分岐の追加 | **Standard**: brainstorm→plan→実装 |
+| 大 | ツール管理方針の変更、ディレクトリ構成の見直し、新しいワークフロー導入 | **Full**: grill→brainstorm→plan→実装 |
 
 判断の補足:
-- ファイル数は参考値。テンプレート分岐の追加や既存設定への影響がある場合は
-  ワンランク上を選ぶ
+- ファイル数は参考値。既存設定への影響やテンプレート複雑度で判断する
 - メインリポジトリで直接作業する場合は通常 Light か Standard
 - 判断に迷ったらユーザーに確認する
 
@@ -65,13 +74,13 @@ worktree 内の場合、作業ディレクトリ（`pwd`）をプロジェクト
 
 ---
 
-## Phase 0: Grill（アイデアの深堀り）— Standard/Full
+## Phase 0: Grill（アイデアの深堀り）— Full のみ
 
 **目的**: brainstorming の前に、目的・前提・制約を徹底的に問い直す
 
 - `/grill-me` スキルに委譲する
 - ユーザーのアイデアや要件を批判的に掘り下げ、曖昧さや見落としを洗い出す
-- Light パスでは省略可（会話内で簡潔に要件確認するだけで十分）
+- Light/Standard パスでは省略する
 
 ### 出口条件
 
@@ -118,8 +127,9 @@ superpowers の計画テンプレートは TDD サイクルを前提とするが
 
 ## Phase 3: Execution（実装）
 
-- `superpowers:executing-plans` または
-  `superpowers:subagent-driven-development` に委譲する
+- 原則 `superpowers:subagent-driven-development` に委譲する
+- 1ファイルで完結する単純な変更の場合は
+  `superpowers:executing-plans` でそのまま実行してよい
 - Light パスでは計画なしで直接実装。検証は忘れずに行う
 - ブロッカーに当たったら推測せず質問する
 
@@ -132,7 +142,8 @@ superpowers の計画テンプレートは TDD サイクルを前提とするが
 
 ## Phase 4: Wrap-up（完了処理）
 
-1. **最終検証**: lint/format チェック + `git diff` で意図しない変更がないか確認
+1. **最終検証**: `/lint:all` または個別の lint コマンドで検証 +
+   `git diff` で意図しない変更がないか確認
 2. **コミット・PR**: `/commit-commands:commit-push-pr` で作成
 3. **引き継ぎ記録**（長期作業の場合、任意）: `/handover` で記録
 4. **worktree 掃除**（worktree 内の場合のみ）:
@@ -154,6 +165,5 @@ superpowers の計画テンプレートは TDD サイクルを前提とするが
   プロジェクトルート。親リポジトリを参照しないこと
 - **Phase 0-2 での実装着手禁止**: grill/brainstorming/planning 段階で
   コード変更を始めないこと
-- **commit-commands プラグイン必須**: Phase 4 で
-  `/commit-commands:commit-push-pr` を使うため、
-  commit-commands プラグインが有効であること
+- **依存プラグイン**: superpowers と commit-commands プラグインが
+  有効であること
