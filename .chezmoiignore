@@ -4,7 +4,10 @@
 # 必要に応じてこのファイルに追記してください。
 
 # Documentation files - ドキュメントファイル
-*.md
+**/*.md
+
+# Superpowers docs - 設計ドキュメント
+docs/
 
 # Development and maintenance files - 開発・メンテナンス用ファイル
 .gitignore
