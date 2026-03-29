@@ -211,5 +211,8 @@ zsdoc/data
 dot_config/local
 megalinter-reports/
 
+# Worktrees
+.worktrees/
+
 # Nix
 flake.lock
