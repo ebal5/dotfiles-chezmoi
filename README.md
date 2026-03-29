@@ -104,7 +104,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
   - 主要ツール: git, fzf, ripgrep, fd, bat, starship, delta, lsd, mcfly, zoxide, xh, uv, bun, prek, actionlint など
   - 全パッケージ一覧は[flake.nix](flake.nix)を参照
   - システム環境の再現性を向上
-  - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile install .`
+  - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile add .`
 - [Starship](https://starship.rs/ja-jp/)
 - [mise (alt asdf)](https://github.com/jdx/mise)（言語ランタイム管理: Node.js、Python）
 - [uv](https://docs.astral.sh/uv/)（Pythonパッケージ管理・uvxによるツール実行）
