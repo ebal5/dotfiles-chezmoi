@@ -1,13 +1,12 @@
 {{ if eq .chezmoi.os "windows" }}
 # PowerShell Profile Setup Script
 # ================================
-# このスクリプトはchezmoi apply後に実行され、
-# PowerShellプロファイルを$PROFILEの場所にコピーします。
-# OneDriveの有無に関わらず正しいパスに配置されます。
+# Runs after chezmoi apply to copy the PowerShell profile
+# to the $PROFILE location, handling OneDrive paths correctly.
 
 $ErrorActionPreference = "SilentlyContinue"
 
-# ソースファイルのパス
+# Source file path
 $sourceProfile = Join-Path $HOME ".config\powershell\profile.ps1"
 
 if (-not (Test-Path $sourceProfile)) {
@@ -15,7 +14,7 @@ if (-not (Test-Path $sourceProfile)) {
   exit 0
 }
 
-# PowerShell 5.x (Windows PowerShell) 用
+# PowerShell 5.x (Windows PowerShell)
 $ps5Profile = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "WindowsPowerShell\Microsoft.PowerShell_profile.ps1"
 $ps5Dir = Split-Path $ps5Profile -Parent
 
@@ -27,7 +26,7 @@ if (-not (Test-Path $ps5Dir)) {
 Copy-Item -Path $sourceProfile -Destination $ps5Profile -Force
 Write-Host "Copied profile to: $ps5Profile" -ForegroundColor Green
 
-# PowerShell 7+ (pwsh) 用
+# PowerShell 7+ (pwsh)
 $ps7Profile = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "PowerShell\Microsoft.PowerShell_profile.ps1"
 $ps7Dir = Split-Path $ps7Profile -Parent
 
@@ -39,7 +38,7 @@ if (-not (Test-Path $ps7Dir)) {
 Copy-Item -Path $sourceProfile -Destination $ps7Profile -Force
 Write-Host "Copied profile to: $ps7Profile" -ForegroundColor Green
 
-# OneDrive Documents への追加コピー（存在する場合）
+# Additional copy to OneDrive Documents (if present)
 $oneDriveDocs = Join-Path $env:OneDrive "Documents"
 if ($env:OneDrive -and (Test-Path $oneDriveDocs)) {
   # Windows PowerShell

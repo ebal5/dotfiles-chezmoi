@@ -4,13 +4,13 @@
 
 $ErrorActionPreference = "Continue"
 
-# winget存在確認
+# Check winget availability
 if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
   Write-Host "Error: winget is not available. Aborting." -ForegroundColor Red
   exit 1
 }
 
-# インストール関数（エラーハンドリング付き）
+# Install function with error handling
 $script:failedPackages = @()
 
 function Install-WingetPackages {
@@ -36,10 +36,10 @@ function Install-WingetPackages {
 }
 
 # ========================================
-# パッケージインストール
+# Package Installation
 # ========================================
 
-Install-WingetPackages "基本ツール・ユーティリティ" @(
+Install-WingetPackages "Basic Tools & Utilities" @(
   "7zip.7zip"
   "cURL.cURL"
   "Insecure.Nmap"
@@ -51,13 +51,13 @@ Install-WingetPackages "基本ツール・ユーティリティ" @(
   "XP89DCGQ3K6VLD"  # PowerToys
 )
 
-Install-WingetPackages "開発ツール・エディタ" @(
+Install-WingetPackages "Dev Tools & Editors" @(
   "Git.Git"
   "Microsoft.VisualStudioCode"
   "WinMerge.WinMerge"
 )
 
-Install-WingetPackages "Rust製CLIツール (Ubuntu Nix flakeと同期)" @(
+Install-WingetPackages "Rust CLI Tools (synced with Ubuntu Nix flake)" @(
   "BurntSushi.ripgrep.MSVC"
   "dandavison.delta"
   "junegunn.fzf"
@@ -73,13 +73,13 @@ Install-WingetPackages "Rust製CLIツール (Ubuntu Nix flakeと同期)" @(
   "noborus.ov"
 )
 
-Install-WingetPackages "言語・ランタイム管理" @(
+Install-WingetPackages "Language & Runtime Management" @(
   "astral-sh.uv"
   "Oven-sh.Bun"
   "Schniz.fnm"
 )
 
-Install-WingetPackages "Chezmoi・SSH/認証関連" @(
+Install-WingetPackages "Chezmoi & SSH/Auth" @(
   "Bitwarden.Bitwarden"
   "equalsraf.win32yank"
   "jstarks.npiperelay"
@@ -87,33 +87,33 @@ Install-WingetPackages "Chezmoi・SSH/認証関連" @(
   "Twilio.Authy"
 )
 
-Install-WingetPackages "開発・Lintツール" @(
+Install-WingetPackages "Dev & Lint Tools" @(
   "rhysd.actionlint"
   "zig.zig"
 )
 
-Install-WingetPackages "ユーティリティ（Ubuntu APT同期）" @(
+Install-WingetPackages "Utilities (synced with Ubuntu APT)" @(
   "aria2.aria2"
   "Miller.Miller"
 )
 
-Install-WingetPackages "その他アプリケーション" @(
+Install-WingetPackages "Other Applications" @(
   "Obsidian.Obsidian"
 )
 
 # ========================================
-# 結果サマリー
+# Result Summary
 # ========================================
 Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host " インストール完了" -ForegroundColor Cyan
+Write-Host " Installation Complete" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 
 if ($script:failedPackages.Count -gt 0) {
-  Write-Host "`n以下のパッケージは失敗またはスキップされました:" -ForegroundColor Yellow
+  Write-Host "`nThe following packages failed or were skipped:" -ForegroundColor Yellow
   $script:failedPackages | ForEach-Object { Write-Host "  - $_" -ForegroundColor DarkYellow }
-  Write-Host "`n(既にインストール済みの場合もここに表示されます)" -ForegroundColor Gray
+  Write-Host "`n(Already installed packages may also appear here)" -ForegroundColor Gray
 } else {
-  Write-Host "`nすべてのパッケージが正常にインストールされました。" -ForegroundColor Green
+  Write-Host "`nAll packages installed successfully." -ForegroundColor Green
 }
 
 {{ end }}

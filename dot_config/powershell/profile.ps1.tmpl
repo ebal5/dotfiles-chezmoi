@@ -3,13 +3,13 @@
 # ==========================================
 
 # ========================================
-# エンコーディング設定
+# Encoding
 # ========================================
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 $OutputEncoding = [System.Text.Encoding]::UTF8
 
 # ========================================
-# ツール統合
+# Tool Integration
 # ========================================
 
 # Starship prompt
@@ -28,7 +28,7 @@ if (Get-Command fnm -ErrorAction SilentlyContinue) {
 }
 
 # ========================================
-# エイリアス - ls系
+# Aliases - ls
 # ========================================
 if (Get-Command lsd -ErrorAction SilentlyContinue) {
   function Invoke-Lsd { lsd @args }
@@ -43,7 +43,7 @@ if (Get-Command lsd -ErrorAction SilentlyContinue) {
 Set-Alias -Name l -Value ls
 
 # ========================================
-# エイリアス - cd系
+# Aliases - cd
 # ========================================
 function Set-ParentLocation { Set-Location .. }
 Set-Alias -Name '..' -Value Set-ParentLocation
@@ -62,7 +62,7 @@ function Set-GitRoot {
 Set-Alias -Name cg -Value Set-GitRoot
 
 # ========================================
-# エイリアス - Git
+# Aliases - Git
 # ========================================
 function Invoke-GitStatus { git status @args }
 Set-Alias -Name gs -Value Invoke-GitStatus
@@ -73,7 +73,7 @@ function Get-GitBranch {
 }
 
 # ========================================
-# エイリアス - Docker
+# Aliases - Docker
 # ========================================
 function Invoke-DockerCompose { docker compose @args }
 Set-Alias -Name dc -Value Invoke-DockerCompose
@@ -97,17 +97,17 @@ Set-Alias -Name dps -Value Invoke-DockerComposePs
 function Invoke-DockerClean { docker system prune -f }
 Set-Alias -Name dclean -Value Invoke-DockerClean
 
-# 1文字エイリアス
+# Single-char aliases
 Set-Alias -Name d -Value docker
 Set-Alias -Name g -Value git
 
 # ========================================
-# エイリアス - ユーティリティ
+# Aliases - Utilities
 # ========================================
 function Get-MyIP { curl icanhazip.com }
 Set-Alias -Name myip -Value Get-MyIP
 
-# クリップボード (win32yank)
+# Clipboard (win32yank)
 if (Get-Command win32yank.exe -ErrorAction SilentlyContinue) {
   function Set-ClipboardFromPipe {
     $input | win32yank.exe -i
@@ -118,7 +118,7 @@ if (Get-Command win32yank.exe -ErrorAction SilentlyContinue) {
 }
 
 # ========================================
-# エイリアス - Python/JS ツール (uv/bunx経由)
+# Aliases - Python/JS Tools (via uv/bunx)
 # ========================================
 if (Get-Command uv -ErrorAction SilentlyContinue) {
   function Invoke-Ruff { uvx ruff @args }
@@ -130,7 +130,7 @@ if (Get-Command uv -ErrorAction SilentlyContinue) {
 }
 
 # ========================================
-# エイリアス - Nix/winget管理ツール
+# Aliases - Nix/winget Tools
 # ========================================
 if (Get-Command prek -ErrorAction SilentlyContinue) {
   function Invoke-PreCommit { prek @args }
@@ -138,10 +138,10 @@ if (Get-Command prek -ErrorAction SilentlyContinue) {
 }
 
 # ========================================
-# 便利関数
+# Helper Functions
 # ========================================
 
-# 一時ディレクトリを作成してcd
+# Create a temp directory and cd into it
 function New-TempDir {
   $dir = New-Item -ItemType Directory -Path (Join-Path $env:TEMP ([System.Guid]::NewGuid().ToString()))
   Write-Host "Created: $($dir.FullName)"
@@ -149,7 +149,7 @@ function New-TempDir {
 }
 Set-Alias -Name stmp -Value New-TempDir
 
-# ディレクトリを作成してcd
+# Create a directory and cd into it
 function New-DirAndEnter {
   param([string]$Path)
   New-Item -ItemType Directory -Path $Path -Force | Out-Null
@@ -157,7 +157,7 @@ function New-DirAndEnter {
 }
 Set-Alias -Name mkcd -Value New-DirAndEnter
 
-# プロセス検索
+# Process search
 function Find-Process {
   param([string]$Pattern)
   Get-Process | Where-Object { $_.ProcessName -match $Pattern }
@@ -165,13 +165,13 @@ function Find-Process {
 Set-Alias -Name psg -Value Find-Process
 
 # ========================================
-# fzf統合
+# fzf Integration
 # ========================================
 if (Get-Command fzf -ErrorAction SilentlyContinue) {
-  # fzfのデフォルト設定
+  # fzf default options
   $env:FZF_DEFAULT_OPTS = '--height 40% --layout=reverse --border'
 
-  # Ctrl+R で履歴検索
+  # Ctrl+R history search
   Set-PSReadLineKeyHandler -Key Ctrl+r -ScriptBlock {
     $command = Get-History | ForEach-Object { $_.CommandLine } |
       Select-Object -Unique |
@@ -181,7 +181,7 @@ if (Get-Command fzf -ErrorAction SilentlyContinue) {
     }
   }
 
-  # Git ブランチ選択
+  # Git branch selector
   function Select-GitBranch {
     $branch = git branch --all 2>$null |
       ForEach-Object { $_.Trim() -replace '^\* ', '' } |
@@ -193,14 +193,14 @@ if (Get-Command fzf -ErrorAction SilentlyContinue) {
   }
   Set-Alias -Name fzgb -Value Select-GitBranch
 
-  # Git log 閲覧
+  # Git log viewer
   function Show-GitLogFzf {
     git log --oneline --color=always |
       fzf --ansi --preview 'git show --color=always {1}'
   }
   Set-Alias -Name fzgl -Value Show-GitLogFzf
 
-  # ファイル検索 (fd + fzf)
+  # File search (fd + fzf)
   if (Get-Command fd -ErrorAction SilentlyContinue) {
     function Find-FileFzf {
       $file = fd --type f --hidden --exclude .git |
@@ -212,7 +212,7 @@ if (Get-Command fzf -ErrorAction SilentlyContinue) {
 }
 
 # ========================================
-# PSReadLine設定
+# PSReadLine Settings
 # ========================================
 if (Get-Module -ListAvailable -Name PSReadLine) {
   Set-PSReadLineOption -PredictionSource History
@@ -223,7 +223,7 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
 }
 
 # ========================================
-# 環境変数
+# Environment Variables
 # ========================================
 $env:EDITOR = "code --wait"
 
