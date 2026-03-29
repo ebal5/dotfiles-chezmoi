@@ -59,6 +59,7 @@
 
             # Version control & dotfiles
             git               # Version control (latest from nixos-unstable)
+            gh                # GitHub CLI
             chezmoi           # Dotfiles manager
             bitwarden-cli     # Bitwarden CLI client
             prek              # Fast pre-commit replacement (Rust)
