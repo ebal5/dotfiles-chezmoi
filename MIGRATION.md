@@ -62,7 +62,7 @@ chezmoi apply
 
 ```bash
 cd ~/.local/share/chezmoi
-nix profile install .
+nix profile add .
 ```
 
 これにより、flake.nix に定義されたすべてのツールがユーザープロファイルにインストールされます。

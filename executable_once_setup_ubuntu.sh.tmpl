@@ -56,6 +56,7 @@ fi
 # Install tools via Nix flake (if flake.nix exists in dotfiles)
 if [ -f "$HOME/.local/share/chezmoi/flake.nix" ]; then
   nix flake update "$HOME/.local/share/chezmoi" --no-write-lock-file 2>/dev/null || true
+  nix profile add "$HOME/.local/share/chezmoi"
 fi
 
 if [ ! -x "$HOME/.local/bin/mise" ]; then
