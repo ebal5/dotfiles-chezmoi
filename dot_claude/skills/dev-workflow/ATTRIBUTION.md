@@ -4,6 +4,9 @@
 
 ## 直接参照
 
+- **grill-me** (mattpocock/skills)
+  - Phase 0 で委譲するアイデア深堀りスキル
+  - License: MIT (Copyright (c) 2026 Matt Pocock)
 - **superpowers** (claude-plugins-official)
   - `brainstorming` — Question-First、段階的設計提示のフロー
   - `writing-plans` — bite-size タスク分解、TDD サイクル、プレースホルダー禁止
