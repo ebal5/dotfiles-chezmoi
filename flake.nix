@@ -30,6 +30,7 @@
 
             # JavaScript/TypeScript ecosystem
             bun               # Fast JS/TS runtime and package manager
+            pnpm              # Fast, disk space efficient package manager
 
             # Build tools
             zig               # Zig build environment
