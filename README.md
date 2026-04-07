@@ -164,7 +164,7 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `mypy` | `uvx mypy` | uvx経由の型チェック |
 | `pre-commit` | `prek` | prek（Nix管理）へのエイリアス |
 
-上記は主要なエイリアスの抜粋です。bunxツール群（biome, ccusage等）、fzfユーティリティ（[FZF_UTILS.md](FZF_UTILS.md)参照）、便利関数（stmp, mkcd, psg等）を含む全一覧は[dot_config/sh-like-aliases](dot_config/sh-like-aliases)を参照してください。
+上記は主要なエイリアスの抜粋です。pnpm shimツール群（biome, ccusage等）、fzfユーティリティ（[FZF_UTILS.md](FZF_UTILS.md)参照）、便利関数（stmp, mkcd, psg等）を含む全一覧は[dot_config/sh-like-aliases](dot_config/sh-like-aliases)を参照してください。
 
 ### 主な Git コマンドのエイリアス
 

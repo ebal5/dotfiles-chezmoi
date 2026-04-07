@@ -1,0 +1,2 @@
+# Minimum package release age before installation (minutes). 4320 = 3 days (supply chain attack mitigation)
+minimum-release-age=4320

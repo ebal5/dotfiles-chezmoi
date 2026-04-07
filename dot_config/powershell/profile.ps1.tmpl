@@ -118,7 +118,7 @@ if (Get-Command win32yank.exe -ErrorAction SilentlyContinue) {
 }
 
 # ========================================
-# Aliases - Python/JS Tools (via uv/bunx)
+# Aliases - Python/JS Tools (via uv/pnpm)
 # ========================================
 if (Get-Command uv -ErrorAction SilentlyContinue) {
   function Invoke-Ruff { uvx ruff @args }

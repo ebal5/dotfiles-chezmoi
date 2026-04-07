@@ -56,10 +56,15 @@ while IFS= read -r line || [ -n "$line" ]; do
 
   valid_shims="$valid_shims $cmd"
 
-  # Generate shim content
+  # Generate shim content — pnpm needs "dlx" subcommand
+  case "$runner" in
+    pnpm) exec_line="exec pnpm dlx \"$package\" \"\$@\"" ;;
+    *)    exec_line="exec \"$runner\" \"$package\" \"\$@\"" ;;
+  esac
+
   content="#!/bin/sh
 $MARKER
-exec \"$runner\" \"$package\" \"\$@\""
+$exec_line"
 
   target="$SHIM_DIR/$cmd"
 
