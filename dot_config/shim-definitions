@@ -1,6 +1,6 @@
-# Shim definitions for uvx/bunx wrapper scripts
+# Shim definitions for uvx/pnpm wrapper scripts
 # Format: runner:package[:alias]
-# - runner: uvx or bunx
+# - runner: uvx or pnpm
 # - package: package name (may include @version)
 # - alias (optional): command name override (required if package contains @version)
 #
@@ -13,12 +13,12 @@ uvx:bandit
 uvx:mypy
 uvx:ty
 
-# JS/TS tools (bunx)
-bunx:markdownlint-cli2
-bunx:ccmanager
-bunx:ccusage
-bunx:@biomejs/biome:biome
-bunx:serve
-bunx:npm-check-updates:ncu
-bunx:degit
-bunx:difit
+# JS/TS tools (pnpm dlx)
+pnpm:markdownlint-cli2
+pnpm:ccmanager
+pnpm:ccusage
+pnpm:@biomejs/biome:biome
+pnpm:serve
+pnpm:npm-check-updates:ncu
+pnpm:degit
+pnpm:difit
