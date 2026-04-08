@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+check_dependencies() {
+  local deps=("$@")
+  for dep in "${deps[@]}"; do
+    if ! command -v "$dep" >/dev/null 2>&1; then
+      echo "Error: $dep is required but not installed." >&2
+      exit 1
+    fi
+  done
+}
+
+if [[ $# -ne 1 ]]; then
+  echo "Usage: $0 <file.md>" >&2
+  exit 1
+fi
+
+check_dependencies glow tmux
+
+tmux new-window "glow -p $(printf '%q' "$1"); read"
