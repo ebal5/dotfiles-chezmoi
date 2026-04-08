@@ -18,4 +18,9 @@ fi
 
 check_dependencies glow tmux
 
+if [[ -z "${TMUX:-}" ]]; then
+  echo "Error: not inside a tmux session." >&2
+  exit 1
+fi
+
 tmux new-window "glow -p $(printf '%q' "$1"); read"
