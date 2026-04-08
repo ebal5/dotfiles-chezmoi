@@ -46,9 +46,12 @@
             hexyl             # Hex viewer
             curl              # Data transfer
             jq                # JSON processor
+            python3Packages.yq # YAML/XML/TOML processor (jq wrapper)
+            dasel             # Multi-format data query/update (JSON/YAML/TOML/XML/CSV)
             aria2             # Download utility
             miller            # Data processing tool
             htop              # Process monitor
+            scc               # Fast code counter (Sloc Cloc and Code)
 
             # TUI tools
             oxker             # Docker container TUI manager
