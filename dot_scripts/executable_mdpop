@@ -23,4 +23,5 @@ if [[ -z "${TMUX:-}" ]]; then
   exit 1
 fi
 
-tmux new-window "glow -p $(printf '%q' "$1"); read"
+# Append '; read' after glow if you want the window to stay open after exiting.
+tmux new-window "glow -p $(printf '%q' "$1")"
