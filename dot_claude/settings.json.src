@@ -165,5 +165,6 @@
     }
   },
   "alwaysThinkingEnabled": true,
-  "teammateMode": "tmux"
+  "teammateMode": "tmux",
+  "effortLevel": "high"
 }
