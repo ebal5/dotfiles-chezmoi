@@ -30,7 +30,7 @@ which fdfind >/dev/null && alias fd="fdfind"
 which hstr >/dev/null && alias hh="hstr"
 
 which terraform >/dev/null && alias tf="terraform"
-[ -d "$HOME/.bw-ssh-agent" ] && alias bwagent=$HOME/.bw-ssh-agent/bw_add_sshkeys.py
+[ -d "$HOME/.bw-ssh-agent" ] && alias bwagent='NODE_OPTIONS="--disable-warning=DEP0040" $HOME/.bw-ssh-agent/bw_add_sshkeys.py'
 
 # 一時ディレクトリ作成してcd
 stmp() {
