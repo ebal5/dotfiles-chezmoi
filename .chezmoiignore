@@ -4,7 +4,9 @@
 # 必要に応じてこのファイルに追記してください。
 
 # Documentation files - ドキュメントファイル
-**/*.md
+# ルート直下の .md のみ除外（dot_claude/ 配下の SKILL.md や
+# rules/*.md はホームへ展開する必要があるため除外しない）
+/*.md
 
 # Superpowers docs - 設計ドキュメント
 docs/

@@ -2,6 +2,8 @@
 name: uv-script
 description: Create standalone Python scripts using uv shebang with PEP 723 inline metadata. Use when creating single-file Python tools or scripts that need dependency management without a full project setup.
 allowed-tools: Read, Write, Glob
+model: sonnet
+effort: low
 ---
 
 # uv Shebang Python Script
