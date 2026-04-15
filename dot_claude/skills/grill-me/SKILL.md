@@ -5,6 +5,7 @@ description: |
   shared understanding, resolving each branch of the decision tree.
   Use when user wants to stress-test a plan, get grilled on their design,
   or mentions "grill me".
+allowed-tools: Read, Glob, Grep, Task
 model: sonnet
 effort: high
 ---
