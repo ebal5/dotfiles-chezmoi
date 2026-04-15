@@ -11,6 +11,8 @@ description: |
   - 「コンパクト前に保存」「文脈を残して」
   - 「次のセッションに引き継ぎたい」
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git log:*), Bash(git diff:*), Bash(git status:*), Bash(git branch:*), Bash(date:*)
+model: sonnet
+effort: medium
 ---
 
 # Session Handover

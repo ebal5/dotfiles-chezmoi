@@ -14,6 +14,11 @@ description: |
   - 「dead links」「invalid links」「link checker」「doc review」
   - PR前のドキュメントチェック、ドキュメント更新後の確認
   - 「ドキュメントに問題ないか」「リンクが正しいか」
+allowed-tools: Read, Glob, Grep, Edit, Bash(git diff:*), WebFetch
+context: fork
+agent: general-purpose
+model: haiku
+effort: low
 ---
 
 # Markdown Documentation Integrity Check
@@ -150,6 +155,11 @@ Globツールで **/*.md を検索
 ```
 
 ## 自動修正
+
+このスキルは `context: fork` で隔離 subagent として動作する。
+fork 実行中は対話的確認ができないため、**検出と修正提案の生成まで**を
+行い、実際の Edit 適用は返却レポートを受けたメインセッションで
+ユーザー確認の上で実施する。
 
 ユーザー確認後に以下の修正を実行可能:
 

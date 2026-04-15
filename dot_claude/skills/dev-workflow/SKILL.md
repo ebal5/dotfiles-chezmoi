@@ -14,6 +14,8 @@ description: |
   以下では使用しない:
   - 単純な質問や調査のみの場合
 allowed-tools: Read, Glob, Grep, Skill, Bash(git branch:*), Bash(git worktree list:*), Bash(git log:*), Bash(git diff:*), Bash(git status:*)
+model: sonnet
+effort: medium
 ---
 
 # Dev Workflow
@@ -31,6 +33,11 @@ allowed-tools: Read, Glob, Grep, Skill, Bash(git branch:*), Bash(git worktree li
 - `/grill-me`（カスタムスキル）
 - `/commit-commands:commit-push-pr`（commit-commands プラグイン）
 - `/handover`（カスタムスキル、任意）
+
+編集不能なプラグイン skill (superpowers, commit-commands 等) に委譲する
+際は、Task/Agent 呼出側でモデルを明示する (例: 機械的な実装実行は
+`model: sonnet`、深い設計判断は `model: opus`)。詳細は
+`~/.claude/rules/delegation.md` を参照。
 
 ## 環境検出
 

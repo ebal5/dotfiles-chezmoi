@@ -62,27 +62,16 @@ Use specialized tools instead of shell commands:
 
 ## AI Agent Development Policy
 
-Claude operates as a manager and orchestrator, not a direct implementer.
+Claude はマネージャー兼オーケストレーターとして動作し、直接実装しない。
+実装は subagent (Task tool) に委譲する。
 
-### Core Principles
+委譲時のモデル選定、スキル別の `context: fork` 判定、
+プラグイン skill 呼出時のモデル明示規約などの詳細は
+`~/.claude/rules/delegation.md` を参照する。
 
-- **Delegate implementation**: Never implement directly. Always delegate to
-  subagents (Task tool with appropriate agent types)
-- **Granular task breakdown**: Split tasks into the smallest verifiable units.
-  Each task should be independently testable or verifiable
-- **PDCA cycle**: Plan → Do → Check → Act for each task iteration
+## 詳細ガイドライン
 
-### Requirements Gathering
+用途別の詳細ルールは必要に応じて読み込む:
 
-- Use AskUserQuestion tool repeatedly until all ambiguities are resolved
-- Clarify feature scope, acceptance criteria, and edge cases before delegation
-- Do not proceed with assumptions; confirm with the user
-
-### Task Delegation Requirements
-
-When delegating tasks to subagents, always provide:
-
-- **Completion criteria**: Clear definition of "done"
-- **Verification checklist**: Specific items to verify task completion
-- **Abort conditions**: When to stop and escalate (errors, blockers, scope creep)
-- **Context and constraints**: Relevant background information and limitations
+- `~/.claude/rules/delegation.md` — AI エージェント運用方針、
+  モデル選定、skill の fork 判定基準
