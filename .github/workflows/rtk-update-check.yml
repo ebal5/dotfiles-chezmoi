@@ -1,0 +1,372 @@
+name: rtk update check
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'  # 毎週月曜 09:00 UTC (JST 18:00)
+  workflow_dispatch:
+    inputs:
+      skip_cooldown:
+        description: 'Skip the 7-day cooldown period'
+        type: boolean
+        default: false
+      force_pr:
+        description: 'Force create PR even if already exists'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check-update:
+    runs-on: ubuntu-latest
+    outputs:
+      has_update: ${{ steps.check.outputs.has_update }}
+      new_version: ${{ steps.check.outputs.new_version }}
+      new_tag: ${{ steps.check.outputs.new_tag }}
+      new_commit: ${{ steps.check.outputs.new_commit }}
+      published_at: ${{ steps.check.outputs.published_at }}
+      days_since_release: ${{ steps.check.outputs.days_since_release }}
+      cooldown_met: ${{ steps.check.outputs.cooldown_met }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check for rtk updates
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SKIP_COOLDOWN: ${{ inputs.skip_cooldown || 'false' }}
+        run: |
+          CURRENT_VERSION=$(jq -r '.version' rtk/manifest.json)
+          echo "Current pinned version: $CURRENT_VERSION"
+
+          # Get latest release info
+          RELEASE_JSON=$(gh api repos/rtk-ai/rtk/releases/latest)
+          NEW_TAG=$(echo "$RELEASE_JSON" | jq -r '.tag_name')
+          NEW_VERSION=${NEW_TAG#v}
+          PUBLISHED_AT=$(echo "$RELEASE_JSON" | jq -r '.published_at')
+          COMMIT_SHA=$(echo "$RELEASE_JSON" | jq -r '.target_commitish')
+
+          # Calculate days since release
+          PUBLISHED_TS=$(date -d "$PUBLISHED_AT" +%s)
+          NOW_TS=$(date +%s)
+          DAYS_SINCE=$(( (NOW_TS - PUBLISHED_TS) / 86400 ))
+
+          echo "Latest version: $NEW_VERSION (tag: $NEW_TAG)"
+          echo "Published: $PUBLISHED_AT ($DAYS_SINCE days ago)"
+
+          # Check if update needed
+          if [ "$CURRENT_VERSION" = "$NEW_VERSION" ]; then
+            echo "Already up to date."
+            echo "has_update=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo "has_update=true"
+            echo "new_version=$NEW_VERSION"
+            echo "new_tag=$NEW_TAG"
+            echo "new_commit=$COMMIT_SHA"
+            echo "published_at=$PUBLISHED_AT"
+            echo "days_since_release=$DAYS_SINCE"
+          } >> "$GITHUB_OUTPUT"
+
+          # Cooldown check (7 days)
+          if [ "$SKIP_COOLDOWN" = "true" ]; then
+            echo "Cooldown skipped (manual override)"
+            echo "cooldown_met=true" >> "$GITHUB_OUTPUT"
+          elif [ "$DAYS_SINCE" -ge 7 ]; then
+            echo "Cooldown period met (>= 7 days)"
+            echo "cooldown_met=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Cooldown NOT met ($DAYS_SINCE/7 days). Skipping update."
+            echo "cooldown_met=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  update-manifest:
+    needs: check-update
+    if: needs.check-update.outputs.has_update == 'true' && needs.check-update.outputs.cooldown_met == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      hook_changed: ${{ steps.update-hook.outputs.hook_changed }}
+      suspicious: ${{ steps.lint-hook.outputs.suspicious }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Download checksums and update manifest
+        id: update-manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_VERSION: ${{ needs.check-update.outputs.new_version }}
+          NEW_TAG: ${{ needs.check-update.outputs.new_tag }}
+          NEW_COMMIT: ${{ needs.check-update.outputs.new_commit }}
+        run: |
+          # Download checksums.txt from release
+          CHECKSUMS=$(gh release download "$NEW_TAG" --repo rtk-ai/rtk --pattern checksums.txt --output -)
+
+          # Platform mapping: nix system -> rtk target -> extract sha256
+          declare -A TARGETS
+          TARGETS[x86_64-linux]=$(jq -r '.platforms["x86_64-linux"].target' rtk/manifest.json)
+          TARGETS[aarch64-linux]=$(jq -r '.platforms["aarch64-linux"].target' rtk/manifest.json)
+          TARGETS[x86_64-darwin]=$(jq -r '.platforms["x86_64-darwin"].target' rtk/manifest.json)
+          TARGETS[aarch64-darwin]=$(jq -r '.platforms["aarch64-darwin"].target' rtk/manifest.json)
+
+          for SYSTEM in x86_64-linux aarch64-linux x86_64-darwin aarch64-darwin; do
+            TARGET=${TARGETS[$SYSTEM]}
+            TARBALL="rtk-${TARGET}.tar.gz"
+            SHA256=$(echo "$CHECKSUMS" | grep "$TARBALL" | awk '{print $1}')
+            if [ -z "$SHA256" ]; then
+              echo "ERROR: No checksum found for $TARBALL"
+              exit 1
+            fi
+            echo "  $SYSTEM ($TARGET): $SHA256"
+            # Update manifest.json using jq
+            jq --arg sys "$SYSTEM" --arg sha "$SHA256" \
+              '.platforms[$sys].sha256 = $sha' rtk/manifest.json > tmp.json && mv tmp.json rtk/manifest.json
+          done
+
+          # Update version, tag, commit
+          jq --arg ver "$NEW_VERSION" --arg tag "$NEW_TAG" --arg commit "$NEW_COMMIT" \
+            '.version = $ver | .tag = $tag | .commit = $commit' rtk/manifest.json > tmp.json && mv tmp.json rtk/manifest.json
+
+          echo "Updated manifest.json:"
+          cat rtk/manifest.json
+
+      - name: Update hook script
+        id: update-hook
+        env:
+          NEW_COMMIT: ${{ needs.check-update.outputs.new_commit }}
+          NEW_TAG: ${{ needs.check-update.outputs.new_tag }}
+        run: |
+          # Download latest hook from upstream
+          UPSTREAM_HOOK=$(curl -fsSL "https://raw.githubusercontent.com/rtk-ai/rtk/${NEW_COMMIT}/hooks/claude/rtk-rewrite.sh")
+
+          if [ -z "$UPSTREAM_HOOK" ]; then
+            echo "WARNING: Could not download upstream hook. Keeping current version."
+            echo "hook_changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Build new hook with our header
+          {
+            echo '#!/usr/bin/env bash'
+            echo '# ---------------------------------------------------------------------------'
+            echo "# Source: rtk-ai/rtk hooks/claude/rtk-rewrite.sh"
+            echo "# Upstream: https://github.com/rtk-ai/rtk/blob/${NEW_COMMIT}/hooks/claude/rtk-rewrite.sh"
+            echo "# Pinned commit: ${NEW_COMMIT} (${NEW_TAG})"
+            echo '# License: Apache-2.0 (see THIRD_PARTY_NOTICES.md)'
+            echo '# This file is redistributed under Apache-2.0. Local modifications: header only.'
+            echo '# ---------------------------------------------------------------------------'
+            # Append upstream content, skipping the shebang line
+            echo "$UPSTREAM_HOOK" | tail -n +2
+          } > dot_claude/hooks/executable_rtk-rewrite.sh
+
+          # Check if hook actually changed (excluding header which always changes)
+          OLD_BODY=$(git show HEAD:dot_claude/hooks/executable_rtk-rewrite.sh 2>/dev/null | tail -n +9 || echo "")
+          NEW_BODY=$(tail -n +9 dot_claude/hooks/executable_rtk-rewrite.sh)
+
+          if [ "$OLD_BODY" = "$NEW_BODY" ]; then
+            echo "Hook body unchanged (only header updated)"
+            echo "hook_changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Hook body has changed!"
+            echo "hook_changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update THIRD_PARTY_NOTICES.md
+        env:
+          NEW_COMMIT: ${{ needs.check-update.outputs.new_commit }}
+          NEW_TAG: ${{ needs.check-update.outputs.new_tag }}
+        run: |
+          # Update pinned commit reference
+          sed -i "s/Pinned commit: [a-f0-9]* (v[0-9.]*)/Pinned commit: ${NEW_COMMIT} (${NEW_TAG})/" THIRD_PARTY_NOTICES.md
+
+      - name: Update README badges
+        env:
+          NEW_TAG: ${{ needs.check-update.outputs.new_tag }}
+        run: |
+          # Update pinned version badge
+          sed -i "s|rtk%20pinned-v[0-9.]*-blue|rtk%20pinned-${NEW_TAG}-blue|" README.md
+
+      - name: Lint hook script (supply chain security)
+        id: lint-hook
+        run: |
+          SUSPICIOUS=false
+          HOOK=dot_claude/hooks/executable_rtk-rewrite.sh
+
+          # Check for dangerous patterns
+          PATTERNS=(
+            'curl\s'
+            'wget\s'
+            'nc\s'
+            'ncat\s'
+            'netcat\s'
+            'base64\s+-d'
+            'base64\s+--decode'
+            '\beval\b'
+            '\bexec\b'
+            'python[23]?\s+-c'
+            'ruby\s+-e'
+            'perl\s+-e'
+            'bash\s+-c'
+            '/dev/tcp/'
+            'ANTHROPIC_API_KEY'
+            'CLAUDE_API_KEY'
+            'Authorization:'
+          )
+
+          echo "=== Supply Chain Security Lint ==="
+          for PATTERN in "${PATTERNS[@]}"; do
+            # Skip legitimate uses (e.g., `command -v`)
+            if grep -Pn "$PATTERN" "$HOOK" | grep -v '^\d*:\s*#' | grep -v "command -v"; then
+              echo "Suspicious pattern found: $PATTERN"
+              SUSPICIOUS=true
+            fi
+          done
+
+          if [ "$SUSPICIOUS" = "true" ]; then
+            echo "suspicious=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::Suspicious patterns detected in hook script. Review carefully!"
+          else
+            echo "No suspicious patterns found."
+            echo "suspicious=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Pull Request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_VERSION: ${{ needs.check-update.outputs.new_version }}
+          NEW_TAG: ${{ needs.check-update.outputs.new_tag }}
+          NEW_COMMIT: ${{ needs.check-update.outputs.new_commit }}
+          PUBLISHED_AT: ${{ needs.check-update.outputs.published_at }}
+          DAYS_SINCE: ${{ needs.check-update.outputs.days_since_release }}
+          HOOK_CHANGED: ${{ steps.update-hook.outputs.hook_changed }}
+          SUSPICIOUS: ${{ steps.lint-hook.outputs.suspicious }}
+          FORCE_PR: ${{ inputs.force_pr || 'false' }}
+        run: |
+          BRANCH="rtk-update/${NEW_TAG}"
+
+          # Check if PR already exists
+          EXISTING=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || true)
+          if [ -n "$EXISTING" ] && [ "$FORCE_PR" != "true" ]; then
+            echo "PR #$EXISTING already exists for $BRANCH. Skipping."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git add rtk/manifest.json dot_claude/hooks/executable_rtk-rewrite.sh THIRD_PARTY_NOTICES.md README.md
+          git commit -m "chore(rtk): update to ${NEW_TAG}
+
+          Automated update from rtk-ai/rtk.
+          Release: ${NEW_TAG} (${PUBLISHED_AT}, ${DAYS_SINCE} days ago)
+          Commit: ${NEW_COMMIT}"
+
+          git push origin "$BRANCH" --force-with-lease
+
+          # Build PR body
+          LABELS="dependencies,automated"
+          if [ "$SUSPICIOUS" = "true" ]; then
+            LABELS="$LABELS,⚠️ suspicious"
+          fi
+          if [ "$HOOK_CHANGED" = "true" ]; then
+            LABELS="$LABELS,hook-changed"
+          fi
+
+          BODY="## rtk ${NEW_TAG} update
+
+          **Release**: [${NEW_TAG}](https://github.com/rtk-ai/rtk/releases/tag/${NEW_TAG})
+          **Commit**: [\`${NEW_COMMIT:0:7}\`](https://github.com/rtk-ai/rtk/commit/${NEW_COMMIT})
+          **Published**: ${PUBLISHED_AT} (${DAYS_SINCE} days ago, cooldown: 7 days)
+
+          ### Changes
+          - \`rtk/manifest.json\`: version + sha256 updated
+          - \`dot_claude/hooks/executable_rtk-rewrite.sh\`: header updated"
+
+          if [ "$HOOK_CHANGED" = "true" ]; then
+            BODY="$BODY
+          - **Hook body changed** -- review the diff carefully"
+          fi
+
+          if [ "$SUSPICIOUS" = "true" ]; then
+            BODY="$BODY
+
+          ### Supply Chain Security Warning
+          Suspicious patterns detected in the updated hook script. **Do NOT merge** without thorough manual review."
+          fi
+
+          BODY="$BODY
+
+          ### Supply Chain Security Checklist
+          - [ ] Reviewed manifest.json sha256 values
+          - [ ] Reviewed hook script diff (body changes: ${HOOK_CHANGED})
+          - [ ] Checked [upstream changelog](https://github.com/rtk-ai/rtk/releases/tag/${NEW_TAG})
+          - [ ] Suspicious patterns: ${SUSPICIOUS}
+
+          ### Verify locally
+          \`\`\`bash
+          git checkout ${BRANCH}
+          nix build .#default --no-link --print-out-paths
+          # test: \$(nix build .#default --no-link --print-out-paths)/bin/rtk --version
+          \`\`\`
+          "
+
+          # Create labels if they don't exist (ignore errors)
+          gh label create "dependencies" --color "0366d6" --description "Dependency updates" 2>/dev/null || true
+          gh label create "automated" --color "ededed" --description "Automated PRs" 2>/dev/null || true
+          gh label create "⚠️ suspicious" --color "d93f0b" --description "Supply chain security warning" 2>/dev/null || true
+          gh label create "hook-changed" --color "fbca04" --description "Hook script body changed" 2>/dev/null || true
+
+          gh pr create \
+            --title "chore(rtk): update to ${NEW_TAG}" \
+            --body "$BODY" \
+            --label "$LABELS" \
+            --base main \
+            --head "$BRANCH"
+
+  reproducibility-check:
+    needs: [check-update, update-manifest]
+    if: needs.check-update.outputs.has_update == 'true' && needs.check-update.outputs.cooldown_met == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: rtk-update/${{ needs.check-update.outputs.new_tag }}
+
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - name: Build and verify rtk binary
+        env:
+          NEW_VERSION: ${{ needs.check-update.outputs.new_version }}
+        run: |
+          OUT=$(nix build .#default --no-link --print-out-paths)
+          BUILT_VERSION=$("$OUT"/bin/rtk --version 2>&1)
+          echo "Built version: $BUILT_VERSION"
+
+          if echo "$BUILT_VERSION" | grep -q -- "$NEW_VERSION"; then
+            echo "Version matches: $BUILT_VERSION"
+          else
+            echo "Version mismatch! Expected $NEW_VERSION, got $BUILT_VERSION"
+            exit 1
+          fi
+
+      - name: Post build result to PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          NEW_TAG: ${{ needs.check-update.outputs.new_tag }}
+        run: |
+          BRANCH="rtk-update/${NEW_TAG}"
+          PR_NUMBER=$(gh pr list --head "$BRANCH" --json number --jq '.[0].number')
+          if [ -n "$PR_NUMBER" ]; then
+            if [ "${{ job.status }}" = "success" ]; then
+              gh pr comment "$PR_NUMBER" --body "Reproducibility check passed. Nix build succeeded and version matches."
+            else
+              gh pr comment "$PR_NUMBER" --body "Reproducibility check failed. Please investigate before merging."
+            fi
+          fi

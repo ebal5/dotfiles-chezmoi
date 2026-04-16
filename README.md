@@ -326,3 +326,17 @@ NOTE: markdownlintによるチェックとの違いは要検証
 
 - マイグレーション履歴は [MIGRATION.md](MIGRATION.md) を参照
 - 機能拡張や問題報告は Issues へ
+
+## Credits
+
+- [rtk-ai/rtk](https://github.com/rtk-ai/rtk) — Claude Code のトークン削減フック。
+  Apache-2.0 で再配布 (詳細は [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md))。
+
+### rtk バージョン状態
+
+<!-- rtk-status-badges:start -->
+![rtk pinned](https://img.shields.io/badge/rtk%20pinned-v0.36.0-blue)
+![rtk upstream](https://img.shields.io/github/v/release/rtk-ai/rtk?label=rtk%20upstream)
+<!-- rtk-status-badges:end -->
+
+(cooldown バッジは GitHub Actions 設定後に追加予定)

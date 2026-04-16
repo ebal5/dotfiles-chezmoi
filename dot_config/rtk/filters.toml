@@ -1,0 +1,20 @@
+# ---------------------------------------------------------------------------
+# Template based on: rtk-ai/rtk .rtk/filters.toml
+# Upstream: https://github.com/rtk-ai/rtk/blob/a69935746172d913fcbd282d720d2daf5025e5e9/.rtk/filters.toml
+# License: Apache-2.0 (see THIRD_PARTY_NOTICES.md)
+# This is the user-global filter config. Override per-project filters live in
+# <repo>/.rtk/filters.toml and require `rtk trust`.
+# ---------------------------------------------------------------------------
+# Project-local RTK filters — commit this file with your repo.
+# Filters here override user-global and built-in filters.
+# Docs: https://github.com/rtk-ai/rtk#custom-filters
+schema_version = 1
+
+# Example: suppress build noise from a custom tool
+# [filters.my-tool]
+# description = "Compact my-tool output"
+# match_command = "^my-tool\\s+build"
+# strip_ansi = true
+# strip_lines_matching = ["^\\s*$", "^Downloading", "^Installing"]
+# max_lines = 30
+# on_empty = "my-tool: ok"
