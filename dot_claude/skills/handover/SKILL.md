@@ -34,13 +34,23 @@ HANDOVER.mdを作成する。
 
 ### Step 2: HANDOVER.md の作成
 
-プロジェクトルートに `HANDOVER.md` を作成する。
+`HANDOVER.md` を保存するディレクトリを決定する：
+
+- **引数でディレクトリが指定された場合** (例: `/path/to/dir` を含む引数):
+  そのディレクトリ直下に `HANDOVER.md` を作成する。
+  worktree 内での作業で親ワークツリー（メインクローン）に保存したい場合に
+  使用する典型的なパターン
+- **指定がない場合**: 現在のプロジェクトルート（`pwd`）に作成する
+
+その他の共通ルール:
 
 - 既存ファイルがある場合は内容を表示し、**上書き/追記/キャンセル**の選択を
   ユーザーに求める
 - 日時は `date '+%Y-%m-%d %H:%M'` で取得する
-- ブランチ名は `git branch --show-current` で取得する
-- コード状態は `git status` と `git diff --stat` で確認する
+- ブランチ名は `git -C <target-dir> branch --show-current` で取得する
+  （引数指定時は対象ディレクトリのブランチを参照）
+- コード状態は `git -C <target-dir> status` と `git -C <target-dir> diff --stat`
+  で確認する
 - 該当なしのセクションは省略してよい
 
 ```markdown
