@@ -1,0 +1,24 @@
+{
+  "version": "0.36.0",
+  "commit": "a69935746172d913fcbd282d720d2daf5025e5e9",
+  "tag": "v0.36.0",
+  "repository": "https://github.com/rtk-ai/rtk",
+  "platforms": {
+    "x86_64-linux": {
+      "target": "x86_64-unknown-linux-musl",
+      "sha256": "2d428ce344734df95e0933f01f30a2d694fad470de39d8c5186b89eb707aac26"
+    },
+    "aarch64-linux": {
+      "target": "aarch64-unknown-linux-gnu",
+      "sha256": "ec0cc96a6e483399943d7c9948196716d04de7ee4a1b07fe7bafe2b183197826"
+    },
+    "x86_64-darwin": {
+      "target": "x86_64-apple-darwin",
+      "sha256": "5a874af307fa768ea0e30fbc1f35f26be8108f076da3aea2836bb3a6f99e5dcf"
+    },
+    "aarch64-darwin": {
+      "target": "aarch64-apple-darwin",
+      "sha256": "d80041c5773b4a0981d186a87f37b1543cba41cf1d1f53d3b5f2165c8d16f1e2"
+    }
+  }
+}

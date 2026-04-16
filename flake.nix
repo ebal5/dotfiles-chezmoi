@@ -10,6 +10,32 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
+        rtkManifest = builtins.fromJSON (builtins.readFile ./rtk/manifest.json);
+        rtkPlatform = rtkManifest.platforms.${system} or null;
+        rtk =
+          if rtkPlatform == null then null
+          else pkgs.stdenvNoCC.mkDerivation {
+            pname = "rtk";
+            version = rtkManifest.version;
+            src = pkgs.fetchurl {
+              url = "${rtkManifest.repository}/releases/download/${rtkManifest.tag}/rtk-${rtkPlatform.target}.tar.gz";
+              sha256 = rtkPlatform.sha256;
+            };
+            sourceRoot = ".";
+            nativeBuildInputs = pkgs.lib.optionals pkgs.stdenv.isLinux [ pkgs.autoPatchelfHook ];
+            installPhase = ''
+              runHook preInstall
+              install -Dm755 rtk $out/bin/rtk
+              runHook postInstall
+            '';
+            meta = with pkgs.lib; {
+              description = "Rust Token Killer - reduce LLM token consumption via command rewriting";
+              homepage = rtkManifest.repository;
+              license = licenses.asl20;
+              platforms = builtins.attrNames rtkManifest.platforms;
+              mainProgram = "rtk";
+            };
+          };
       in
       {
         # Main package output for user-wide installation
@@ -70,7 +96,7 @@
 
             # Linters
             actionlint        # GitHub Actions workflow linter
-          ];
+          ] ++ pkgs.lib.optional (rtk != null) rtk;
         };
       }
     );
