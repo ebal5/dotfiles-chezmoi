@@ -6,10 +6,16 @@ set -euo pipefail
 # Bumping a PIN changes this file's content hash, so chezmoi will re-run
 # this script and pick up the new version on next apply.
 
-# ebal5/agent-skills — own repo with semver tags
+# ebal5/agent-skills — own repo with semver tags.
+# Skill list is fetched from install-sets/common.txt at the pinned ref so
+# agent-skills stays the single source of truth; bump OWN_PIN to refresh.
 OWN_REPO="ebal5/agent-skills"
-OWN_PIN="v0.1.0"
-OWN_SKILLS=(dev-workflow grill-me handover markdown-check uv-script)
+OWN_PIN="v0.2.1"
+mapfile -t OWN_SKILLS < <(
+  gh api "repos/${OWN_REPO}/contents/install-sets/common.txt?ref=${OWN_PIN}" \
+    --jq '.content' | base64 -d \
+    | awk '/^[[:space:]]*#/ || /^[[:space:]]*$/ {next} {print $1}'
+)
 
 for skill in "${OWN_SKILLS[@]}"; do
   echo ">> gh skill install ${OWN_REPO} ${skill} --pin ${OWN_PIN}"
