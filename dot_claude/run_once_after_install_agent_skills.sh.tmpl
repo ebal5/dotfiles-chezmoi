@@ -10,7 +10,7 @@ set -euo pipefail
 # Skill list is fetched from install-sets/common.txt at the pinned ref so
 # agent-skills stays the single source of truth; bump OWN_PIN to refresh.
 OWN_REPO="ebal5/agent-skills"
-OWN_PIN="v0.2.0"
+OWN_PIN="v0.2.1"
 mapfile -t OWN_SKILLS < <(
   gh api "repos/${OWN_REPO}/contents/install-sets/common.txt?ref=${OWN_PIN}" \
     --jq '.content' | base64 -d \
