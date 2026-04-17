@@ -2,18 +2,30 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Install user-global agent skills from ebal5/agent-skills.
-# Bumping PIN changes this file's content hash, so chezmoi will re-run
+# Install user-global agent skills.
+# Bumping a PIN changes this file's content hash, so chezmoi will re-run
 # this script and pick up the new version on next apply.
 
-REPO="ebal5/agent-skills"
-PIN="v0.1.0"
-SKILLS=(dev-workflow grill-me handover markdown-check uv-script)
+# ebal5/agent-skills — own repo with semver tags
+OWN_REPO="ebal5/agent-skills"
+OWN_PIN="v0.1.0"
+OWN_SKILLS=(dev-workflow grill-me handover markdown-check uv-script)
 
-for skill in "${SKILLS[@]}"; do
-  echo ">> gh skill install ${REPO} ${skill} --pin ${PIN}"
-  gh skill install "${REPO}" "${skill}" \
-    --agent claude-code --scope user --pin "${PIN}" --force
+for skill in "${OWN_SKILLS[@]}"; do
+  echo ">> gh skill install ${OWN_REPO} ${skill} --pin ${OWN_PIN}"
+  gh skill install "${OWN_REPO}" "${skill}" \
+    --agent claude-code --scope user --pin "${OWN_PIN}" --force
+done
+
+# anthropics/skills — upstream has no release tags, pin by commit SHA
+UPSTREAM_REPO="anthropics/skills"
+UPSTREAM_PIN="2c7ec5e78b8e5d43ea02e90bb8826f6b9f147b0c"
+UPSTREAM_SKILLS=(skill-creator mcp-builder pdf doc-coauthoring)
+
+for skill in "${UPSTREAM_SKILLS[@]}"; do
+  echo ">> gh skill install ${UPSTREAM_REPO} ${skill} --pin ${UPSTREAM_PIN:0:8}"
+  gh skill install "${UPSTREAM_REPO}" "${skill}" \
+    --agent claude-code --scope user --pin "${UPSTREAM_PIN}" --force
 done
 {{ else -}}
 #!/usr/bin/env bash
