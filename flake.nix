@@ -50,6 +50,7 @@
             sd                # sed replacement
             hyperfine         # Benchmarking tool
             xh                # HTTP client (httpie replacement)
+            watchexec         # File-watch command executor
 
             # Python ecosystem
             uv                # Fast Python package installer
@@ -83,6 +84,10 @@
             oxker             # Docker container TUI manager
             ov                # Feature-rich terminal pager
             glow              # Terminal Markdown renderer
+            zellij            # Terminal workspace / multiplexer
+
+            # Editors
+            neovim            # Hyperextensible Vim-based editor
 
             # Task management
             pueue             # CLI task queue manager
