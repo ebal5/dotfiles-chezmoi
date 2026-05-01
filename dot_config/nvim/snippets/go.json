@@ -254,6 +254,50 @@
     ],
     "description": "got/want with go-cmp Diff"
   },
+  "got want slices.Equal": {
+    "prefix": "gotwants",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !slices.Equal(got, want) {",
+      "\tt.Errorf(\"${3:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with slices.Equal (Go 1.21+)"
+  },
+  "got want slices.EqualFunc": {
+    "prefix": "gotwantsf",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !slices.EqualFunc(got, want, func(a, b ${3:T}) bool {",
+      "\treturn ${4:a == b}",
+      "}) {",
+      "\tt.Errorf(\"${5:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with slices.EqualFunc (Go 1.21+)"
+  },
+  "got want maps.Equal": {
+    "prefix": "gotwantm",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !maps.Equal(got, want) {",
+      "\tt.Errorf(\"${3:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with maps.Equal (Go 1.21+)"
+  },
+  "got want maps.EqualFunc": {
+    "prefix": "gotwantmf",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !maps.EqualFunc(got, want, func(a, b ${3:V}) bool {",
+      "\treturn ${4:a == b}",
+      "}) {",
+      "\tt.Errorf(\"${5:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with maps.EqualFunc (Go 1.21+)"
+  },
   "benchmark function": {
     "prefix": "bench",
     "body": [
