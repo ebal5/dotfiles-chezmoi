@@ -339,5 +339,148 @@
     "prefix": "tclean",
     "body": ["t.Cleanup(func() {", "\t$0", "})"],
     "description": "t.Cleanup"
+  },
+  "testify assert.Equal": {
+    "prefix": "aseq",
+    "body": ["assert.Equal(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify assert.Equal"
+  },
+  "testify assert.NotEqual": {
+    "prefix": "asneq",
+    "body": ["assert.NotEqual(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify assert.NotEqual"
+  },
+  "testify assert.NoError": {
+    "prefix": "asnoerr",
+    "body": ["assert.NoError(t, ${1:err})$0"],
+    "description": "testify assert.NoError"
+  },
+  "testify assert.Error": {
+    "prefix": "aserr",
+    "body": ["assert.Error(t, ${1:err})$0"],
+    "description": "testify assert.Error"
+  },
+  "testify assert.ErrorIs": {
+    "prefix": "aserris",
+    "body": ["assert.ErrorIs(t, ${1:err}, ${2:target})$0"],
+    "description": "testify assert.ErrorIs"
+  },
+  "testify assert.EqualError": {
+    "prefix": "aseqerr",
+    "body": ["assert.EqualError(t, ${1:err}, ${2:\"expected message\"})$0"],
+    "description": "testify assert.EqualError"
+  },
+  "testify assert.Nil": {
+    "prefix": "asnil",
+    "body": ["assert.Nil(t, ${1:value})$0"],
+    "description": "testify assert.Nil"
+  },
+  "testify assert.NotNil": {
+    "prefix": "asnotnil",
+    "body": ["assert.NotNil(t, ${1:value})$0"],
+    "description": "testify assert.NotNil"
+  },
+  "testify assert.True": {
+    "prefix": "astrue",
+    "body": ["assert.True(t, ${1:condition})$0"],
+    "description": "testify assert.True"
+  },
+  "testify assert.False": {
+    "prefix": "asfalse",
+    "body": ["assert.False(t, ${1:condition})$0"],
+    "description": "testify assert.False"
+  },
+  "testify assert.Contains": {
+    "prefix": "ascont",
+    "body": ["assert.Contains(t, ${1:collection}, ${2:element})$0"],
+    "description": "testify assert.Contains"
+  },
+  "testify assert.Len": {
+    "prefix": "aslen",
+    "body": ["assert.Len(t, ${1:collection}, ${2:length})$0"],
+    "description": "testify assert.Len"
+  },
+  "testify assert.Empty": {
+    "prefix": "asempty",
+    "body": ["assert.Empty(t, ${1:value})$0"],
+    "description": "testify assert.Empty"
+  },
+  "testify assert.ElementsMatch": {
+    "prefix": "aselems",
+    "body": ["assert.ElementsMatch(t, ${1:listA}, ${2:listB})$0"],
+    "description": "testify assert.ElementsMatch (順不同で同要素か検証)"
+  },
+  "testify assert.JSONEq": {
+    "prefix": "asjson",
+    "body": ["assert.JSONEq(t, ${1:expectedJSON}, ${2:actualJSON})$0"],
+    "description": "testify assert.JSONEq"
+  },
+  "testify assert.Same": {
+    "prefix": "assame",
+    "body": ["assert.Same(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify assert.Same (ポインタ同一性)"
+  },
+  "testify require.Equal": {
+    "prefix": "reqeq",
+    "body": ["require.Equal(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify require.Equal"
+  },
+  "testify require.NoError": {
+    "prefix": "reqnoerr",
+    "body": ["require.NoError(t, ${1:err})$0"],
+    "description": "testify require.NoError"
+  },
+  "testify require.Error": {
+    "prefix": "reqerr",
+    "body": ["require.Error(t, ${1:err})$0"],
+    "description": "testify require.Error"
+  },
+  "testify require.ErrorIs": {
+    "prefix": "reqerris",
+    "body": ["require.ErrorIs(t, ${1:err}, ${2:target})$0"],
+    "description": "testify require.ErrorIs"
+  },
+  "testify require.NotNil": {
+    "prefix": "reqnotnil",
+    "body": ["require.NotNil(t, ${1:value})$0"],
+    "description": "testify require.NotNil"
+  },
+  "testify require.True": {
+    "prefix": "reqtrue",
+    "body": ["require.True(t, ${1:condition})$0"],
+    "description": "testify require.True"
+  },
+  "testify suite skeleton": {
+    "prefix": "tsuite",
+    "body": [
+      "type ${1:Name}Suite struct {",
+      "\tsuite.Suite",
+      "}",
+      "",
+      "func (s *${1:Name}Suite) SetupTest() {",
+      "\t$2",
+      "}",
+      "",
+      "func (s *${1:Name}Suite) Test${3:Foo}() {",
+      "\t$0",
+      "}",
+      "",
+      "func Test${1:Name}Suite(t *testing.T) {",
+      "\tsuite.Run(t, new(${1:Name}Suite))",
+      "}"
+    ],
+    "description": "testify suite テストスケルトン"
+  },
+  "testify mock On Return": {
+    "prefix": "mockon",
+    "body": [
+      "${1:m}.On(\"${2:Method}\", ${3:args}).Return(${4:returnValue})$0"
+    ],
+    "description": "testify mock の On().Return() チェーン"
+  },
+  "testify mock AssertExpectations": {
+    "prefix": "mockassert",
+    "body": ["${1:m}.AssertExpectations(t)$0"],
+    "description": "testify mock.AssertExpectations"
   }
 }
