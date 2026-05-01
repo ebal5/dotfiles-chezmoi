@@ -482,5 +482,138 @@
     "prefix": "mockassert",
     "body": ["${1:m}.AssertExpectations(t)$0"],
     "description": "testify mock.AssertExpectations"
+  },
+  "errors.As block": {
+    "prefix": "erras",
+    "body": [
+      "var ${1:target} *${2:FooError}",
+      "if errors.As(${3:err}, &${1:target}) {",
+      "\t$0",
+      "}"
+    ],
+    "description": "errors.As による型付きエラー抽出"
+  },
+  "errors.Join": {
+    "prefix": "errjoin",
+    "body": ["errors.Join(${1:err1}, ${2:err2})$0"],
+    "description": "errors.Join (Go 1.20+) で複数エラーを結合"
+  },
+  "sentinel error": {
+    "prefix": "errsen",
+    "body": ["var Err${1:Name} = errors.New(\"${2:message}\")$0"],
+    "description": "package-level sentinel error 宣言"
+  },
+  "custom error type": {
+    "prefix": "errtype",
+    "body": [
+      "type ${1:FooError} struct {",
+      "\t${2:Field} ${3:string}",
+      "}",
+      "",
+      "func (e *${1:FooError}) Error() string {",
+      "\treturn fmt.Sprintf(\"${4:foo}: %${5:s}\", e.${2:Field})",
+      "}",
+      "$0"
+    ],
+    "description": "Error() メソッド付きカスタムエラー型"
+  },
+  "wrapping error type with Unwrap": {
+    "prefix": "errunwrap",
+    "body": [
+      "type ${1:FooError} struct {",
+      "\t${2:Op}  string",
+      "\tErr error",
+      "}",
+      "",
+      "func (e *${1:FooError}) Error() string {",
+      "\treturn fmt.Sprintf(\"%s: %v\", e.${2:Op}, e.Err)",
+      "}",
+      "",
+      "func (e *${1:FooError}) Unwrap() error {",
+      "\treturn e.Err",
+      "}",
+      "$0"
+    ],
+    "description": "Unwrap() を実装したラップ用エラー型"
+  },
+  "deferred close into named return": {
+    "prefix": "defclose",
+    "body": [
+      "defer func() {",
+      "\tif cerr := ${1:closer}.Close(); cerr != nil && err == nil {",
+      "\t\terr = cerr",
+      "\t}",
+      "}()",
+      "$0"
+    ],
+    "description": "Close エラーを named return の err に集約 (named return 必須)"
+  },
+  "test helper assertError": {
+    "prefix": "hasserterr",
+    "body": [
+      "func assertError(t *testing.T, got, want error) {",
+      "\tt.Helper()",
+      "\tif !errors.Is(got, want) {",
+      "\t\tt.Errorf(\"got error %v, want %v\", got, want)",
+      "\t}",
+      "}",
+      "$0"
+    ],
+    "description": "errors.Is ベースの assertError ヘルパ定義"
+  },
+  "test helper assertNoError": {
+    "prefix": "hassertnoerr",
+    "body": [
+      "func assertNoError(t *testing.T, err error) {",
+      "\tt.Helper()",
+      "\tif err != nil {",
+      "\t\tt.Fatalf(\"unexpected error: %v\", err)",
+      "\t}",
+      "}",
+      "$0"
+    ],
+    "description": "assertNoError ヘルパ定義 (失敗時 Fatal)"
+  },
+  "test helper assertErrorAs": {
+    "prefix": "hasserteras",
+    "body": [
+      "func assertErrorAs[T error](t *testing.T, err error) T {",
+      "\tt.Helper()",
+      "\tvar target T",
+      "\tif !errors.As(err, &target) {",
+      "\t\tt.Fatalf(\"want error of type %T, got %v\", target, err)",
+      "\t}",
+      "\treturn target",
+      "}",
+      "$0"
+    ],
+    "description": "errors.As でエラー型を取り出すジェネリックヘルパ (Go 1.18+)"
+  },
+  "test helper assertEqual generic": {
+    "prefix": "hasserteq",
+    "body": [
+      "func assertEqual[T comparable](t *testing.T, got, want T) {",
+      "\tt.Helper()",
+      "\tif got != want {",
+      "\t\tt.Errorf(\"got %v, want %v\", got, want)",
+      "\t}",
+      "}",
+      "$0"
+    ],
+    "description": "ジェネリック版 assertEqual ヘルパ定義 (Go 1.18+)"
+  },
+  "test helper mustNoError": {
+    "prefix": "hmustnoerr",
+    "body": [
+      "func must[T any](t *testing.T, v T, err error) T {",
+      "\tt.Helper()",
+      "\tif err != nil {",
+      "\t\tt.Fatalf(\"unexpected error: %v\", err)",
+      "\t}",
+      "\treturn v",
+      "}",
+      "$0"
+    ],
+    "description": "(値, error) 戻り値を Fatal 短絡する must ヘルパ"
   }
 }
