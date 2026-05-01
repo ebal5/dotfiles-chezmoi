@@ -1,0 +1,486 @@
+{
+  "if err != nil return": {
+    "prefix": "iferr",
+    "body": [
+      "if err != nil {",
+      "\treturn ${1:err}",
+      "}",
+      "$0"
+    ],
+    "description": "if err != nil { return err }"
+  },
+  "if err != nil wrap": {
+    "prefix": "iferrw",
+    "body": [
+      "if err != nil {",
+      "\treturn fmt.Errorf(\"${1:context}: %w\", err)",
+      "}",
+      "$0"
+    ],
+    "description": "if err != nil { return fmt.Errorf(...: %w, err) }"
+  },
+  "if err != nil log": {
+    "prefix": "iferrl",
+    "body": [
+      "if err != nil {",
+      "\tlog.Printf(\"${1:context}: %v\", err)",
+      "\t$0",
+      "}"
+    ],
+    "description": "if err != nil with log.Printf"
+  },
+  "if err != nil panic": {
+    "prefix": "iferrp",
+    "body": [
+      "if err != nil {",
+      "\tpanic(err)",
+      "}",
+      "$0"
+    ],
+    "description": "if err != nil { panic(err) }"
+  },
+  "package declaration": {
+    "prefix": "pkg",
+    "body": ["package ${1:${TM_DIRECTORY/^.+\\/(.*)$/$1/}}", "", "$0"],
+    "description": "package declaration"
+  },
+  "func main": {
+    "prefix": "main",
+    "body": [
+      "package main",
+      "",
+      "func main() {",
+      "\t$0",
+      "}"
+    ],
+    "description": "package main with func main"
+  },
+  "func init": {
+    "prefix": "init",
+    "body": ["func init() {", "\t$0", "}"],
+    "description": "func init()"
+  },
+  "func declaration": {
+    "prefix": "func",
+    "body": ["func ${1:name}(${2:args}) ${3:returns}{", "\t$0", "}"],
+    "description": "func declaration"
+  },
+  "method declaration": {
+    "prefix": "meth",
+    "body": [
+      "func (${1:r} ${2:Receiver}) ${3:Name}(${4:args}) ${5:returns}{",
+      "\t$0",
+      "}"
+    ],
+    "description": "method declaration"
+  },
+  "struct type": {
+    "prefix": "struct",
+    "body": ["type ${1:Name} struct {", "\t$0", "}"],
+    "description": "type Name struct"
+  },
+  "interface type": {
+    "prefix": "iface",
+    "body": ["type ${1:Name} interface {", "\t$0", "}"],
+    "description": "type Name interface"
+  },
+  "for range": {
+    "prefix": "forr",
+    "body": ["for ${1:k}, ${2:v} := range ${3:collection} {", "\t$0", "}"],
+    "description": "for k, v := range collection"
+  },
+  "for i loop": {
+    "prefix": "fori",
+    "body": [
+      "for ${1:i} := 0; ${1:i} < ${2:n}; ${1:i}++ {",
+      "\t$0",
+      "}"
+    ],
+    "description": "for i := 0; i < n; i++"
+  },
+  "goroutine": {
+    "prefix": "gor",
+    "body": ["go func(${1:args}) {", "\t$0", "}(${2:})"],
+    "description": "go func() { ... }()"
+  },
+  "defer recover": {
+    "prefix": "defrec",
+    "body": [
+      "defer func() {",
+      "\tif r := recover(); r != nil {",
+      "\t\t${1:log.Printf(\"recovered: %v\", r)}",
+      "\t}",
+      "}()",
+      "$0"
+    ],
+    "description": "defer recover"
+  },
+  "select statement": {
+    "prefix": "selc",
+    "body": [
+      "select {",
+      "case ${1:v} := <-${2:ch}:",
+      "\t$3",
+      "case <-${4:ctx}.Done():",
+      "\treturn ${4:ctx}.Err()",
+      "}",
+      "$0"
+    ],
+    "description": "select with ctx.Done()"
+  },
+  "context with cancel": {
+    "prefix": "ctxc",
+    "body": [
+      "ctx, cancel := context.WithCancel(${1:context.Background()})",
+      "defer cancel()",
+      "$0"
+    ],
+    "description": "context.WithCancel"
+  },
+  "context with timeout": {
+    "prefix": "ctxt",
+    "body": [
+      "ctx, cancel := context.WithTimeout(${1:context.Background()}, ${2:5*time.Second})",
+      "defer cancel()",
+      "$0"
+    ],
+    "description": "context.WithTimeout"
+  },
+  "fmt.Errorf wrap": {
+    "prefix": "errf",
+    "body": ["fmt.Errorf(\"${1:context}: %w\", ${2:err})$0"],
+    "description": "fmt.Errorf with %w"
+  },
+  "errors.New": {
+    "prefix": "errn",
+    "body": ["errors.New(\"${1:message}\")$0"],
+    "description": "errors.New"
+  },
+  "errors.Is": {
+    "prefix": "erris",
+    "body": [
+      "if errors.Is(${1:err}, ${2:target}) {",
+      "\t$0",
+      "}"
+    ],
+    "description": "if errors.Is(err, target)"
+  },
+  "test function": {
+    "prefix": "test",
+    "body": [
+      "func Test${1:Name}(t *testing.T) {",
+      "\tt.Parallel()",
+      "\t$0",
+      "}"
+    ],
+    "description": "func TestXxx(t *testing.T)"
+  },
+  "table-driven test": {
+    "prefix": "tt",
+    "body": [
+      "func Test${1:Name}(t *testing.T) {",
+      "\tt.Parallel()",
+      "",
+      "\ttests := []struct {",
+      "\t\tname string",
+      "\t\t${2:input}    ${3:string}",
+      "\t\twant     ${4:string}",
+      "\t\twantErr  bool",
+      "\t}{",
+      "\t\t{",
+      "\t\t\tname:    \"${5:case}\",",
+      "\t\t\t${2:input}:   ${6:\"\"},",
+      "\t\t\twant:    ${7:\"\"},",
+      "\t\t\twantErr: false,",
+      "\t\t},",
+      "\t}",
+      "",
+      "\tfor _, tt := range tests {",
+      "\t\tt.Run(tt.name, func(t *testing.T) {",
+      "\t\t\tt.Parallel()",
+      "\t\t\tgot, err := ${8:target}(tt.${2:input})",
+      "\t\t\tif (err != nil) != tt.wantErr {",
+      "\t\t\t\tt.Fatalf(\"unexpected error: %v\", err)",
+      "\t\t\t}",
+      "\t\t\tif got != tt.want {",
+      "\t\t\t\tt.Errorf(\"got %v, want %v\", got, tt.want)",
+      "\t\t\t}",
+      "\t\t})",
+      "\t}",
+      "}",
+      "$0"
+    ],
+    "description": "table-driven test skeleton"
+  },
+  "subtest t.Run": {
+    "prefix": "subt",
+    "body": [
+      "t.Run(\"${1:name}\", func(t *testing.T) {",
+      "\tt.Parallel()",
+      "\t$0",
+      "})"
+    ],
+    "description": "t.Run subtest"
+  },
+  "got want compare": {
+    "prefix": "gotwant",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; got != want {",
+      "\tt.Errorf(\"${3:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "if got, want := ...; got != want { t.Errorf }"
+  },
+  "got want DeepEqual": {
+    "prefix": "gotwantr",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !reflect.DeepEqual(got, want) {",
+      "\tt.Errorf(\"${3:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with reflect.DeepEqual"
+  },
+  "got want cmp.Diff": {
+    "prefix": "gotwantd",
+    "body": [
+      "got := ${1:expr}",
+      "want := ${2:expected}",
+      "if diff := cmp.Diff(want, got); diff != \"\" {",
+      "\tt.Errorf(\"${3:label} mismatch (-want +got):\\n%s\", diff)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with go-cmp Diff"
+  },
+  "got want slices.Equal": {
+    "prefix": "gotwants",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !slices.Equal(got, want) {",
+      "\tt.Errorf(\"${3:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with slices.Equal (Go 1.21+)"
+  },
+  "got want slices.EqualFunc": {
+    "prefix": "gotwantsf",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !slices.EqualFunc(got, want, func(a, b ${3:T}) bool {",
+      "\treturn ${4:a == b}",
+      "}) {",
+      "\tt.Errorf(\"${5:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with slices.EqualFunc (Go 1.21+)"
+  },
+  "got want maps.Equal": {
+    "prefix": "gotwantm",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !maps.Equal(got, want) {",
+      "\tt.Errorf(\"${3:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with maps.Equal (Go 1.21+)"
+  },
+  "got want maps.EqualFunc": {
+    "prefix": "gotwantmf",
+    "body": [
+      "if got, want := ${1:expr}, ${2:expected}; !maps.EqualFunc(got, want, func(a, b ${3:V}) bool {",
+      "\treturn ${4:a == b}",
+      "}) {",
+      "\tt.Errorf(\"${5:label}: got %v, want %v\", got, want)",
+      "}",
+      "$0"
+    ],
+    "description": "got/want with maps.EqualFunc (Go 1.21+)"
+  },
+  "benchmark function": {
+    "prefix": "bench",
+    "body": [
+      "func Benchmark${1:Name}(b *testing.B) {",
+      "\tfor i := 0; i < b.N; i++ {",
+      "\t\t$0",
+      "\t}",
+      "}"
+    ],
+    "description": "func BenchmarkXxx(b *testing.B)"
+  },
+  "example function": {
+    "prefix": "example",
+    "body": [
+      "func Example${1:Name}() {",
+      "\t$0",
+      "\t// Output:",
+      "\t// ${2:expected}",
+      "}"
+    ],
+    "description": "func ExampleXxx()"
+  },
+  "t.Errorf": {
+    "prefix": "terr",
+    "body": ["t.Errorf(\"${1:msg}: %v\", ${2:err})$0"],
+    "description": "t.Errorf"
+  },
+  "t.Fatalf": {
+    "prefix": "tfat",
+    "body": ["t.Fatalf(\"${1:msg}: %v\", ${2:err})$0"],
+    "description": "t.Fatalf"
+  },
+  "t.Helper": {
+    "prefix": "thelp",
+    "body": ["t.Helper()", "$0"],
+    "description": "t.Helper()"
+  },
+  "t.Cleanup": {
+    "prefix": "tclean",
+    "body": ["t.Cleanup(func() {", "\t$0", "})"],
+    "description": "t.Cleanup"
+  },
+  "testify assert.Equal": {
+    "prefix": "aseq",
+    "body": ["assert.Equal(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify assert.Equal"
+  },
+  "testify assert.NotEqual": {
+    "prefix": "asneq",
+    "body": ["assert.NotEqual(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify assert.NotEqual"
+  },
+  "testify assert.NoError": {
+    "prefix": "asnoerr",
+    "body": ["assert.NoError(t, ${1:err})$0"],
+    "description": "testify assert.NoError"
+  },
+  "testify assert.Error": {
+    "prefix": "aserr",
+    "body": ["assert.Error(t, ${1:err})$0"],
+    "description": "testify assert.Error"
+  },
+  "testify assert.ErrorIs": {
+    "prefix": "aserris",
+    "body": ["assert.ErrorIs(t, ${1:err}, ${2:target})$0"],
+    "description": "testify assert.ErrorIs"
+  },
+  "testify assert.EqualError": {
+    "prefix": "aseqerr",
+    "body": ["assert.EqualError(t, ${1:err}, ${2:\"expected message\"})$0"],
+    "description": "testify assert.EqualError"
+  },
+  "testify assert.Nil": {
+    "prefix": "asnil",
+    "body": ["assert.Nil(t, ${1:value})$0"],
+    "description": "testify assert.Nil"
+  },
+  "testify assert.NotNil": {
+    "prefix": "asnotnil",
+    "body": ["assert.NotNil(t, ${1:value})$0"],
+    "description": "testify assert.NotNil"
+  },
+  "testify assert.True": {
+    "prefix": "astrue",
+    "body": ["assert.True(t, ${1:condition})$0"],
+    "description": "testify assert.True"
+  },
+  "testify assert.False": {
+    "prefix": "asfalse",
+    "body": ["assert.False(t, ${1:condition})$0"],
+    "description": "testify assert.False"
+  },
+  "testify assert.Contains": {
+    "prefix": "ascont",
+    "body": ["assert.Contains(t, ${1:collection}, ${2:element})$0"],
+    "description": "testify assert.Contains"
+  },
+  "testify assert.Len": {
+    "prefix": "aslen",
+    "body": ["assert.Len(t, ${1:collection}, ${2:length})$0"],
+    "description": "testify assert.Len"
+  },
+  "testify assert.Empty": {
+    "prefix": "asempty",
+    "body": ["assert.Empty(t, ${1:value})$0"],
+    "description": "testify assert.Empty"
+  },
+  "testify assert.ElementsMatch": {
+    "prefix": "aselems",
+    "body": ["assert.ElementsMatch(t, ${1:listA}, ${2:listB})$0"],
+    "description": "testify assert.ElementsMatch (順不同で同要素か検証)"
+  },
+  "testify assert.JSONEq": {
+    "prefix": "asjson",
+    "body": ["assert.JSONEq(t, ${1:expectedJSON}, ${2:actualJSON})$0"],
+    "description": "testify assert.JSONEq"
+  },
+  "testify assert.Same": {
+    "prefix": "assame",
+    "body": ["assert.Same(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify assert.Same (ポインタ同一性)"
+  },
+  "testify require.Equal": {
+    "prefix": "reqeq",
+    "body": ["require.Equal(t, ${1:expected}, ${2:actual})$0"],
+    "description": "testify require.Equal"
+  },
+  "testify require.NoError": {
+    "prefix": "reqnoerr",
+    "body": ["require.NoError(t, ${1:err})$0"],
+    "description": "testify require.NoError"
+  },
+  "testify require.Error": {
+    "prefix": "reqerr",
+    "body": ["require.Error(t, ${1:err})$0"],
+    "description": "testify require.Error"
+  },
+  "testify require.ErrorIs": {
+    "prefix": "reqerris",
+    "body": ["require.ErrorIs(t, ${1:err}, ${2:target})$0"],
+    "description": "testify require.ErrorIs"
+  },
+  "testify require.NotNil": {
+    "prefix": "reqnotnil",
+    "body": ["require.NotNil(t, ${1:value})$0"],
+    "description": "testify require.NotNil"
+  },
+  "testify require.True": {
+    "prefix": "reqtrue",
+    "body": ["require.True(t, ${1:condition})$0"],
+    "description": "testify require.True"
+  },
+  "testify suite skeleton": {
+    "prefix": "tsuite",
+    "body": [
+      "type ${1:Name}Suite struct {",
+      "\tsuite.Suite",
+      "}",
+      "",
+      "func (s *${1:Name}Suite) SetupTest() {",
+      "\t$2",
+      "}",
+      "",
+      "func (s *${1:Name}Suite) Test${3:Foo}() {",
+      "\t$0",
+      "}",
+      "",
+      "func Test${1:Name}Suite(t *testing.T) {",
+      "\tsuite.Run(t, new(${1:Name}Suite))",
+      "}"
+    ],
+    "description": "testify suite テストスケルトン"
+  },
+  "testify mock On Return": {
+    "prefix": "mockon",
+    "body": [
+      "${1:m}.On(\"${2:Method}\", ${3:args}).Return(${4:returnValue})$0"
+    ],
+    "description": "testify mock の On().Return() チェーン"
+  },
+  "testify mock AssertExpectations": {
+    "prefix": "mockassert",
+    "body": ["${1:m}.AssertExpectations(t)$0"],
+    "description": "testify mock.AssertExpectations"
+  }
+}
