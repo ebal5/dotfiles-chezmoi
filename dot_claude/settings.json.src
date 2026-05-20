@@ -208,7 +208,16 @@
     "code-simplifier@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },
+  "extraKnownMarketplaces": {
+    "agent-toolkit-for-aws": {
+      "source": {
+        "source": "github",
+        "repo": "aws/agent-toolkit-for-aws"
+      }
+    }
+  },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
   "teammateMode": "tmux",
-  "effortLevel": "high"
+  "skipAutoPermissionPrompt": true
 }
