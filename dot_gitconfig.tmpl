@@ -96,6 +96,10 @@
 	fco = !git branch --all | grep -v HEAD | sed 's|^[* ] ||' | sed 's|remotes/origin/||' | sort -u | fzf | xargs git checkout  # fzfでブランチ選択・チェックアウト
 	flog = !git log --oneline | fzf | awk '{print $1}' | xargs git show  # fzfでコミット選択・表示
 
+	# worktree管理（--porcelainで解析しスペース・日本語パスにも対応）
+	wrf = !git worktree list --porcelain | awk '/^worktree /{p=substr($0,10)} /^branch /{b=substr($0,8)} /^detached/{b=$0} /^bare/{b=$0} /^$/{print b, p}' | tail -n +2 | fzf -m --prompt='remove> ' | cut -d' ' -f2- | xargs -r -I{} git worktree remove {}  # fzfでworktree選択・削除
+	wrff = !git worktree list --porcelain | awk '/^worktree /{p=substr($0,10)} /^branch /{b=substr($0,8)} /^detached/{b=$0} /^bare/{b=$0} /^$/{print b, p}' | tail -n +2 | fzf -m --prompt='remove(force)> ' | cut -d' ' -f2- | xargs -r -I{} git worktree remove --force {}  # fzfでworktree選択・強制削除
+
 [merge]
 	ff = false
 
