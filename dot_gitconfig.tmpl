@@ -96,9 +96,9 @@
 	fco = !git branch --all | grep -v HEAD | sed 's|^[* ] ||' | sed 's|remotes/origin/||' | sort -u | fzf | xargs git checkout  # fzfでブランチ選択・チェックアウト
 	flog = !git log --oneline | fzf | awk '{print $1}' | xargs git show  # fzfでコミット選択・表示
 
-	# worktree管理
-	wrf = !git worktree list | tail -n +2 | fzf -m --prompt=\"remove> \" | awk '{print $1}' | xargs -r -n1 git worktree remove  # fzfでworktree選択・削除
-	wrff = !git worktree list | tail -n +2 | fzf -m --prompt=\"remove(force)> \" | awk '{print $1}' | xargs -r -n1 git worktree remove --force  # fzfでworktree選択・強制削除
+	# worktree管理（--porcelainで解析しスペース・日本語パスにも対応）
+	wrf = !git worktree list --porcelain | awk '/^worktree /{p=substr($0,10)} /^branch /{b=substr($0,8)} /^detached/{b=\"detached\"} /^bare/{b=\"bare\"} /^$/{print p\"\\t\"b}' | tail -n +2 | fzf -m --prompt=\"remove> \" | cut -f1 | xargs -r -I{} git worktree remove {}  # fzfでworktree選択・削除
+	wrff = !git worktree list --porcelain | awk '/^worktree /{p=substr($0,10)} /^branch /{b=substr($0,8)} /^detached/{b=\"detached\"} /^bare/{b=\"bare\"} /^$/{print p\"\\t\"b}' | tail -n +2 | fzf -m --prompt=\"remove(force)> \" | cut -f1 | xargs -r -I{} git worktree remove --force {}  # fzfでworktree選択・強制削除
 
 [merge]
 	ff = false
