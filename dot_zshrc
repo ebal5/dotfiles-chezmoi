@@ -35,7 +35,9 @@ bindkey -M viins '^W' backward-kill-word
 bindkey -M viins '^Y' yank
 bindkey -M viins '^?' backward-delete-char
 bindkey -M viins '^H' backward-delete-char
-# Ctrl-R は mcfly / 標準履歴検索に委譲する
+# Ctrl-R: mcfly があれば後段の init が上書きする。無い環境向けに標準の
+# インクリメンタル履歴検索をフォールバックとして束縛しておく（viins 既定では未割当のため）
+bindkey -M viins '^R' history-incremental-search-backward
 
 # Completion system
 autoload -Uz compinit
