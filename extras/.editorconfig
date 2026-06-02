@@ -1,0 +1,7 @@
+# extras/ は chezmoi 管轄外のスニペット置き場。
+# zsh 専用構文（ネストしたパラメータ展開など）を含むため、
+# shfmt / shellcheck（CI の `shfmt -i 2 -ci -w .` と `shfmt -f .`）の対象から外す。
+root = true
+
+[*]
+ignore = true
