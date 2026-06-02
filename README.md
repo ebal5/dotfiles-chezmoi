@@ -335,7 +335,7 @@ NOTE: markdownlintによるチェックとの違いは要検証
 ### rtk バージョン状態
 
 <!-- rtk-status-badges:start -->
-![rtk pinned](https://img.shields.io/badge/rtk%20pinned-v0.36.0-blue)
+![rtk pinned](https://img.shields.io/badge/rtk%20pinned-v0.42.0-blue)
 ![rtk upstream](https://img.shields.io/github/v/release/rtk-ai/rtk?label=rtk%20upstream)
 <!-- rtk-status-badges:end -->
 

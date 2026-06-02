@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ---------------------------------------------------------------------------
 # Source: rtk-ai/rtk hooks/claude/rtk-rewrite.sh
-# Upstream: https://github.com/rtk-ai/rtk/blob/a69935746172d913fcbd282d720d2daf5025e5e9/hooks/claude/rtk-rewrite.sh
-# Pinned commit: a69935746172d913fcbd282d720d2daf5025e5e9 (v0.36.0)
+# Upstream: https://github.com/rtk-ai/rtk/blob/39583cf22b0a73ef78f935d8ada1c87a9a10e852/hooks/claude/rtk-rewrite.sh
+# Pinned commit: 39583cf22b0a73ef78f935d8ada1c87a9a10e852 (v0.42.0)
 # License: Apache-2.0 (see THIRD_PARTY_NOTICES.md)
 # This file is redistributed under Apache-2.0. Local modifications: header only.
 # ---------------------------------------------------------------------------
