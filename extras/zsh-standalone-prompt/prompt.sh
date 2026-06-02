@@ -9,6 +9,16 @@ setopt prompt_subst
 bindkey -v
 # Escを押したときの反応速度を爆速にする（ミリ秒指定）
 export KEYTIMEOUT=1
+# Viモードでも使い慣れたEmacs風キーをinsertモードに残す（操作性維持）
+bindkey -M viins '^A' beginning-of-line
+bindkey -M viins '^E' end-of-line
+bindkey -M viins '^K' kill-line
+bindkey -M viins '^U' backward-kill-line
+bindkey -M viins '^W' backward-kill-word
+bindkey -M viins '^Y' yank
+bindkey -M viins '^?' backward-delete-char
+bindkey -M viins '^H' backward-delete-char
+# C-r は標準の履歴検索（mcfly等があればそちら）に委譲する
 
 # 1. 時刻 (淡いグレー)
 function get_time() {
