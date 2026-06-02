@@ -12,6 +12,13 @@ ap-northeast-1 = "ap-ne-1"
 [azure]
 format = '[\[$symbol($subscription)\]]($style) '
 
+[character]
+# Vi モードのインジケータ（dot_zshrc の bindkey -v と連動）
+# insert/成否は ❯ の色で、normal モードは赤の Vim ロゴで表示
+success_symbol = '[❯](green)'
+error_symbol = '[❯](red)'
+vicmd_symbol = '[](red)'
+
 [cmd_duration]
 min_time = 5_000  # Show command duration over 5,000 milliseconds (=5 sec)
 show_milliseconds = true

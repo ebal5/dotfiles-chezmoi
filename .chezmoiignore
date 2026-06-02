@@ -11,6 +11,9 @@
 # Superpowers docs - 設計ドキュメント
 docs/
 
+# Extra snippets - chezmoi管轄外のスニペット置き場（必要時に手動で利用）
+extras/
+
 # Development and maintenance files - 開発・メンテナンス用ファイル
 .gitignore
 .github/

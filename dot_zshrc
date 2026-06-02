@@ -21,6 +21,22 @@ setopt AUTO_CD
 setopt EXTENDED_GLOB
 setopt NO_BEEP
 
+# Vi mode
+# 以降の bindkey（mcfly/WSL）が viins キーマップに束縛されるよう、早い段階で有効化する
+bindkey -v
+# Esc からノーマルモードへの切替を高速化（ミリ秒）
+export KEYTIMEOUT=1
+# Vi モードでも使い慣れた Emacs 風キーを insert モードに残す（操作性維持）
+bindkey -M viins '^A' beginning-of-line
+bindkey -M viins '^E' end-of-line
+bindkey -M viins '^K' kill-line
+bindkey -M viins '^U' backward-kill-line
+bindkey -M viins '^W' backward-kill-word
+bindkey -M viins '^Y' yank
+bindkey -M viins '^?' backward-delete-char
+bindkey -M viins '^H' backward-delete-char
+# Ctrl-R は mcfly / 標準履歴検索に委譲する
+
 # Completion system
 autoload -Uz compinit
 compinit -C
@@ -68,6 +84,13 @@ command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 [[ -e "$HOME/.config/sh-like-aliases" ]] && . "$HOME/.config/sh-like-aliases"
 
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
+# Vi モード切替時にプロンプトを再描画し、starship の character モジュール
+# （vicmd_symbol）でノーマル/インサートのインジケータを反映させる
+function zle-keymap-select() {
+  zle reset-prompt
+}
+zle -N zle-keymap-select
 
 # mcfly
 if command -v mcfly >/dev/null 2>&1 && [[ -z "$MCFLY_LOADED" ]]; then
