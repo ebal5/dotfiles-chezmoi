@@ -27,7 +27,7 @@ starship などの追加ツールを入れられない環境向けに、zsh の�
 | AWS | `AWS_PROFILE` をオレンジ表示 |
 | Terraform | `.terraform/environment` のワークスペースを紫表示 |
 | 実行時間 | 5秒以上のコマンドを黄色で `⌛ Ns` 表示 |
-| Vi モード | insert は緑のペン 󰏫 、normal は赤の Vim ロゴ |
+| Vi モード | insert=緑のペン 󰏫 +ビームカーソル、normal=赤の Vim ロゴ+ブロックカーソル |
 | 終了ステータス | 直前コマンドの成否で `❯` を緑/赤に切替 |
 
 ## starship 版との表示比較
@@ -48,7 +48,7 @@ starship 未インストール環境では `dot_zshrc` の starship 初期化が
 | メモリ使用率 | `memory_usage` で表示 | ✗ 省略 |
 | 言語ランタイム等 | 各モジュールが自動表示 | ✗ 省略 |
 | 実行時間 | 5秒以上を `⌛` 表示 | 同左 |
-| Vi モード | `character` の vicmd_symbol | 専用アイコン（insert 󰏫 / normal ） |
+| Vi モード | `character` の vicmd_symbol +カーソル形状 | 専用アイコン（insert 󰏫 / normal ）+カーソル形状 |
 | 終了ステータス | `❯` の色で成否 | `❯` の色で成否（モードアイコンと分離表示） |
 | C-a/C-e 等 | dot_zshrc 側で insert に付与 | prompt.sh 内で insert に付与 |
 

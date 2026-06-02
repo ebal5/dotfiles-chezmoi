@@ -3,6 +3,7 @@
 # ==============================================================================
 
 autoload -Uz vcs_info
+autoload -Uz add-zsh-hook
 setopt prompt_subst
 
 # Viモードを有効化
@@ -73,9 +74,11 @@ function get_env_info() {
 }
 
 # 5. コマンド実行時間 (5秒以上で黄色)
-function preexec() {
+# 既存フックを潰さないよう add-zsh-hook で追加する（上書き型の precmd/preexec は使わない）
+function _prompt_timer_start() {
     timer=${timer:-$SECONDS}
 }
+add-zsh-hook preexec _prompt_timer_start
 
 # ==============================================================================
 # 6. Viモード＆終了ステータス完全分離（Nerd Font対応）
@@ -86,12 +89,14 @@ VIM_MODE_ICON="%F{green}󰏫%f"
 function zle-line-init zle-line-finish zle-keymap-select {
     case $KEYMAP in
         vicmd)
-            # ノーマルモード時：赤のVimロゴ
+            # ノーマルモード時：赤のVimロゴ＋ブロックカーソル
             VIM_MODE_ICON="%F{red}%f"
+            print -n '\e[2 q'
             ;;
         *)
-            # インサートモード時：緑のペンアイコン 󰏫
+            # インサートモード時：緑のペンアイコン 󰏫 ＋ビーム（I字）カーソル
             VIM_MODE_ICON="%F{green}󰏫%f"
+            print -n '\e[6 q'
             ;;
     esac
     zle reset-prompt
@@ -106,8 +111,8 @@ function get_return_status() {
     echo "%(?.%F{green}❯%f.%F{red}❯%f)"
 }
 
-# precmdでは元のGit情報取得とタイマー処理を継続
-function precmd() {
+# Git情報取得とタイマー処理（こちらも add-zsh-hook で追加）
+function _prompt_precmd() {
     vcs_info
     if [ "$timer" ]; then
         local duration=$(($SECONDS - $timer))
@@ -119,6 +124,7 @@ function precmd() {
         unset timer
     fi
 }
+add-zsh-hook precmd _prompt_precmd
 
 # ==============================================================================
 # プロンプトの組み立て
