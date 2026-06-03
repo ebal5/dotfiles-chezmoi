@@ -29,9 +29,9 @@ host=$(hostname -s 2>/dev/null || hostname 2>/dev/null || echo "?")
 dir=$(basename "${cwd:-$PWD}")
 
 branch=""
-if [ -n "${cwd:-}" ] && cd "$cwd" 2>/dev/null; then
+if [[ -n "${cwd:-}" ]] && cd "$cwd" 2>/dev/null; then
   b=$(git branch --show-current 2>/dev/null) || b=""
-  [ -n "$b" ] && branch=" [$b]"
+  [[ -n "$b" ]] && branch=" [$b]"
 fi
 
 # Line 1: identity + location
@@ -39,6 +39,6 @@ printf '%s@%s %s%s\n' "$user" "$host" "$dir" "$branch"
 
 # Line 2: session state — skip empty segments
 line2="${model:-?}"
-[ -n "${ctx:-}" ] && line2="$line2 · ctx ${ctx}%"
-[ -n "${effort:-}" ] && line2="$line2 · $effort"
+[[ -n "${ctx:-}" ]] && line2="$line2 · ctx ${ctx}%"
+[[ -n "${effort:-}" ]] && line2="$line2 · $effort"
 printf '%s\n' "$line2"
