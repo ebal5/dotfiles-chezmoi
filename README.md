@@ -217,18 +217,11 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `.mcp.json` | グローバルMCPサーバー設定 |
 | `CLAUDE.md` | 全プロジェクト共通の指示 |
 | `commands/` | カスタムスラッシュコマンド |
-| `stop-hook-git-check.sh` | 停止時のGit状態チェックフック |
 
 ### カスタムスラッシュコマンド
 
 | コマンド | 説明 |
 | --- | --- |
-| `/project:init` | プロジェクトのClaude Code初期設定 |
-| `/docker:compose-up` | Docker Composeでサービス起動 |
-| `/git:sync-from-origin` | 現在のブランチをoriginに強制同期 |
-| `/python:lint` | ruffでPythonコードをlint/format |
-| `/python:test` | pytestでテスト実行 |
-| `/python:security` | banditでセキュリティスキャン |
 | `/chezmoi:verify-sync` | chezmoiソースとデプロイ先の同期検証 |
 | `/lint:all` | 全ファイルタイプの統合lint/formatチェック |
 
@@ -239,7 +232,6 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | サーバー | 用途 |
 | --- | --- |
 | context7 | ライブラリドキュメント検索 |
-| sequential-thinking | 複雑な問題の段階的思考支援 |
 | serena | IDEアシスタント機能 |
 
 ### スキルジェネレーター
@@ -323,17 +315,3 @@ NOTE: markdownlintによるチェックとの違いは要検証
 
 - マイグレーション履歴は [MIGRATION.md](MIGRATION.md) を参照
 - 機能拡張や問題報告は Issues へ
-
-## Credits
-
-- [rtk-ai/rtk](https://github.com/rtk-ai/rtk) — Claude Code のトークン削減フック。
-  Apache-2.0 で再配布 (詳細は [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md))。
-
-### rtk バージョン状態
-
-<!-- rtk-status-badges:start -->
-![rtk pinned](https://img.shields.io/badge/rtk%20pinned-v0.42.0-blue)
-![rtk upstream](https://img.shields.io/github/v/release/rtk-ai/rtk?label=rtk%20upstream)
-<!-- rtk-status-badges:end -->
-
-(cooldown バッジは GitHub Actions 設定後に追加予定)

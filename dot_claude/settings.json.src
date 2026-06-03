@@ -5,17 +5,6 @@
   },
   "permissions": {
     "allow": [
-      "Bash(biome *)",
-      "Bash(ccmanager *)",
-      "Bash(ccusage *)",
-      "Bash(degit *)",
-      "Bash(difit *)",
-      "Bash(markdownlint-cli2 *)",
-      "Bash(ncu *)",
-      "Bash(serve *)",
-      "Bash(cat *)",
-      "Bash(chmod +x *)",
-      "Bash(date *)",
       "Bash(docker compose logs *)",
       "Bash(docker compose ps *)",
       "Bash(docker compose up *)",
@@ -52,54 +41,13 @@
       "Bash(git check-ignore *)",
       "Bash(git checkout *)",
       "Bash(git commit *)",
-      "Bash(git diff *)",
       "Bash(git fetch *)",
-      "Bash(git log *)",
       "Bash(git merge-base *)",
       "Bash(git stash *)",
-      "Bash(git status *)",
       "Bash(git switch *)",
-      "Bash(ls *)",
       "Bash(mkdir -p *)",
       "Bash(mkdir *)",
       "Bash(rg *)",
-      "Bash(rtk docker compose logs *)",
-      "Bash(rtk docker compose ps *)",
-      "Bash(rtk docker images *)",
-      "Bash(rtk docker logs *)",
-      "Bash(rtk docker ps *)",
-      "Bash(rtk gh issue list *)",
-      "Bash(rtk gh issue view *)",
-      "Bash(rtk gh pr checks *)",
-      "Bash(rtk gh pr diff *)",
-      "Bash(rtk gh pr list *)",
-      "Bash(rtk gh pr status)",
-      "Bash(rtk gh pr view *)",
-      "Bash(rtk gh release list *)",
-      "Bash(rtk gh release view *)",
-      "Bash(rtk gh repo list *)",
-      "Bash(rtk gh repo view *)",
-      "Bash(rtk gh run list *)",
-      "Bash(rtk gh run view *)",
-      "Bash(rtk gh run watch *)",
-      "Bash(rtk git add *)",
-      "Bash(rtk git branch *)",
-      "Bash(rtk git commit *)",
-      "Bash(rtk git diff *)",
-      "Bash(rtk git fetch *)",
-      "Bash(rtk git log *)",
-      "Bash(rtk git stash *)",
-      "Bash(rtk git status *)",
-      "Bash(rtk grep *)",
-      "Bash(rtk ls *)",
-      "Bash(rtk read *)",
-      "Bash(rtk tree *)",
-      "Bash(tree *)",
-      "Bash(uvx bandit *)",
-      "Bash(uvx mypy *)",
-      "Bash(uvx pre-commit run *)",
-      "Bash(uvx ruff *)",
-      "Bash(uvx ty *)",
       "Skill",
       "WebFetch(domain:docs.anthropic.com)",
       "WebSearch"
@@ -134,12 +82,6 @@
       "Bash(gh issue edit *)",
       "Bash(gh label create *)",
       "Bash(gh pr create *)",
-      "Bash(git push * main)",
-      "Bash(git push * main:*)",
-      "Bash(git push * master)",
-      "Bash(git push * master:*)",
-      "Bash(git merge main)",
-      "Bash(git merge master)",
       "Bash(git merge *)",
       "Bash(git push *)",
       "Bash(git rebase *)",
@@ -147,33 +89,13 @@
       "Bash(git stash clear)",
       "Bash(git tag *)",
       "Bash(git cherry-pick *)",
-      "Bash(rtk gh api *)",
-      "Bash(rtk gh issue create *)",
-      "Bash(rtk gh issue edit *)",
-      "Bash(rtk gh pr create *)",
-      "Bash(rtk git push *)",
-      "Bash(rtk git push * main)",
-      "Bash(rtk git push * main:*)",
-      "Bash(rtk git push * master)",
-      "Bash(rtk git push * master:*)",
-      "Bash(rtk git stash clear)",
-      "Bash(rtk git stash drop *)",
+      "Bash(aws *)",
+      "Bash(chmod +x *)",
       "Bash(chezmoi apply *)",
       "Bash(sudo *)"
     ]
   },
   "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.claude/hooks/rtk-rewrite.sh"
-          }
-        ]
-      }
-    ],
     "SessionStart": [
       {
         "matcher": "",
@@ -199,25 +121,10 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); user=$(whoami); host=$(hostname -s); dir=$(basename \"$cwd\"); git_branch=\"\"; if cd \"$cwd\" 2>/dev/null && git rev-parse --git-dir > /dev/null 2>&1; then git_branch=$(git --no-optional-locks branch 2>/dev/null | grep '*' | colrm 1 2); [ -n \"$git_branch\" ] && git_branch=\" $git_branch\"; fi; time=$(date +%H:%M:%S); echo \"${user}@${host} ${dir}${git_branch}\"; echo \"${time}\""
+    "command": "~/.scripts/claude_statusline.sh"
   },
-  "enabledPlugins": {
-    "commit-commands@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "agent-sdk-dev@claude-plugins-official": true,
-    "code-simplifier@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
-  },
-  "extraKnownMarketplaces": {
-    "agent-toolkit-for-aws": {
-      "source": {
-        "source": "github",
-        "repo": "aws/agent-toolkit-for-aws"
-      }
-    }
-  },
+  "enabledPlugins": {},
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
-  "teammateMode": "tmux",
-  "skipAutoPermissionPrompt": true
+  "teammateMode": "tmux"
 }

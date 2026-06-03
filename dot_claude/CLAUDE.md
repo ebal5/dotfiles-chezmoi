@@ -2,78 +2,17 @@
 
 This file contains Claude Code standards applied across all projects.
 
-## Tools
+## Search
 
-Use specialized tools instead of shell commands:
-
-- **Read files**: Use Read tool (not `cat`, `head`, `tail`)
-- **Edit files**: Use Edit tool (not `sed`, `awk`)
-- **Create files**: Use Write tool (not `echo`, `cat` heredoc)
-- **Search files**: Use Glob/Grep tools (not `find`, `grep`)
-- **Explore codebase**: Use Task tool with Explore agent for open-ended searches
-- **Claude Code docs**: Use Task tool with `claude-code-guide` subagent for
-  Claude Code features, settings, hooks, slash commands, MCP servers, etc.
-  Prefer this over web search for Claude Code documentation.
-
-## Python
-
-- **New projects**: Use `uv` for environment management and `ruff` for
-  linting/formatting (unless otherwise specified in project CLAUDE.md)
-
-## Docker
-
-- Use `docker compose` instead of the deprecated `docker-compose` command
-
-## Git
-
-- **Gitignore**: Add credentials, secrets, sensitive data
-  (`.env*`, `*.key`, `credentials.*`, etc.) to `.gitignore`
-- **Worktree**: When working in a git worktree, always use the current
-  working directory (`pwd`) as the project root. Never follow
-  `git-common-dir` or `.git` file references back to the original clone
-  directory. All file reads, edits, searches, and glob operations must
-  target paths within the worktree directory, not the parent repository
-
-## Performance
-
-- Be aware of token usage; use offset/limit when reading large files
-- Only read necessary parts of files
-
-## Quality Assurance
-
-- **Pre-push checks**: Run linting/formatting before pushing:
-  - Shell scripts: `shfmt -i 2 -ci -w .` and `shellcheck $(shfmt -f .)`
-  - Markdown: `markdownlint-cli2 .`
-  - Python: `ruff check --fix` and `ruff format`
-- Run tests if available before pushing code
+- Prefer the Grep/Glob tools over shell commands for searching files
+- Never use the `find ... -exec grep` pattern in the shell: it gets blocked
+  by automode and `rg` covers it. Use `rg` and scope it with `--type`/`-t`
+  (language) or `-g`/`--glob` (extension/path globs). For more complex needs,
+  reach for rg's own features (`-l`, `--max-count`, `-A`/`-B`, multiline)
+  rather than falling back to `find`+`grep`
+- For Claude Code's own behavior (settings, hooks, slash commands, MCP, etc.),
+  use the `claude-code-guide` subagent — prefer it over web search
 
 ## Communication
 
 - Think and reason in English, but respond to the user in Japanese
-
-## Workflow
-
-- **Incremental approach**: Break large changes into multiple smaller steps
-  with verification after each step
-- **Confirmation**: Always confirm with the user before executing destructive
-  operations (delete, overwrite, force push, etc.)
-- **Error handling**: Investigate and understand errors thoroughly rather than
-  making assumptions or guessing solutions
-
-## AI Agent Development Policy
-
-Claude はマネージャー兼オーケストレーターとして動作し、直接実装しない。
-実装は subagent (Task tool) に委譲する。
-
-委譲時のモデル選定、スキル別の `context: fork` 判定、
-プラグイン skill 呼出時のモデル明示規約などの詳細は
-`~/.claude/rules/delegation.md` を参照する。
-
-## 詳細ガイドライン
-
-用途別の詳細ルールは必要に応じて読み込む:
-
-- `~/.claude/rules/delegation.md` — AI エージェント運用方針、
-  モデル選定、skill の fork 判定基準
-- `~/.claude/rules/rtk.md` — rtk (Rust Token Killer) の exit code 契約、
-  allow/ask リストへのエントリ追加ルール

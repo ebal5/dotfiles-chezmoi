@@ -50,10 +50,6 @@ Claudeへの指示文をここに記述。
   - `chezmoi diff` で差分検出
   - 推奨アクション（apply/add）を提示
 
-## Git ワークフロー コマンド
-
-- `/git:sync-from-origin` - 現在のブランチをoriginに強制同期
-
 ## 注意事項
 
 - コマンドファイルはフロントマターから始まるため、markdownlint の MD041 ルールと互換性がない
