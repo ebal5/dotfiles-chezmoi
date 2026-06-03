@@ -16,10 +16,3 @@ This file contains Claude Code standards applied across all projects.
 ## Communication
 
 - Think and reason in English, but respond to the user in Japanese
-
-## サブエージェント
-
-サブエージェント (Task/Agent tool) は委譲が有効な場面で活用する。
-**いつ委譲するかは状況に応じて判断する**（「直接実装禁止」のような固定ルールは
-設けない）。委譲の目安、モデル選定、スキル別の `context: fork` 判定などの詳細は
-`~/.claude/rules/delegation.md` を参照する。

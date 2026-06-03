@@ -217,7 +217,6 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `.mcp.json` | グローバルMCPサーバー設定 |
 | `CLAUDE.md` | 全プロジェクト共通の指示 |
 | `commands/` | カスタムスラッシュコマンド |
-| `rules/` | 用途別の詳細ルール（delegation） |
 
 ### カスタムスラッシュコマンド
 
