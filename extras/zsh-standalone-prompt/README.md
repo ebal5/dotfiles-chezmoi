@@ -48,7 +48,7 @@ starship 未インストール環境では `dot_zshrc` の starship 初期化が
 | メモリ使用率 | `memory_usage` で表示 | ✗ 省略 |
 | 言語ランタイム等 | 各モジュールが自動表示 | ✗ 省略 |
 | 実行時間 | 5秒以上を `⌛` 表示 | 同左 |
-| Vi モード | `character` の vicmd_symbol +カーソル形状 | 専用アイコン（insert 󰏫 / normal ）+カーソル形状 |
+| Vi モード | insert=ペン 󰏫 +❯ / normal=Vim  +❯（character モジュール）+カーソル形状 | [アイコン] ❯ を自前で組み立て（見た目はほぼ同じ）+カーソル形状 |
 | 終了ステータス | `❯` の色で成否 | `❯` の色で成否（モードアイコンと分離表示） |
 | C-a/C-e 等 | dot_zshrc 側で insert に付与 | prompt.sh 内で insert に付与 |
 
