@@ -2,27 +2,21 @@
 
 This file contains Claude Code standards applied across all projects.
 
-## Tools
+## Search
 
-Use specialized tools instead of shell commands:
-
-- **Read files**: Use Read tool (not `cat`, `head`, `tail`)
-- **Edit files**: Use Edit tool (not `sed`, `awk`)
-- **Create files**: Use Write tool (not `echo`, `cat` heredoc)
-- **Search files**: Use Glob/Grep tools (not `find`, `grep`)
-- **Explore codebase**: Use Task tool with Explore agent for open-ended searches
-- **Claude Code docs**: Use Task tool with `claude-code-guide` subagent for
-  Claude Code features, settings, hooks, slash commands, MCP servers, etc.
-  Prefer this over web search for Claude Code documentation.
+- Prefer the Grep/Glob tools over shell commands for searching files
+- Never use the `find ... -exec grep` pattern in the shell: it gets blocked
+  by automode and `rg` covers it. Use `rg` and scope it with `--type`/`-t`
+  (language) or `-g`/`--glob` (extension/path globs). For more complex needs,
+  reach for rg's own features (`-l`, `--max-count`, `-A`/`-B`, multiline)
+  rather than falling back to `find`+`grep`
+- For Claude Code's own behavior (settings, hooks, slash commands, MCP, etc.),
+  use the `claude-code-guide` subagent — prefer it over web search
 
 ## Python
 
 - **New projects**: Use `uv` for environment management and `ruff` for
   linting/formatting (unless otherwise specified in project CLAUDE.md)
-
-## Docker
-
-- Use `docker compose` instead of the deprecated `docker-compose` command
 
 ## Git
 
@@ -33,14 +27,6 @@ Use specialized tools instead of shell commands:
   `git-common-dir` or `.git` file references back to the original clone
   directory. All file reads, edits, searches, and glob operations must
   target paths within the worktree directory, not the parent repository
-
-## Performance
-
-- Be aware of token usage; use offset/limit when reading large files
-- Only read necessary parts of files
-- For verbose shell commands, pipe to filter/limit output instead of dumping
-  everything: e.g. `pytest 2>&1 | grep -E "FAIL|ERROR" | head -120`,
-  `git status --short`, `git --no-pager diff --stat`, `rg --max-count`
 
 ## Quality Assurance
 
@@ -54,28 +40,10 @@ Use specialized tools instead of shell commands:
 
 - Think and reason in English, but respond to the user in Japanese
 
-## Workflow
-
-- **Incremental approach**: Break large changes into multiple smaller steps
-  with verification after each step
-- **Confirmation**: Always confirm with the user before executing destructive
-  operations (delete, overwrite, force push, etc.)
-- **Error handling**: Investigate and understand errors thoroughly rather than
-  making assumptions or guessing solutions
-
-## サブエージェントの活用
+## サブエージェント
 
 サブエージェント (Task/Agent tool) は委譲が有効な場面で活用する。
 **いつ委譲するかは状況に応じて判断する**（「直接実装禁止」のような固定ルールは
-設けず、委譲要否の判断は任せる）。
-
-委譲が有効な場面の目安、委譲時のモデル選定、スキル別の `context: fork` 判定、
+設けない）。委譲の目安、モデル選定、スキル別の `context: fork` 判定、
 プラグイン skill 呼出時のモデル明示規約などの詳細は
 `~/.claude/rules/delegation.md` を参照する。
-
-## 詳細ガイドライン
-
-用途別の詳細ルールは必要に応じて読み込む:
-
-- `~/.claude/rules/delegation.md` — サブエージェント活用方針、
-  モデル選定、skill の fork 判定基準
