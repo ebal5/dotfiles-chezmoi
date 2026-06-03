@@ -123,9 +123,7 @@
     "type": "command",
     "command": "~/.scripts/claude_statusline.sh"
   },
-  "enabledPlugins": {
-    "commit-commands@claude-plugins-official": true
-  },
+  "enabledPlugins": {},
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
   "teammateMode": "tmux"
