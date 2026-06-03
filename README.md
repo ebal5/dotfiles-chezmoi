@@ -224,14 +224,11 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | コマンド | 説明 |
 | --- | --- |
 | `/project:init` | プロジェクトのClaude Code初期設定 |
-| `/mcp:aws` | AWS MCPサーバーをプロジェクトに追加 |
-| `/mcp:terraform` | Terraform MCPサーバーをプロジェクトに追加 |
 | `/docker:compose-up` | Docker Composeでサービス起動 |
 | `/git:sync-from-origin` | 現在のブランチをoriginに強制同期 |
 | `/python:lint` | ruffでPythonコードをlint/format |
 | `/python:test` | pytestでテスト実行 |
 | `/python:security` | banditでセキュリティスキャン |
-| `/aws:enable-readonly` | AWS読み取り系コマンドの許可を追加 |
 | `/chezmoi:verify-sync` | chezmoiソースとデプロイ先の同期検証 |
 | `/lint:all` | 全ファイルタイプの統合lint/formatチェック |
 
