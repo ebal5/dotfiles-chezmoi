@@ -217,18 +217,13 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `.mcp.json` | グローバルMCPサーバー設定 |
 | `CLAUDE.md` | 全プロジェクト共通の指示 |
 | `commands/` | カスタムスラッシュコマンド |
-| `stop-hook-git-check.sh` | 停止時のGit状態チェックフック |
+| `rules/` | 用途別の詳細ルール（delegation, rtk） |
+| `hooks/rtk-rewrite.sh` | Bashコマンドをrtk形式にリライトするフック |
 
 ### カスタムスラッシュコマンド
 
 | コマンド | 説明 |
 | --- | --- |
-| `/project:init` | プロジェクトのClaude Code初期設定 |
-| `/docker:compose-up` | Docker Composeでサービス起動 |
-| `/git:sync-from-origin` | 現在のブランチをoriginに強制同期 |
-| `/python:lint` | ruffでPythonコードをlint/format |
-| `/python:test` | pytestでテスト実行 |
-| `/python:security` | banditでセキュリティスキャン |
 | `/chezmoi:verify-sync` | chezmoiソースとデプロイ先の同期検証 |
 | `/lint:all` | 全ファイルタイプの統合lint/formatチェック |
 
@@ -239,7 +234,6 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | サーバー | 用途 |
 | --- | --- |
 | context7 | ライブラリドキュメント検索 |
-| sequential-thinking | 複雑な問題の段階的思考支援 |
 | serena | IDEアシスタント機能 |
 
 ### スキルジェネレーター

@@ -49,4 +49,4 @@ rtk rewrite "jq ."
 
 - フックスクリプト: `dot_claude/hooks/executable_rtk-rewrite.sh`
 - フック登録: `dot_claude/settings.json.src` の `hooks.PreToolUse`
-- 自動更新 PR: `.github/workflows/rtk-update.yml`
+- 自動更新 PR: `.github/workflows/rtk-update-check.yml`
