@@ -14,10 +14,10 @@ format = '[\[$symbol($subscription)\]]($style) '
 
 [character]
 # Vi モードのインジケータ（dot_zshrc の bindkey -v と連動）
-# insert/成否は ❯ の色で、normal モードは赤の Vim ロゴで表示
-success_symbol = '[❯](green)'
-error_symbol = '[❯](red)'
-vicmd_symbol = '[](red)'
+# insert=ペン 󰏫 +❯（成否で色）、normal=Vim ロゴ +❯（赤）。単体版と同じ見た目
+success_symbol = '[󰏫](green) [❯](green)'
+error_symbol = '[󰏫](green) [❯](red)'
+vicmd_symbol = '[](red) [❯](red)'
 
 [cmd_duration]
 min_time = 5_000  # Show command duration over 5,000 milliseconds (=5 sec)

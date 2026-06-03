@@ -90,7 +90,7 @@ function zle-line-init zle-line-finish zle-keymap-select {
     case $KEYMAP in
         vicmd)
             # ノーマルモード時：赤のVimロゴ＋ブロックカーソル
-            VIM_MODE_ICON="%F{red}%f"
+            VIM_MODE_ICON="%F{red}%f"
             print -n '\e[2 q'
             ;;
         *)
