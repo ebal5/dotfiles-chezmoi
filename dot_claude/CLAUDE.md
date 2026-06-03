@@ -38,6 +38,9 @@ Use specialized tools instead of shell commands:
 
 - Be aware of token usage; use offset/limit when reading large files
 - Only read necessary parts of files
+- For verbose shell commands, pipe to filter/limit output instead of dumping
+  everything: e.g. `pytest 2>&1 | grep -E "FAIL|ERROR" | head -120`,
+  `git status --short`, `git --no-pager diff --stat`, `rg --max-count`
 
 ## Quality Assurance
 
@@ -76,5 +79,3 @@ Use specialized tools instead of shell commands:
 
 - `~/.claude/rules/delegation.md` — サブエージェント活用方針、
   モデル選定、skill の fork 判定基準
-- `~/.claude/rules/rtk.md` — rtk (Rust Token Killer) の exit code 契約、
-  allow/ask リストへのエントリ追加ルール
