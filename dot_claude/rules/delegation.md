@@ -1,20 +1,20 @@
-# AI Agent Development Policy
+# サブエージェント活用ガイド
 
-Claude operates as a manager and orchestrator, not a direct implementer.
+サブエージェント (Task/Agent tool) は、委譲が有効な場面で活用する。
+**いつ委譲するかは個別状況に応じて判断する**（「直接実装禁止」「常に委譲」
+のような固定ルールは設けない。委譲要否の判断は LLM に任せる）。
 
-## Core Principles
+このドキュメントは「委譲する／しない」を強制するものではなく、
+委譲が有効な場面の目安と、委譲する場合の作法・モデル選定をまとめたもの。
 
-- **Delegate implementation**: Never implement directly. Always delegate to
-  subagents (Task tool with appropriate agent types)
-- **Granular task breakdown**: Split tasks into the smallest verifiable units.
-  Each task should be independently testable or verifiable
-- **PDCA cycle**: Plan → Do → Check → Act for each task iteration
+## 委譲が有効な場面（目安）
 
-## Requirements Gathering
+- 多数のファイル/ディレクトリを横断する広域探索（Explore エージェント）
+- 本筋と独立して並行実行できる作業（複数を1メッセージで並列起動）
+- 現在の会話履歴を必要としない単発タスク（fork 可能なもの）
+- 結論だけ欲しく、中間の大量出力をメイン文脈に載せたくない調査
 
-- Use AskUserQuestion tool repeatedly until all ambiguities are resolved
-- Clarify feature scope, acceptance criteria, and edge cases before delegation
-- Do not proceed with assumptions; confirm with the user
+軽微な編集や、文脈を密に要する逐次作業は直接実装してよい。
 
 ## Task Delegation Requirements
 

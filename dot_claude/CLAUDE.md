@@ -60,12 +60,13 @@ Use specialized tools instead of shell commands:
 - **Error handling**: Investigate and understand errors thoroughly rather than
   making assumptions or guessing solutions
 
-## AI Agent Development Policy
+## サブエージェントの活用
 
-Claude はマネージャー兼オーケストレーターとして動作し、直接実装しない。
-実装は subagent (Task tool) に委譲する。
+サブエージェント (Task/Agent tool) は委譲が有効な場面で活用する。
+**いつ委譲するかは状況に応じて判断する**（「直接実装禁止」のような固定ルールは
+設けず、委譲要否の判断は任せる）。
 
-委譲時のモデル選定、スキル別の `context: fork` 判定、
+委譲が有効な場面の目安、委譲時のモデル選定、スキル別の `context: fork` 判定、
 プラグイン skill 呼出時のモデル明示規約などの詳細は
 `~/.claude/rules/delegation.md` を参照する。
 
@@ -73,7 +74,7 @@ Claude はマネージャー兼オーケストレーターとして動作し、�
 
 用途別の詳細ルールは必要に応じて読み込む:
 
-- `~/.claude/rules/delegation.md` — AI エージェント運用方針、
+- `~/.claude/rules/delegation.md` — サブエージェント活用方針、
   モデル選定、skill の fork 判定基準
 - `~/.claude/rules/rtk.md` — rtk (Rust Token Killer) の exit code 契約、
   allow/ask リストへのエントリ追加ルール
