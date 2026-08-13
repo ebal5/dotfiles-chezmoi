@@ -100,8 +100,9 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
   - <https://github.com/joaojacome/bitwarden-ssh-agent> の`6237a3604`を利用
   - 使用する場合、利用者各個人で内容確認推奨
 - [Nix](https://nixos.org/) による開発ツール管理
-  - CLIツール・開発コマンドを`flake.nix`で統合管理（約30パッケージ）
+  - CLIツール・開発コマンドを`flake.nix`で統合管理（約40パッケージ）
   - 主要ツール: git, fzf, ripgrep, fd, bat, starship, delta, lsd, mcfly, zoxide, xh, uv, bun, prek, actionlint など
+  - TUIツール: zellij, herdr（エージェント多重化）, oxker, ov, glow
   - 全パッケージ一覧は[flake.nix](flake.nix)を参照
   - システム環境の再現性を向上
   - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile add .`
