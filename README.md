@@ -237,24 +237,22 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | context7 | ライブラリドキュメント検索 |
 | serena | IDEアシスタント機能 |
 
-### スキルジェネレーター
+### エージェントスキル
 
-[Anthropic公式のスキルジェネレータープラグイン](https://github.com/anthropics/skills)が有効化されています。
+スキルはプラグインではなく、`run_once_after_install_agent_skills.sh.tmpl`が
+`gh skill install`でユーザースコープ（`~/.claude/skills/`）へ導入する。
+供給元は2つで、いずれもバージョンをピン留めしている。
 
-#### 使い方
+| 供給元 | ピン | 導入するスキル |
+| --- | --- | --- |
+| [ebal5/agent-skills](https://github.com/ebal5/agent-skills) | タグ（`OWN_PIN`） | `install-sets/common.txt`の記載に従う |
+| [anthropics/skills](https://github.com/anthropics/skills) | コミットSHA（`UPSTREAM_PIN`） | `skill-creator`, `mcp-builder`, `pdf`, `doc-coauthoring` |
 
-1. Claude Codeで「〇〇のスキルを作成して」と依頼
-2. スキルジェネレーターが自動的にスキルファイルを生成
-3. 生成されたスキルは`.claude/skills/`に保存される
+自作スキルの一覧はピン先の`install-sets/common.txt`が唯一の情報源で、
+このREADMEには複製しない。ピンを上げるとスクリプトの内容ハッシュが変わり、
+次回の`chezmoi apply`で再実行されて新しい一覧が反映される。
 
-#### 同梱スキル
-
-| スキル | 説明 |
-| --- | --- |
-| `grill-me` | プランや設計を徹底的にヒアリング |
-| `handover` | セッション終了時の引き継ぎドキュメント作成 |
-| `markdown-check` | Markdownドキュメントの整合性・リンク切れ検証 |
-| `uv-script` | uvシバン付きスタンドアロンPythonスクリプト作成 |
+`enabledPlugins`は空であり、プラグイン経由でスキルを導入してはいない。
 
 #### スキルとは
 
