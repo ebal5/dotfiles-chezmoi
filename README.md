@@ -104,8 +104,10 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
   - 主要ツール: git, fzf, ripgrep, fd, bat, starship, delta, lsd, mcfly, zoxide, xh, uv, bun, prek, actionlint など
   - TUIツール: zellij, herdr（エージェント多重化）, oxker, ov, glow
   - 全パッケージ一覧は[flake.nix](flake.nix)を参照
-  - システム環境の再現性を向上
-  - パッケージ追加後の更新: `nix profile upgrade .` または `nix profile add .`
+  - `flake.lock`をバージョン管理下に置き、マシン間でnixpkgsリビジョンを固定する
+  - パッケージ追加後の更新: `nix profile upgrade --all`（nix 2.32以降。`nix profile upgrade .`は非対応）
+  - ツールのバージョン更新: `git pull`で`flake.lock`を取得してから`nix profile upgrade --all`
+  - `flake.lock`自体の更新は週次のGitHub Actionsが自動PR化する（後述）
 - [Starship](https://starship.rs/ja-jp/)
 - [mise (alt asdf)](https://github.com/jdx/mise)（言語ランタイム管理: Node.js、Python）
 - [uv](https://docs.astral.sh/uv/)（Pythonパッケージ管理・uvxによるツール実行）
@@ -311,6 +313,38 @@ allowed-tools: Edit, Bash(npm:*)
 フォルダ内の Markdown ファイルは更新時にmarkdownlint-cli2によってチェックされている。
 
 NOTE: markdownlintによるチェックとの違いは要検証
+
+## 定期アップデート
+
+### flake.lock（Nix管理ツール）
+
+`.github/workflows/flake-lock-update.yaml`が毎週月曜09:00 UTC（JST 18:00）に実行される。
+
+| ステップ | 内容 |
+| --- | --- |
+| 更新 | `nix flake update`を実行し、差分がなければ何もせず終了 |
+| コミット | `nix/flake-lock-update`ブランチに`flake.lock`をコミット |
+| 再現性チェック | `nix build .#default`でビルド可否を検証 |
+| PR | PRを作成（既存PRがあれば本文を更新してコメント追加） |
+
+`GITHUB_TOKEN`が作成したPRはworkflowをトリガーしないため、この自動PRにはCIチェックが付かない。
+そのため再現性チェックはワークフロー内で実施し、結果をPR本文に記載している。
+ビルドが失敗した場合はワークフロー自体がfailするため、Actionsタブと通知で気付ける。
+
+手動実行は`workflow_dispatch`（ActionsタブのRun workflow）から可能。
+
+### mise管理ツール（言語ランタイム）
+
+mise設定（`~/.config/mise/config.toml`）はマシンローカルでリポジトリ管理外のため、
+CIによる自動化対象ではない。手動で更新する。
+
+```bash
+mise upgrade
+```
+
+NOTE: Node.jsの更新にはリリース署名鍵の検証が必要。
+`gpg: Can't check signature: No public key`で失敗する場合は
+[nodejs/release-keys](https://github.com/nodejs/release-keys)から該当鍵をimportする。
 
 ## その他
 
