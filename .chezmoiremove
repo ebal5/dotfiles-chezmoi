@@ -1,0 +1,10 @@
+# chezmoi はソース側のエントリを削除してもターゲットを消さないため、
+# 撤去済みファイルがホームに残り続ける。ここに列挙すると apply 時に削除される。
+#
+# 全マシンで apply が一巡したら、該当行は削除してよい。
+
+# rtk 統合の撤去 (#192) で不要になったルール
+.claude/rules/rtk.md
+
+# delegation.md は CLAUDE.md の "Delegation and effort" 節へ統合した
+.claude/rules/delegation.md
