@@ -6,7 +6,10 @@
 # Documentation files - ドキュメントファイル
 # ルート直下の .md のみ除外（dot_claude/ 配下の SKILL.md や
 # rules/*.md はホームへ展開する必要があるため除外しない）
-/*.md
+# `*` は `/` を跨がないため、スラッシュを含まないこのパターンはルート直下のみに
+# マッチする。先頭 `/` 付き（`/*.md`）は chezmoi 2.72.0 以降の Linux で
+# "invalid path" として拒否されるため使用しない。
+*.md
 
 # Superpowers docs - 設計ドキュメント
 docs/
