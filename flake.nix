@@ -59,6 +59,7 @@
             ov                # Feature-rich terminal pager
             glow              # Terminal Markdown renderer
             zellij            # Terminal workspace / multiplexer
+            herdr             # Agent multiplexer for the terminal
 
             # Editors
             neovim            # Hyperextensible Vim-based editor
