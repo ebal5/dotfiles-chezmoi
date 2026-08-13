@@ -10,7 +10,7 @@ set -euo pipefail
 # Skill list is fetched from install-sets/common.txt at the pinned ref so
 # agent-skills stays the single source of truth; bump OWN_PIN to refresh.
 OWN_REPO="ebal5/agent-skills"
-OWN_PIN="v0.3.0"
+OWN_PIN="v0.4.0"
 mapfile -t OWN_SKILLS < <(
   gh api "repos/${OWN_REPO}/contents/install-sets/common.txt?ref=${OWN_PIN}" \
     --jq '.content' | base64 -d \
@@ -25,7 +25,14 @@ if [ "${#OWN_SKILLS[@]}" -eq 0 ]; then
   exit 1
 fi
 
-for skill in "${OWN_SKILLS[@]}"; do
+# Skills agent-skills ships but deliberately keeps out of common.txt because it
+# does not consider them universal. Whether to put them on every machine is a
+# decision for the consuming side, so it is declared here. Also note that
+# cognitive-rhythm-writing reads ../japanese-tech-writing/SKILL.md at runtime,
+# so the two only work when installed together.
+OWN_EXTRA_SKILLS=(japanese-tech-writing cognitive-rhythm-writing)
+
+for skill in "${OWN_SKILLS[@]}" "${OWN_EXTRA_SKILLS[@]}"; do
   echo ">> gh skill install ${OWN_REPO} ${skill} --pin ${OWN_PIN}"
   gh skill install "${OWN_REPO}" "${skill}" \
     --agent claude-code --scope user --pin "${OWN_PIN}" --force
@@ -48,7 +55,7 @@ done
 # forever. Only skills whose SKILL.md records one of our two source repos are
 # eligible, which leaves manually installed skills untouched.
 SKILLS_DIR="${HOME}/.claude/skills"
-DECLARED=("${OWN_SKILLS[@]}" "${UPSTREAM_SKILLS[@]}")
+DECLARED=("${OWN_SKILLS[@]}" "${OWN_EXTRA_SKILLS[@]}" "${UPSTREAM_SKILLS[@]}")
 
 is_declared() {
   local candidate="$1" declared
