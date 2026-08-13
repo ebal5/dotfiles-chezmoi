@@ -126,5 +126,7 @@
   "enabledPlugins": {},
   "alwaysThinkingEnabled": true,
   "effortLevel": "high",
-  "teammateMode": "tmux"
+  "tui": "fullscreen",
+  "teammateMode": "tmux",
+  "advisorModel": "opus"
 }
