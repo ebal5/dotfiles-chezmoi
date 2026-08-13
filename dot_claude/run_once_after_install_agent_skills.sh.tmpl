@@ -17,6 +17,14 @@ mapfile -t OWN_SKILLS < <(
     | awk '/^[[:space:]]*#/ || /^[[:space:]]*$/ {next} {print $1}'
 )
 
+# mapfile runs in a process substitution, so a failed fetch yields an empty
+# array instead of aborting. Bail out explicitly: an empty list would make the
+# prune step below delete every skill this script manages.
+if [ "${#OWN_SKILLS[@]}" -eq 0 ]; then
+  echo "[error] could not read install-sets/common.txt from ${OWN_REPO}@${OWN_PIN}" >&2
+  exit 1
+fi
+
 for skill in "${OWN_SKILLS[@]}"; do
   echo ">> gh skill install ${OWN_REPO} ${skill} --pin ${OWN_PIN}"
   gh skill install "${OWN_REPO}" "${skill}" \
@@ -32,6 +40,45 @@ for skill in "${UPSTREAM_SKILLS[@]}"; do
   echo ">> gh skill install ${UPSTREAM_REPO} ${skill} --pin ${UPSTREAM_PIN:0:8}"
   gh skill install "${UPSTREAM_REPO}" "${skill}" \
     --agent claude-code --scope user --pin "${UPSTREAM_PIN}" --force
+done
+
+# Remove skills this script installed earlier that are no longer declared.
+# `gh skill` has no uninstall subcommand and install is a plain copy, so a
+# skill dropped from the lists above would otherwise linger on every machine
+# forever. Only skills whose SKILL.md records one of our two source repos are
+# eligible, which leaves manually installed skills untouched.
+SKILLS_DIR="${HOME}/.claude/skills"
+DECLARED=("${OWN_SKILLS[@]}" "${UPSTREAM_SKILLS[@]}")
+
+is_declared() {
+  local candidate="$1" declared
+  for declared in "${DECLARED[@]}"; do
+    # common.txt accepts "category/skill-name"; installs land flat
+    [ "${candidate}" = "${declared##*/}" ] && return 0
+  done
+  return 1
+}
+
+for manifest in "${SKILLS_DIR}"/*/SKILL.md; do
+  [ -f "${manifest}" ] || continue
+  dir=$(dirname "${manifest}")
+  name=$(basename "${dir}")
+
+  # gh skill install records the source repo; a skill without it was put there
+  # by hand and is none of this script's business
+  grep -qE "^[[:space:]]*(origin|github-repo):.*(${OWN_REPO}|${UPSTREAM_REPO})" \
+    "${manifest}" || continue
+
+  # Pre-directory layout left a flat <name>.md next to the <name>/ directory
+  if [ -f "${SKILLS_DIR}/${name}.md" ]; then
+    echo ">> prune legacy ${name}.md"
+    rm -f "${SKILLS_DIR}/${name}.md"
+  fi
+
+  if ! is_declared "${name}"; then
+    echo ">> prune ${name} (no longer declared)"
+    rm -rf "${dir:?}"
+  fi
 done
 {{ else -}}
 #!/usr/bin/env bash
