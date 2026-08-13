@@ -92,8 +92,13 @@ jobs:
         run: |
           set -euo pipefail
 
-          git fetch origin "+refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}" || true
-          git push origin "$BRANCH" --force-with-lease
+          # 追跡ブランチが無い状態で --force-with-lease を使うと fatal になるため、
+          # リモートに既存ブランチがある場合のみ lease を付ける
+          if git fetch origin "+refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}"; then
+            git push origin "$BRANCH" --force-with-lease
+          else
+            git push origin "$BRANCH"
+          fi
 
           if [ "$BUILD_OUTCOME" = "success" ]; then
             BUILD_LINE="✅ \`nix build .#default\` 成功"
