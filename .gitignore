@@ -215,4 +215,5 @@ megalinter-reports/
 .worktrees/
 
 # Nix
-flake.lock
+# flake.lock はバージョン管理下に置く（マシン間で nixpkgs リビジョンを固定し
+# 再現性を確保するため）。ホームへは展開しないので .chezmoiignore 側で除外する。
