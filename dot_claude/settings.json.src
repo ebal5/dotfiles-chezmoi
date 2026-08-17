@@ -103,6 +103,11 @@
           {
             "type": "command",
             "command": "~/.scripts/tmux_claude_title.sh session-start"
+          },
+          {
+            "type": "command",
+            "command": "~/.scripts/herdr_agent_state.sh session",
+            "timeout": 10
           }
         ]
       }
