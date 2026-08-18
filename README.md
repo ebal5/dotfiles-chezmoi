@@ -78,6 +78,15 @@ git config commit.gpgsign true
 git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 ```
 
+### pre-commitフックの導入（このリポジトリを編集する場合）
+
+```sh
+prek install
+```
+
+共有設定にマシン固有・組織固有の値が混入していないかを commit 時に検査する
+（[後述](#共有設定へのマシン固有値の混入防止)）。
+
 ### ユーザーレベルGitignore設定
 
 このdotfilesは `~/.config/git/ignore` にユーザーレベルのgitignoreファイルを設定します。
@@ -321,6 +330,35 @@ allowed-tools: Edit, Bash(npm:*)
 - `.claude/settings.json` - プロジェクト共有設定
 - `.claude/settings.local.json` - ローカル専用設定（gitignore推奨）
 - `.claude/.mcp.json` - ローカル専用MCPサーバー（gitignore推奨）
+
+### 共有設定へのマシン固有値の混入防止
+
+`~/.claude/settings.json`と`~/.claude/.mcp.json`は`dot_claude/*.src`への
+シンボリックリンクであり、Claude Code自身や外部ツール（herdr等）が直接書き込む。
+このリポジトリはpublicなので、書き込まれた内容はそのまま公開されうる。
+実際にauto modeが学習した業務プロジェクトの組織名・社内ドメイン・
+ローカルパスが作業ツリーに書き込まれたことがある。
+
+`.github/scripts/check-shared-settings.sh`がこれを検出する。
+
+| 検出対象 | 例 |
+| --- | --- |
+| マシン固有の絶対パス | `/home/<user>/...`, `C:\Users\...` |
+| 未知のGitHubオーナー | allowlist外の`github.com:<org>/<repo>` |
+| 未知のホスト名 | 社内ドメインなど、allowlist外のホスト |
+| ローカルdenylist該当語 | `~/.config/local/shared-settings-denylist`（任意） |
+
+禁止語のリストをリポジトリに置くとそれ自体が流出になるため、判定はallowlist方式。
+固有名詞を弾きたい場合のみ、マシンローカルの
+`~/.config/local/shared-settings-denylist`（1行1パターン）に記述する。
+
+実行経路は2つ:
+
+- pre-commit（[prek](https://github.com/j178/prek)）: `prek install`で導入。`.pre-commit-config.yaml`を参照
+- GitHub Actions: `shared-settings-guard.yaml`が該当ファイルの変更時に実行
+
+正当な追加でフックが落ちる場合は、スクリプト冒頭の`ALLOWED_OWNERS`／
+`ALLOWED_HOSTS`を更新する。
 
 ## チェック内容
 

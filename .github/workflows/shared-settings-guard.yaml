@@ -1,0 +1,20 @@
+---
+name: Shared Settings Guard
+
+on:
+  pull_request:
+    paths:
+      - "dot_claude/settings.json.src"
+      - "dot_claude/dot_mcp.json.src"
+      - ".github/scripts/check-shared-settings.sh"
+
+jobs:
+  guard:
+    name: Check shared settings
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check for machine/org specific values
+        run: .github/scripts/check-shared-settings.sh

@@ -1,0 +1,13 @@
+---
+# prek（`pre-commit` エイリアス）で実行する。導入は `prek install`。
+# CI でも同じスクリプトを実行するため、フックを飛ばしても最終的には検出される。
+repos:
+  - repo: local
+    hooks:
+      - id: shared-settings-guard
+        name: shared settings guard
+        description: 共有設定へのマシン固有・組織固有の値の混入を防ぐ
+        entry: .github/scripts/check-shared-settings.sh
+        language: script
+        files: ^dot_claude/(settings\.json\.src|dot_mcp\.json\.src)$
+        pass_filenames: true
