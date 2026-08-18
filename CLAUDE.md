@@ -74,6 +74,12 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 - `git add`と`git commit`は`&&`で繋げず、**別々のBash呼び出し**で実行すること。
   許可ツール設定が個別コマンドパターンのため、連結すると毎回許可確認が必要になる
 - `dot_claude/`内のファイルは`~/.claude/`に展開される（Claude Codeのグローバル設定）
+- `settings.json.src`に絶対パス（`/home/<user>/...`）を含むフックが混ざっていたら、
+  外部ツールが`~/.claude/settings.json`（このファイルへのシンボリックリンク）を
+  書き換えた痕跡。共有設定に固定パスを入れず、`~/.scripts/`のラッパー経由にする
+  （herdrの例は[README](README.md)の「フック」節を参照）
+- フックスクリプトは`set -e`を使っても最終的に`exit 0`で終わること。
+  非ゼロ終了はセッション側にエラーとして表示される
 
 ## Markdownテーブルスタイル
 

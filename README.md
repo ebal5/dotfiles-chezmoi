@@ -221,6 +221,28 @@ git config user.signingkey "$(ssh-add -L | grep 'SOME_CONDITION')"
 | `CLAUDE.md` | 全プロジェクト共通の指示 |
 | `commands/` | カスタムスラッシュコマンド |
 
+### フック
+
+`settings.json`のSessionStart/SessionEndから`~/.scripts/`のスクリプトを呼び出す。
+
+| スクリプト | 役割 |
+| --- | --- |
+| `tmux_claude_title.sh` | tmuxウィンドウタイトルの設定・復帰 |
+| `herdr_agent_state.sh` | herdrへのエージェント状態通知（ラッパー） |
+
+`herdr_agent_state.sh`は`~/.claude/hooks/herdr-agent-state.sh`への薄いラッパー。
+委譲先はherdr管理（更新で上書きされる）なのでリポジトリには含めず、
+存在すれば実行し、herdr外や未インストール時は何もせず終了する。
+有効化はマシンごとに一度だけ`herdr integration install claude`を実行する。
+
+herdrのインストーラは`bash '/home/<user>/.claude/hooks/herdr-agent-state.sh' session`
+という絶対パスのフックを`settings.json`へ追記する。
+`~/.claude/settings.json`は`dot_claude/settings.json.src`へのシンボリックリンクなので、
+放置するとユーザー名込みの固定パスがリポジトリに入る。追記されていたら削除してよい
+（ラッパーが同じ役割を果たす）。herdr側の重複検出はコマンド文字列の完全一致なので
+ラッパー形式は認識されず、`herdr integration install`を実行するたび再追記される
+（`herdr update`が内部で再実行するかは未確認）。両方残っても通知は冪等で害はない。
+
 ### カスタムスラッシュコマンド
 
 | コマンド | 説明 |
