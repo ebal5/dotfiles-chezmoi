@@ -1,0 +1,183 @@
+{{ if ne .chezmoi.os "windows" -}}
+#!/bin/sh
+# Install herdr plugins pinned in ~/.config/herdr-plugins
+#
+# 完全な commit SHA で取得 → HEAD と照合 → 定義ファイルのコマンドでビルド →
+# `herdr plugin link` で登録する。`herdr plugin install` を使わないのは、
+# install が (1) プラグイン側の [[build]] を無条件に実行し (2) checkout を
+# herdr 管理下に置いて再インストールで差し替えるため。link ならビルドは走らず、
+# 監査した木がそのまま動く木になる。
+#
+# definitions: {{ include "dot_config/herdr-plugins" | sha256sum }}
+
+set -eu
+
+DEFS="$HOME/.config/herdr-plugins"
+ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/herdr-plugins"
+STATE="$ROOT/.state"
+
+[ -f "$DEFS" ] || exit 0
+
+if ! command -v herdr >/dev/null 2>&1; then
+  echo "herdr-plugins: herdr not found, skipping" >&2
+  exit 0
+fi
+
+mkdir -p "$STATE"
+
+# 登録済みか調べる。jq が無い環境では素の文字列一致にフォールバックする
+is_linked() {
+  if command -v jq >/dev/null 2>&1; then
+    herdr plugin list --json 2>/dev/null |
+      jq -e --arg id "$1" '.result.plugins[]? | select((.plugin_id // .id) == $id)' >/dev/null 2>&1
+  else
+    herdr plugin list --json 2>/dev/null | grep -qF "\"$1\""
+  fi
+}
+
+wanted=""
+
+while IFS= read -r line || [ -n "$line" ]; do
+  case "$line" in
+    "#"* | "") continue ;;
+  esac
+
+  # source SHA [build...] へ分解する。ビルドコマンドに含まれる * を展開させない
+  set -f
+  # shellcheck disable=SC2086
+  set -- $line
+  set +f
+  [ $# -ge 2 ] || {
+    echo "herdr-plugins: WARNING: invalid line '$line', skipping" >&2
+    continue
+  }
+  spec="$1"
+  sha="$2"
+  shift 2
+  build="$*"
+
+  # SHA は 40 桁の hex のみ受け付ける。タグやブランチは可変なのでピンにならない
+  case "$sha" in
+    *[!0-9a-f]*)
+      echo "herdr-plugins: WARNING: '$sha' is not a commit SHA, skipping $spec" >&2
+      continue
+      ;;
+  esac
+  if [ ${#sha} -ne 40 ]; then
+    echo "herdr-plugins: WARNING: '$sha' is not a full 40-char SHA, skipping $spec" >&2
+    continue
+  fi
+
+  # owner/repo[/subdir]
+  case "$spec" in
+    */*) ;;
+    *)
+      echo "herdr-plugins: WARNING: '$spec' is not owner/repo, skipping" >&2
+      continue
+      ;;
+  esac
+  owner="${spec%%/*}"
+  rest="${spec#*/}"
+  repo="${rest%%/*}"
+  case "$rest" in
+    */*) subdir="${rest#*/}" ;;
+    *) subdir="" ;;
+  esac
+
+  key="${owner}_${repo}"
+  dir="$ROOT/$key"
+  stamp="$STATE/$key"
+  wanted="$wanted $key"
+
+  # 取得。herdr 自身と同じく shallow fetch + 明示 SHA
+  if [ ! -d "$dir/.git" ]; then
+    rm -rf "${dir:?}"
+    git init -q "$dir"
+    git -C "$dir" remote add origin "https://github.com/$owner/$repo.git"
+  fi
+  head=$(git -C "$dir" rev-parse HEAD 2>/dev/null || echo "")
+  if [ "$head" != "$sha" ]; then
+    echo "herdr-plugins: fetching $owner/$repo @ $sha"
+    if ! git -C "$dir" fetch -q --depth 1 origin "$sha"; then
+      echo "herdr-plugins: ERROR: fetch failed for $spec@$sha" >&2
+      continue
+    fi
+    git -C "$dir" reset -q --hard FETCH_HEAD
+    # 前バージョンのビルド成果物を残さない（node_modules, bin, target 等）
+    git -C "$dir" clean -qxdff
+  fi
+
+  # 取得したものがピン通りかを最終確認する
+  if [ "$(git -C "$dir" rev-parse HEAD)" != "$sha" ]; then
+    echo "herdr-plugins: ERROR: $spec HEAD does not match pinned $sha, refusing" >&2
+    continue
+  fi
+
+  plugin_dir="$dir"
+  [ -z "$subdir" ] || plugin_dir="$dir/$subdir"
+  manifest="$plugin_dir/herdr-plugin.toml"
+  if [ ! -f "$manifest" ]; then
+    echo "herdr-plugins: ERROR: no herdr-plugin.toml in $plugin_dir" >&2
+    continue
+  fi
+  id=$(sed -n 's/^id[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$manifest" | head -1)
+  if [ -z "$id" ]; then
+    echo "herdr-plugins: ERROR: could not read plugin id from $manifest" >&2
+    continue
+  fi
+
+  # stamp は「この SHA でビルドと登録まで通った」印。SHA が動いたら作り直す
+  done_sha=""
+  [ ! -f "$stamp" ] || read -r done_sha _ <"$stamp" || done_sha=""
+
+  if [ -n "$build" ] && [ "$done_sha" != "$sha" ]; then
+    echo "herdr-plugins: building $id"
+    if ! (cd "$plugin_dir" && sh -c "$build"); then
+      echo "herdr-plugins: ERROR: build failed for $id, not linking" >&2
+      rm -f "$stamp"
+      continue
+    fi
+  fi
+
+  if is_linked "$id"; then
+    :
+  else
+    echo "herdr-plugins: linking $id"
+    if ! herdr plugin link "$plugin_dir" >/dev/null; then
+      echo "herdr-plugins: ERROR: link failed for $id" >&2
+      rm -f "$stamp"
+      continue
+    fi
+  fi
+
+  printf '%s %s\n' "$sha" "$id" >"$stamp"
+done <"$DEFS"
+
+# 定義から消えたプラグインを登録解除して checkout ごと削除する。
+# checkout と stamp の両方を候補にする（ビルド失敗で stamp の無い checkout が
+# 残っている場合や、逆に checkout だけ手で消された場合を取りこぼさない）
+stale=""
+for path in "$ROOT"/* "$STATE"/*; do
+  [ -e "$path" ] || continue
+  key=$(basename "$path")
+  case " $wanted $stale " in
+    *" $key "*) continue ;;
+  esac
+  stale="$stale $key"
+done
+
+# shellcheck disable=SC2086
+for key in $stale; do
+  stamp="$STATE/$key"
+  # stamp は link 成功後にだけ書かれる。無ければ未登録なので unlink は不要
+  if [ -f "$stamp" ]; then
+    read -r _ id <"$stamp" || id=""
+    if [ -n "$id" ]; then
+      echo "herdr-plugins: unlinking removed plugin $id"
+      herdr plugin unlink "$id" >/dev/null 2>&1 || true
+    fi
+  fi
+  echo "herdr-plugins: removing $key"
+  rm -rf "${ROOT:?}/${key:?}" "$stamp"
+done
+{{ end -}}
