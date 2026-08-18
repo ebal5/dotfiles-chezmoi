@@ -16,9 +16,16 @@ jobs:
         uses: actions/github-script@v8
         with:
           script: |
+            const author = context.payload.pull_request.user;
+            const isBot = author.type === 'Bot' || author.login.endsWith('[bot]');
+
+            // bot が作成した PR で bot 自身を assignee に指定すると API が 403 を返すため、
+            // リポジトリオーナーを代わりに割り当てる
+            const assignee = isBot ? context.repo.owner : author.login;
+
             await github.rest.issues.addAssignees({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              assignees: [context.payload.pull_request.user.login]
+              assignees: [assignee]
             });
