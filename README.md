@@ -175,8 +175,26 @@ prek install
 | `ruff` | `uvx ruff` | uvx経由のPython linter |
 | `mypy` | `uvx mypy` | uvx経由の型チェック |
 | `pre-commit` | `prek` | prek（Nix管理）へのエイリアス |
+| `c2f` | `$HOME/.scripts/clip2file` | クリップボードを一時ファイルへ保存しパスをコピー |
 
 上記は主要なエイリアスの抜粋です。pnpm shimツール群（biome, ccusage等）、fzfユーティリティ（[FZF_UTILS.md](FZF_UTILS.md)参照）、便利関数（stmp, mkcd, psg等）を含む全一覧は[dot_config/sh-like-aliases](dot_config/sh-like-aliases)を参照してください。
+
+### クリップボードを一時ファイルへ退避（clip2file）
+
+AIエージェントに渡すテキストなどを、クリップボードから一時ファイルへ保存し、
+その保存先パスをクリップボードへ入れ直す（`~/.scripts/clip2file`、エイリアスは`c2f`）。
+
+```bash
+c2f              # /tmp/clip/clip-20260818-231900-Ab12Cd.txt へ保存しパスをコピー
+c2f -e md        # 拡張子を md にする
+c2f -n note.md   # ファイル名を固定する
+c2f -d ~/tmp     # 保存先ディレクトリを変える（既定は $CLIP2FILE_DIR、未設定なら /tmp/clip）
+```
+
+テキストが空のときだけ画像を探し、画像があればPNGとして保存する。
+WSLでは`win32yank.exe`（テキスト）と`powershell.exe`（画像）、
+それ以外のLinuxでは`xclip`、無ければ`xsel`（テキストのみ）を使う。
+保存先パスは標準出力にも出るため`file=$(c2f)`のように受け取れる。
 
 ### 主な Git コマンドのエイリアス
 

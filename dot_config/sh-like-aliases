@@ -87,6 +87,8 @@ elif [ "$(uname)" == 'Darwin' ]; then
 fi
 alias teee="tee >(pbcopy)"
 alias pwcp='printf "%s" "$(pwd)" | pbcopy'
+# クリップボードの内容を一時ファイルへ保存し、そのパスをクリップボードへ入れ直す
+alias c2f='$HOME/.scripts/clip2file'
 
 # docker
 alias dc="docker compose"

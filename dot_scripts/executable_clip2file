@@ -1,0 +1,161 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# クリップボードの内容を一時ファイルへ保存し、保存先パスをクリップボードへ入れ直す。
+# AIエージェントへ渡すテキストを毎回手でcatする手間をなくすためのもの。
+#
+# 判定順はテキスト優先。テキストが空のときだけ画像を探す
+# （画像だけがクリップボードにある場合、テキスト側は空になる）。
+# WSLではwin32yank.exe（テキスト）とpowershell.exe（画像）を使い、
+# それ以外のLinuxではxclip、無ければxsel（テキストのみ）を使う。
+
+usage() {
+  cat <<'EOF'
+Usage: clip2file [options]
+
+クリップボードの内容を一時ファイルへ保存し、保存先パスをクリップボードへ入れ直す。
+保存先パスは標準出力にも表示するため $(clip2file) で受け取れる。
+
+Options:
+  -d DIR   保存先ディレクトリ (default: $CLIP2FILE_DIR、未設定なら /tmp/clip)
+  -e EXT   拡張子 (default: txt、画像を検出した場合は png)
+  -n NAME  ファイル名を固定する (保存先ディレクトリ配下、既存ファイルは上書き)
+  -h       このヘルプを表示
+
+Examples:
+  clip2file             # /tmp/clip/clip-20260818-231900-Ab12Cd.txt へ保存
+  clip2file -e md       # 拡張子を md にする
+  clip2file -n note.md  # /tmp/clip/note.md へ保存
+EOF
+}
+
+die() {
+  echo "Error: $*" >&2
+  exit 1
+}
+
+require() {
+  command -v "$1" >/dev/null 2>&1 || die "$1 is required but not installed."
+}
+
+kernel="$(uname -r)"
+if [[ "${kernel,,}" == *microsoft* ]]; then
+  platform="wsl"
+else
+  platform="linux"
+fi
+
+# クリップボードのテキストを標準出力へ。中身が無ければ何も出力しない。
+read_text() {
+  if [[ "$platform" == "wsl" ]]; then
+    require win32yank.exe
+    # --lf: Windows側のCRLFをLFへ正規化する（付けないと ^M が残る）
+    win32yank.exe -o --lf
+  elif command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -out 2>/dev/null || true
+  else
+    require xsel
+    xsel --clipboard --output 2>/dev/null || true
+  fi
+}
+
+# クリップボードの画像を $1 へPNGで保存する。画像が無ければ非0で返す。
+save_image() {
+  local dest="$1"
+
+  if [[ "$platform" == "wsl" ]]; then
+    require powershell.exe
+    require wslpath
+    local win_path ps_cmd
+    win_path="$(wslpath -w "$dest")"
+    # PowerShellのシングルクォート文字列内では ' を '' でエスケープする
+    ps_cmd="Add-Type -AssemblyName System.Windows.Forms,System.Drawing;"
+    ps_cmd+=" if (-not [System.Windows.Forms.Clipboard]::ContainsImage()) { exit 2 };"
+    ps_cmd+=" \$img = [System.Windows.Forms.Clipboard]::GetImage();"
+    ps_cmd+=" \$img.Save('${win_path//\'/\'\'}', [System.Drawing.Imaging.ImageFormat]::Png);"
+    ps_cmd+=" exit 0"
+    # Clipboardクラスはシングルスレッドアパートメントを要求するため -STA が要る
+    powershell.exe -NoProfile -STA -Command "$ps_cmd" >/dev/null 2>&1
+  elif command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -target TARGETS -out 2>/dev/null |
+      grep -qx 'image/png' || return 1
+    xclip -selection clipboard -target image/png -out >"$dest" 2>/dev/null
+  else
+    return 1
+  fi
+}
+
+write_text() {
+  if [[ "$platform" == "wsl" ]]; then
+    win32yank.exe -i
+  elif command -v xclip >/dev/null 2>&1; then
+    xclip -selection clipboard -in
+  else
+    xsel --clipboard --input
+  fi
+}
+
+out_dir="${CLIP2FILE_DIR:-/tmp/clip}"
+ext=""
+name=""
+
+while getopts ':d:e:n:h' opt; do
+  case "$opt" in
+    d) out_dir="$OPTARG" ;;
+    e) ext="${OPTARG#.}" ;;
+    n) name="$OPTARG" ;;
+    h)
+      usage
+      exit 0
+      ;;
+    :) die "option -$OPTARG requires an argument." ;;
+    *) die "unknown option -$OPTARG (try -h)." ;;
+  esac
+done
+shift $((OPTIND - 1))
+
+[[ $# -eq 0 ]] || die "unexpected argument: $1 (try -h)."
+[[ "$name" != */* ]] || die "-n takes a file name, not a path."
+[[ "$ext" != */* ]] || die "-e takes an extension, not a path."
+
+mkdir -p "$out_dir"
+
+# クリップボードの書き換えは最後に行う。取得や保存が途中で失敗したときに
+# 元の内容を壊さないようにするため。ファイル自体はmktempの既定で600になる。
+tmpfile="$(mktemp "${out_dir}/.clip2file.XXXXXX")"
+trap 'rm -f "$tmpfile"' EXIT
+
+kind="text"
+read_text >"$tmpfile"
+if [[ ! -s "$tmpfile" ]]; then
+  # shellcheck disable=SC2310 # 画像が無い場合の非0は想定内なので set -e を効かせない
+  if save_image "$tmpfile" && [[ -s "$tmpfile" ]]; then
+    kind="image"
+  else
+    die "clipboard is empty (or holds an unsupported format)."
+  fi
+fi
+
+if [[ -z "$ext" ]]; then
+  if [[ "$kind" == "image" ]]; then
+    ext="png"
+  else
+    ext="txt"
+  fi
+fi
+
+if [[ -n "$name" ]]; then
+  dest="${out_dir}/${name}"
+else
+  stamp="$(date +%Y%m%d-%H%M%S)"
+  dest="$(mktemp --suffix=".${ext}" "${out_dir}/clip-${stamp}-XXXXXX")"
+fi
+
+mv -f "$tmpfile" "$dest"
+trap - EXIT
+
+printf '%s' "$dest" | write_text
+printf '%s\n' "$dest"
+
+size="$(wc -c <"$dest")"
+printf 'saved %s (%s bytes) and copied the path to the clipboard\n' "$kind" "$size" >&2
