@@ -116,15 +116,14 @@ jobs:
             echo "### 固定リビジョンの変化"
             echo
             echo '```diff'
-            diff -u /tmp/lock-before.txt /tmp/lock-after.txt || true
+            diff -u --label before --label after /tmp/lock-before.txt /tmp/lock-after.txt || true
             echo '```'
             echo
             echo "### 補足"
             echo
-            echo "\`GITHUB_TOKEN\` で作成した PR は workflow をトリガーしないため、"
-            echo "この PR には CI チェックが付かない。再現性チェックは上記の実行ログ内で"
-            echo "実施済み。E2E などを走らせたい場合は \`gh pr update-branch\` などで"
-            echo "コミットを積み直すか、ローカルで確認する。"
+            echo "\`GITHUB_TOKEN\` で作成した PR では CI が自動で走らないことがある。"
+            echo "再現性チェックは上記の実行ログ内で実施済み。E2E などを走らせたい場合は、"
+            echo "Actions 画面に保留中の run があれば承認するか、下記の手順でローカル確認する。"
             echo
             echo "### ローカルでの確認手順"
             echo
