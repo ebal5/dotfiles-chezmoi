@@ -1,0 +1,44 @@
+# herdr プラグインのピン止め定義
+# run_onchange_after_install_herdr_plugins.sh.tmpl が読み込む
+#
+# 形式: <owner>/<repo>[/<subdir>]  <40桁commit SHA>  [ビルドコマンド]
+#   - SHA は完全な 40 桁のみ。タグ・ブランチは不可（取得後に HEAD と照合する）
+#   - ビルドコマンドはプラグインディレクトリで `sh -c` 実行。省略可
+#   - 登録は `herdr plugin install` ではなく `herdr plugin link`。
+#     link はプラグイン側の [[build]] を実行しないので、何が走るかは
+#     この定義ファイルに書いたコマンドだけで決まる
+#
+# 追加・更新の手順:
+#   1. リポジトリを clone して herdr-plugin.toml を読む
+#      （startup / events / build / link_handlers が自動実行される面）
+#   2. 依存があるなら lockfile 固定でビルドできることを確認する
+#      （npm ci --ignore-scripts など。lockfile が無いものは入れない）。
+#      ツールチェーンをこのマシンに持ち込むもの（Rust など）は入れない
+#   3. 更新時は git log <old-sha>..<new-sha> と diff を読んでから SHA を書き換える
+
+# fzf コマンドパレット (v0.1.0)
+# bash スクリプト 2 本のみ、ビルド無し。依存は fzf/jq で both Nix 管理。全文監査済み
+JanTvrdik/herdr-command-palette  eab940018c2135ac23718efa11e23e9dddcd2a75
+
+# worktree 作成時に per-project セットアップを実行 (v0.2.0)
+# npm 依存は smol-toml 1 個のみ（integrity 付き lock をコミット済み）。
+# 実行するステップは ~/.config/herdr/plugins/config/tdi.worktree-setup/config.toml
+# から読む＝レビュー対象リポジトリ側から注入される経路は無い。全文監査済み
+tdi/herdr-worktree-setup  4527a11bd5444dbce34c3d4f459b49d704cc12a7  npm ci --ignore-scripts
+
+# 見送り — Rust ツールチェーンを要求するものは入れない方針
+#
+# エージェントの差分レビューペイン (v0.32.1)。ソース側の素性は悪くない
+# （MIT / star 458 / cargo-audit + dependabot / SECURITY.md）が、Cargo.lock 固定で
+# 自前ビルドする＝rustup のツールチェーンと 337 crates をこのマシンに持ち込む。
+# 本体の [[build]] が使う Release のビルド済みバイナリ（sha256 検証あり）に切り替えれば
+# Rust は不要になるが、検証の対象がピン留めしたソースから作者の Release 成果物と
+# その CI へ移る。それなら入れない方を選んだ
+#persiyanov/herdr-reviewr  a4224541751a5030986e159aedb69e6508716e15  cargo build --release --locked && install -D -m 0755 target/release/herdr-reviewr bin/herdr-reviewr
+
+# 監査保留 — 有効化するなら行頭の # を外す
+# Claude Code のエージェントチームを herdr 上で起動・操作する。権限は最も重いのに、
+# Rust 26k 行を 2 日で生成した AI 製リポジトリで全量監査が非現実的、star 20 /
+# 単独著者 / 最終更新 2026-07-17。ビルドが ~/.local/bin に herdmates を置く
+# （actions が PATH 上の bare argv を叩くため、link 運用でもここは避けられない）
+#caioniehues/herdmates  9469ab2abeea4d593906ff7eebb8af22cd22b8e0  cargo install --path . --root "$HOME/.local"

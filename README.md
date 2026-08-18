@@ -196,6 +196,60 @@ WSLでは`win32yank.exe`（テキスト）と`powershell.exe`（画像）、
 それ以外のLinuxでは`xclip`、無ければ`xsel`（テキストのみ）を使う。
 保存先パスは標準出力にも出るため`file=$(c2f)`のように受け取れる。
 
+### herdrプラグイン
+
+herdrのプラグインはサンドボックス無しで自分の権限のまま動く任意コードで、
+herdr側には署名検証もチェックサムも`plugin update`も無い
+（マーケットプレイスもGitHubトピックの自動収集で審査は無い）。
+そのため`herdr plugin install`は使わない。あれはプラグイン側の`[[build]]`を
+無条件に実行し、checkoutをherdr管理下に置いて再インストールで差し替えるため、
+「監査した木」と「動いている木」が一致しない。
+
+代わりに[dot_config/herdr-plugins](dot_config/herdr-plugins)へ
+**完全な40桁commit SHA**でピン止めし、
+`run_onchange_after_install_herdr_plugins.sh.tmpl`が次を行う。
+
+1. `~/.local/share/herdr-plugins/<owner>_<repo>`へ`git fetch --depth 1 <SHA>`で取得
+2. checkoutのHEADがピンと一致するか照合（不一致なら登録しない）
+3. 定義ファイルに書いたビルドコマンドだけを実行（herdr側の`[[build]]`は走らない）
+4. `herdr plugin link`で登録
+
+結果として、**何が実行されるかは定義ファイルの1行だけで決まり、
+バージョン更新はPRのdiffに現れる**。
+
+| 状況 | 挙動 |
+| --- | --- |
+| 定義ファイル未変更 | 何もしない（`run_onchange_`） |
+| SHA変更 | `git clean -xdff`してから再取得・再ビルド |
+| ビルド失敗 | linkせずに次のプラグインへ進む |
+| 定義から削除 | `herdr plugin unlink`してcheckoutごと削除 |
+| 手動でunlink済み | 次回applyで再link |
+| herdr未導入 | 何もせず終了 |
+
+導入済み:
+
+| プラグイン | 用途 | 依存の扱い |
+| --- | --- | --- |
+| `jt.command-palette` | fzfによる全プラグインアクションの一覧・実行 | bash 2本のみ。fzf/jqはNix管理 |
+| `tdi.worktree-setup` | worktree作成時のper-projectセットアップ実行 | npm依存はsmol-toml 1個。`npm ci --ignore-scripts` |
+
+選定基準は2つ。lockfileを固定してビルドできること
+（`npm install`しか用意がないものは入れない）と、
+ツールチェーンをこのマシンに持ち込まないこと。
+後者でRust製プラグインは見送っている（理由は定義ファイルのコメントに残してある）。
+
+プラグインごとの設定は`~/.config/herdr/plugins/config/<plugin-id>/config.toml`に置く
+（`herdr plugin config-dir <plugin-id>`で確認できる）。リポジトリ管理外。
+キーバインドはherdrのマニフェストからは効かないため`~/.config/herdr/config.toml`に書く。
+
+```toml
+[[keys.command]]
+key = "prefix+p"
+type = "plugin_action"
+command = "jt.command-palette.open"
+description = "Command palette"
+```
+
 ### 主な Git コマンドのエイリアス
 
 | エイリアス | 展開 | 備考 |

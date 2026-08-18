@@ -65,6 +65,7 @@ flake.lock
 .profile
 .scripts/
 .config/sh-like-aliases
+.config/herdr-plugins
 .config/tmux/
 executable_once_setup_ubuntu.sh.tmpl
 {{ end }}
