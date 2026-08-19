@@ -118,7 +118,7 @@ prek install
   - ツールのバージョン更新: `git pull`で`flake.lock`を取得してから`nix profile upgrade --all`
   - `flake.lock`自体の更新は週次のGitHub Actionsが自動PR化する（後述）
 - [Starship](https://starship.rs/ja-jp/)
-- [mise (alt asdf)](https://github.com/jdx/mise)（言語ランタイム管理: Node.js、Python）
+- [mise (alt asdf)](https://github.com/jdx/mise)（プロジェクトごとにバージョン固定が必要なツールの管理: Node.js、Python等）
 - [uv](https://docs.astral.sh/uv/)（Pythonパッケージ管理・uvxによるツール実行）
 - Git config
   - diff として delta を利用
@@ -463,13 +463,20 @@ NOTE: markdownlintによるチェックとの違いは要検証
 
 手動実行は`workflow_dispatch`（ActionsタブのRun workflow）から可能。
 
-### mise管理ツール（言語ランタイム）
+### mise管理ツール
 
 mise設定（`~/.config/mise/config.toml`）はマシンローカルでリポジトリ管理外のため、
 CIによる自動化対象ではない。手動で更新する。
 
 ```bash
 mise upgrade
+```
+
+mise本体はNix・APTいずれの管理下にもなく、初回のみ`executable_once_setup_ubuntu.sh.tmpl`が
+公式インストーラで`~/.local/bin/mise`へ導入する。以降の更新は手動で行う。
+
+```bash
+mise self-update
 ```
 
 NOTE: Node.jsの更新にはリリース署名鍵の検証が必要。

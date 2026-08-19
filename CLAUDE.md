@@ -35,10 +35,12 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 
 - **Nix**（`flake.nix`）: CLIツール・開発コマンドの宣言的管理（starship, delta, fzf, ripgrep, git, chezmoi等）
 - **APT**: システム基盤・ビルド依存（lib*-dev, build-essential等）+ ブートストラップ用最小限ツール + root権限で使うツール（nmap, vim）
-- **mise**: 言語ランタイムのみ（Node.js, Python）
+- **mise**: プロジェクトごとにバージョンを固定する必要があるツール（Node.js, Python等のランタイム、shellcheck, shfmt等）
 - **winget**（Windows）: Nix CLIツールのWindows対応版 + Windows専用アプリ
 - **uvx/pnpm shim**（`dot_config/shim-definitions`）: `chezmoi apply`時に`~/.scripts/`へラッパースクリプトを自動生成。新ツール追加は定義ファイルに1行追加するだけ
-- 判定基準: CLIツール→Nix、ビルド依存→APT、ランタイム→mise、root権限必要→APT、Pythonツール(ruff等)→uvx shim、JSツール(markdownlint-cli2等)→pnpm shim
+- 判定基準: CLIツール→Nix、ビルド依存→APT、PJごとのバージョン固定が必要→mise、root権限必要→APT、Pythonツール(ruff等)→uvx shim、JSツール(markdownlint-cli2等)→pnpm shim
+- Nixはグローバルに1バージョンしか置けないため、PJごとに異なるバージョンを使い分けるツール（terraform等）はNixではなくmiseで管理する。
+  ただしグローバルの`~/.config/mise/config.toml`ではなく、各プロジェクトの`mise.toml`に書く
 
 ## 機械固有設定
 
