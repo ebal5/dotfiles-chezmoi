@@ -8,7 +8,8 @@ description: mise（ツールバージョン管理）
 ## 概要
 
 mise（旧rtx）はプロジェクトごとのツールバージョン管理ツール。
-asdfの高速なRust実装として、Node.js、Python等の言語ランタイムを管理。
+asdfの高速なRust実装。Node.js、Python等の言語ランタイムに加え、
+プロジェクトごとにバージョンを固定したいツール（shellcheck、shfmt、terraform等）を管理する。
 
 ## 基本コマンド
 
