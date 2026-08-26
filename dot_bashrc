@@ -1,9 +1,12 @@
 #!/bin/bash
+# 以下に散らばる `# shellcheck disable=SC2312` は `eval "$(tool init bash)"` 形式に
+# 対するもの。シェル初期化の定型句で各ツールの終了ステータスを見る意味がないため。
+# ファイル全体ではなく該当箇所ごとに無効化して、それ以外の戻り値マスキングは拾う。
 
 # If not running interactively, don't do anything
 case $- in
-*i*) ;;
-*) return ;;
+  *i*) ;;
+  *) return ;;
 esac
 
 # don't put duplicate lines or lines starting with space in the history.
@@ -26,24 +29,21 @@ shopt -s checkwinsize
 shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+# shellcheck disable=SC2312
+[[ -x /usr/bin/lesspipe ]] && eval "$(SHELL=/bin/sh lesspipe)"
 
-# set variable identifying the chroot you work in (used in the prompt below)
-if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
-  debian_chroot=$(cat /etc/debian_chroot)
-fi
-
-# set a fancy prompt (non-color, unless we know we "want" color)
-case "$TERM" in
-xterm-color | *-256color) color_prompt=yes ;;
-esac
-
+# PS1は色分岐もchroot表示も持たないため、上流bashrcのcolor_prompt判定と
+# debian_chroot判定は削除している
 PS1='\u@\h \W $(git branch 2>/dev/null | grep '"'"'*'"'"' | colrm 1 2)\n\t \$ '
-unset color_prompt force_color_prompt
 
 # enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
-  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+# shellcheck disable=SC2312
+if [[ -x /usr/bin/dircolors ]]; then
+  if [[ -r ~/.dircolors ]]; then
+    eval "$(dircolors -b ~/.dircolors)"
+  else
+    eval "$(dircolors -b)"
+  fi
   alias ls='ls --color=auto'
 
   alias grep='grep --color=auto'
@@ -58,31 +58,35 @@ fi
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
 if ! shopt -oq posix; then
-  if [ -f /usr/share/bash-completion/bash_completion ]; then
+  if [[ -f /usr/share/bash-completion/bash_completion ]]; then
     . /usr/share/bash-completion/bash_completion
-  elif [ -f /etc/bash_completion ]; then
+  elif [[ -f /etc/bash_completion ]]; then
     . /etc/bash_completion
   fi
 fi
 
-if [ -x "$HOME/.local/bin/mise" ]; then
+# shellcheck disable=SC2312
+if [[ -x "$HOME/.local/bin/mise" ]]; then
   eval "$("$HOME"/.local/bin/mise activate bash)"
   eval "$("$HOME"/.local/bin/mise completion bash)"
   eval "$("$HOME"/.local/bin/mise env -s bash)"
 fi
 
-if [ -e "$HOME/.cargo/env" ]; then
+if [[ -e "$HOME/.cargo/env" ]]; then
   . "$HOME/.cargo/env"
 fi
 
-which zoxide >/dev/null && eval "$(zoxide init bash)"
+# shellcheck disable=SC2312
+command -v zoxide >/dev/null && eval "$(zoxide init bash)"
 
-[ -e "$HOME/.config/sh-like-aliases" ] && . "$HOME/.config/sh-like-aliases"
+[[ -e "$HOME/.config/sh-like-aliases" ]] && . "$HOME/.config/sh-like-aliases"
 
-which starship >/dev/null && eval "$(starship init bash)"
+# shellcheck disable=SC2312
+command -v starship >/dev/null && eval "$(starship init bash)"
 
 # mcfly
-if which mcfly >/dev/null && [ -z "$MCFLY_LOADED" ]; then
+# shellcheck disable=SC2312
+if command -v mcfly >/dev/null && [[ -z ${MCFLY_LOADED:-} ]]; then
   eval "$(mcfly init bash)"
   export MCFLY_FUZZY=2
   export MCFLY_RESULTS=20
@@ -90,4 +94,4 @@ if which mcfly >/dev/null && [ -z "$MCFLY_LOADED" ]; then
 fi
 
 # マシン固有のインタラクティブシェル設定（エイリアス、関数など）
-[ -f "$HOME/.config/local/shellrc.local" ] && . "$HOME/.config/local/shellrc.local"
+[[ -f "$HOME/.config/local/shellrc.local" ]] && . "$HOME/.config/local/shellrc.local"

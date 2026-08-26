@@ -15,13 +15,15 @@ input=$(cat)
 # Single jq pass; each field is always emitted (possibly empty) so the
 # tab-separated positions stay stable for `read`.
 IFS=$'\t' read -r cwd model ctx effort <<EOF
-$(printf '%s' "$input" | jq -r '
+$( # shellcheck disable=SC2312 # jqの失敗はセグメント欠落として許容する意図的な設計
+  printf '%s' "$input" | jq -r '
   [ .workspace.current_dir // ""
   , .model.display_name // ""
   , ( if (.context_window.used_percentage // null) == null
       then "" else (.context_window.used_percentage | floor | tostring) end )
   , .effort.level // ""
-  ] | @tsv' 2>/dev/null)
+  ] | @tsv' 2>/dev/null
+)
 EOF
 
 user=$(whoami 2>/dev/null || echo "?")

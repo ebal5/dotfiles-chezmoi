@@ -1,4 +1,8 @@
 #!/bin/zsh
+# このファイルはzshだが、.shellcheckrcの設定によりbashとして解析される。
+# 以下に散らばる `# shellcheck disable=SC2312` は `eval "$(tool init zsh)"` 形式に
+# 対するもの。シェル初期化の定型句で各ツールの終了ステータスを見る意味がないため。
+# ファイル全体ではなく該当箇所ごとに無効化して、それ以外の戻り値マスキングは拾う。
 
 # If not running interactively, don't do anything
 [[ $- != *i* ]] && return
@@ -54,8 +58,13 @@ PS1='%n@%m %1~ $(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 %T %# '
 
 # Enable color support of ls and add handy aliases
+# shellcheck disable=SC2312
 if [[ -x /usr/bin/dircolors ]]; then
-  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  if [[ -r ~/.dircolors ]]; then
+    eval "$(dircolors -b ~/.dircolors)"
+  else
+    eval "$(dircolors -b)"
+  fi
   alias ls='ls --color=auto'
   alias grep='grep --color=auto'
   alias fgrep='fgrep --color=auto'
@@ -64,6 +73,7 @@ fi
 
 # Zsh completion
 if [[ -d /usr/share/zsh/site-functions ]]; then
+  # shellcheck disable=SC2206 # zshの配列展開は単語分割を伴わないためクォート不要
   fpath=(/usr/share/zsh/site-functions $fpath)
 fi
 
@@ -73,6 +83,7 @@ if [[ -e "$HOME/.nix-profile/etc/profile.d/nix.sh" ]]; then
 fi
 
 # Tool integrations
+# shellcheck disable=SC2312
 if [[ -x "$HOME/.local/bin/mise" ]]; then
   eval "$("$HOME"/.local/bin/mise activate zsh)"
   eval "$("$HOME"/.local/bin/mise completion zsh)"
@@ -83,16 +94,19 @@ if [[ -e "$HOME/.cargo/env" ]]; then
   . "$HOME/.cargo/env"
 fi
 
+# shellcheck disable=SC2312
 command -v zoxide >/dev/null 2>&1 && eval "$(zoxide init zsh)"
 
 [[ -e "$HOME/.config/sh-like-aliases" ]] && . "$HOME/.config/sh-like-aliases"
 
+# shellcheck disable=SC2312
 command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
 
 # Vi モード切替時にプロンプトを再描画し、starship の character モジュール
 # （vicmd_symbol）でノーマル/インサートのインジケータを反映させる。
 # あわせてカーソル形状も切替（normal=ブロック / insert=ビーム）。
 function zle-keymap-select() {
+  # shellcheck disable=SC2154 # KEYMAPはzleウィジェット呼び出し時にzshが設定する
   case $KEYMAP in
     vicmd) print -n '\e[2 q' ;; # ブロックカーソル
     *) print -n '\e[6 q' ;;     # ビーム（I字）カーソル
@@ -108,7 +122,8 @@ function zle-line-init() {
 zle -N zle-line-init
 
 # mcfly
-if command -v mcfly >/dev/null 2>&1 && [[ -z "$MCFLY_LOADED" ]]; then
+# shellcheck disable=SC2312
+if command -v mcfly >/dev/null 2>&1 && [[ -z ${MCFLY_LOADED:-} ]]; then
   eval "$(mcfly init zsh)"
   export MCFLY_FUZZY=2
   export MCFLY_RESULTS=20
@@ -116,10 +131,12 @@ if command -v mcfly >/dev/null 2>&1 && [[ -z "$MCFLY_LOADED" ]]; then
 fi
 
 # keybindings
-if uname -a | grep microsoft >/dev/null 2>&1; then
+kernel_info=$(uname -a)
+if [[ $kernel_info == *microsoft* ]]; then
   bindkey '^[[1;5D' backward-word
   bindkey '^[[1;5C' forward-word
 fi
+unset kernel_info
 
 # マシン固有のインタラクティブシェル設定（エイリアス、関数など）
 [[ -f "$HOME/.config/local/shellrc.local" ]] && . "$HOME/.config/local/shellrc.local"
