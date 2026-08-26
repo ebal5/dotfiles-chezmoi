@@ -9,7 +9,10 @@ description: リントと品質チェックのコマンドとCI設定
 
 - `shfmt -i 2 -ci -w .` - シェルスクリプトを2スペースインデントでフォーマット
 - `shellcheck $(shfmt -f .)` - シェルスクリプトの問題をチェック
-- `markdownlint-cli2 .` - Markdownファイルをリント
+- `markdownlint-cli2 "**/*.md"` - Markdownファイルをリント（`.`だとトップレベルのみ）
+
+編集単位のlintはPostToolUseフック（`.claude/hooks/lint-edited-file.sh`）が自動実行するため、
+上記は全体を一括チェックしたいときに使う。
 
 ## GitHub Actions 自動実行
 

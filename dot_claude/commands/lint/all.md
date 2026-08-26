@@ -14,7 +14,8 @@ allowed-tools: Bash(shfmt:*), Bash(shellcheck:*), Bash(markdownlint-cli2:*), Bas
 
 ### 2. Markdownファイル
 
-1. `markdownlint-cli2 .` でMarkdownリントを実行
+1. `markdownlint-cli2 "**/*.md"` でMarkdownリントを実行
+   （`.` はトップレベルの`*.md`しか対象にならないためサブディレクトリが漏れる）
 
 ### 3. Pythonファイル（存在する場合）
 

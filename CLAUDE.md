@@ -60,8 +60,8 @@ shfmt -i 2 -ci -w .
 # シェルスクリプトの静的解析
 shellcheck $(shfmt -f .)
 
-# Markdownのリント
-markdownlint-cli2 .
+# Markdownのリント（`.`はトップレベルしか見ないためグロブで指定する）
+markdownlint-cli2 "**/*.md"
 ```
 
 GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Windows）が自動実行される。
@@ -73,20 +73,39 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 
 ## Claude Code固有の注意
 
-- `git add`と`git commit`は`&&`で繋げず、**別々のBash呼び出し**で実行すること。
-  許可ツール設定が個別コマンドパターンのため、連結すると毎回許可確認が必要になる
 - `dot_claude/`内のファイルは`~/.claude/`に展開される（Claude Codeのグローバル設定）
 - `settings.json.src`に絶対パス（`/home/<user>/...`）を含むフックが混ざっていたら、
   外部ツールが`~/.claude/settings.json`（このファイルへのシンボリックリンク）を
   書き換えた痕跡。共有設定に固定パスを入れず、`~/.scripts/`のラッパー経由にする
   （herdrの例は[README](README.md)の「フック」節を参照）
-- フックスクリプトは`set -e`を使っても最終的に`exit 0`で終わること。
-  非ゼロ終了はセッション側にエラーとして表示される
+- 通知系フックスクリプト（tmuxタイトル等）は`set -e`を使っても最終的に`exit 0`で終わること。
+  意図しない非ゼロ終了はセッション側にエラーとして表示される。
+  例外はモデルへのフィードバックを目的とするフック（`.claude/hooks/lint-edited-file.sh`）で、
+  lintの指摘をstderrに出して`exit 2`で返すのが正しい終わり方
+- `Write`/`Edit`後は`.claude/hooks/lint-edited-file.sh`がPostToolUseフックとして
+  ファイル種別ごとにlintを実行する（`.sh`→shfmt+shellcheck、`.md`→markdownlint-cli2、
+  `.tmpl`はスキップ）。編集のたびに手でlintを流す必要はない
 
-## Markdownテーブルスタイル
+## 静的検査で担保している規約
 
-CJK文字を含むテーブルはcompact style（`| --- |`セパレータ、最小パディング）で記述すること。
-aligned styleはCJK文字幅の違いでMD060違反となる。
+以下は文章での約束ではなくリンターが機械的に検出する。ローカルではPostToolUseフック、
+コミット時はprek、PRではCIが同じチェックを実行する。
+
+| 規約 | 実装 |
+| --- | --- |
+| テーブルはcompact style（最小パディング）。CJK文字幅でaligned styleが崩れるため | markdownlint MD060（`style: compact`） |
+| 先頭に条件分岐を置く`.tmpl`で、その直後がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
+| shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
+| 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
+| シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`）。**`.tmpl`は対象外** |
+
+新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。
+
+検査されない範囲も把握しておくこと:
+
+- **`.tmpl`のシェルコード**（shebangを持つもの4ファイル）はGoテンプレート構文のため
+  shfmt/shellcheckがパースできず、どのゲートも通らない。手で品質を確認する
+- テーブル区切り行のダッシュ長（`| ------ |`）はMD060の対象外。表示上無害なので許容する
 
 ## 詳細ガイドライン
 

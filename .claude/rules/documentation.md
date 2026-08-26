@@ -12,7 +12,7 @@ Markdownlintルールに準拠したドキュメント作成を推奨:
 - **MD031**: フェンスコードブロック（``` ）の前後には空行を入れる
 - **コードブロックの書式**:
 
-  ```markdown
+  ````markdown
   テキスト
 
   ```bash
@@ -20,7 +20,7 @@ Markdownlintルールに準拠したドキュメント作成を推奨:
   ```
 
   続きのテキスト
-  ```
+  ````
 
 - **MD040**: フェンスコードブロックには言語指定が必要
 
@@ -29,9 +29,11 @@ Markdownlintルールに準拠したドキュメント作成を推奨:
   echo "hello world"
   ```
 
-- **MD060**: テーブルのパイプスタイルを統一する。CJK文字を含むテーブルでは
-  aligned styleが文字幅の違いで破綻するため、**compact style**（最小パディング）を使用する。
-  セパレータは `| --- |` 形式、各セルは `| 内容 |` のように最小限のスペースのみ入れる
+- **MD060**: テーブルは**compact style**（最小パディング）。CJK文字を含むテーブルでは
+  aligned styleが文字幅の違いで破綻するため。`.markdownlint-cli2.yaml`で
+  `style: compact`を明示している（既定の`consistent`はファイル内で揃っていれば
+  aligned styleも通してしまう）。区切り行のダッシュ長（`| ------ |`）はMD060の
+  対象外で誰も検出しないが、表示上は無害なので許容する
 
   compact styleの例:
 
@@ -51,8 +53,7 @@ Markdownlintルールに準拠したドキュメント作成を推奨:
 
 ## 編集後のlint実行
 
-Markdownファイルを編集した後は、必ず以下のlintを実行すること:
-
-- `markdownlint-cli2 <edited-file>` - 編集したファイルをリント
+PostToolUseフック（`.claude/hooks/lint-edited-file.sh`）が編集後に
+markdownlint-cli2を実行して指摘を返すため、手動実行は不要。
 
 全ファイルに対して実行する場合は `/lint:all` コマンドを使用。
