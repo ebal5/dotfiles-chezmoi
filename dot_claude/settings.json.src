@@ -133,6 +133,6 @@
   "effortLevel": "high",
   "outputStyle": "Concise",
   "tui": "fullscreen",
-  "teammateMode": "tmux",
+  "teammateMode": "auto",
   "advisorModel": "opus"
 }
