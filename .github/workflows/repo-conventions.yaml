@@ -1,0 +1,20 @@
+---
+name: Repo Conventions
+
+on:
+  pull_request:
+    paths:
+      - "**/*.tmpl"
+      - "dot_config/shim-definitions"
+      - ".github/scripts/check-repo-conventions.sh"
+
+jobs:
+  check:
+    name: Check repo conventions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check chezmoi/shim conventions
+        run: .github/scripts/check-repo-conventions.sh

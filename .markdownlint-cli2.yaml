@@ -10,3 +10,7 @@ ignores:
 config:
   # Allow longer lines in code blocks
   MD013: false
+  # テーブルはcompact style固定。既定の "consistent" はファイル内で揃っていれば
+  # aligned styleも通してしまい、CJK文字幅で崩れたテーブルを検出できない
+  MD060:
+    style: compact

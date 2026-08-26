@@ -38,6 +38,13 @@ jobs:
         uses: reviewdog/action-suggester@v1
         with:
           tool_name: shellcheck
+      # 上の suggester は `-f diff` の性質上「自動修正案を作れる指摘」しか
+      # 報告せず、SC2154 のような指摘は素通りする。ここでハード fail させて
+      # 修正案を作れない指摘も落とす。
+      # 自動修正できる指摘は上の patch 適用済みなのでここでは落ちない
+      # （そちらは suggester のレビューコメントと prek が担保する）
+      - name: shellcheck (hard fail)
+        run: shfmt -f . | xargs shellcheck
   markdownlint:
     name: runner / markdownlint
     runs-on: ubuntu-latest
