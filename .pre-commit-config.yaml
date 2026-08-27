@@ -11,3 +11,35 @@ repos:
         language: script
         files: ^dot_claude/(settings\.json\.src|dot_mcp\.json\.src)$
         pass_filenames: true
+      - id: repo-conventions
+        name: repo conventions
+        description: chezmoiテンプレート・shim定義の機械的に判定できる規約を検査する
+        entry: .github/scripts/check-repo-conventions.sh
+        language: script
+        files: (\.tmpl|dot_config/shim-definitions)$
+        pass_filenames: true
+      # コミット前に必ず通る唯一の層。PostToolUseフックは編集手段に依存し
+      # （Bash経由の編集では発火しない）、CIはPRを作るまで走らないため、
+      # shell/markdown のlintはここで担保する。
+      # 除外: `.tmpl` はGoテンプレート構文、`extras/.../prompt.sh` はzsh専用構文
+      # （`function a b c { }`）で、いずれも shfmt/shellcheck がパースできない
+      - id: shfmt
+        name: shfmt
+        description: シェルスクリプトを2スペースインデントで整形する
+        entry: shfmt -i 2 -ci -w
+        language: system
+        types_or: [shell, zsh]
+        exclude: (\.tmpl|^extras/zsh-standalone-prompt/prompt\.sh)$
+      - id: shellcheck
+        name: shellcheck
+        description: シェルスクリプトを静的解析する
+        entry: shellcheck
+        language: system
+        types_or: [shell, zsh]
+        exclude: (\.tmpl|^extras/zsh-standalone-prompt/prompt\.sh)$
+      - id: markdownlint
+        name: markdownlint-cli2
+        description: Markdownをリントする
+        entry: markdownlint-cli2
+        language: system
+        files: \.md$

@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - "dot_claude/settings.json.src"
+      - ".claude/settings.json"
 
 jobs:
   validate:
@@ -20,3 +21,4 @@ jobs:
           uvx check-jsonschema==0.37.0
           --schemafile "https://json.schemastore.org/claude-code-settings.json"
           dot_claude/settings.json.src
+          .claude/settings.json
