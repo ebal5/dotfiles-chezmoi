@@ -71,6 +71,27 @@ jobs:
           fi
           echo "markdownlint-cli2@${version} をインストールする"
           npm install -g "markdownlint-cli2@${version}"
+
+          # 上の抽出が実際に効いたことを実行時に裏取りする。静的検査
+          # （check-repo-conventions.sh）は「早く落ちる」ための層で、
+          # 文字列一致でしか見ていないため抜け道が残りうる。ここは「必ず落ちる」層。
+          #
+          # `--version` はグロブとしても解釈されるため lint 出力が続く
+          # （例: `markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)`）。
+          # node の警告などが先に混ざりうるので、行位置は決め打ちせず全行から探す
+          version_output=$(markdownlint-cli2 --version 2>&1) || true
+          installed=$(printf '%s\n' "$version_output" |
+            sed -n 's/^markdownlint-cli2 v\([0-9][0-9A-Za-z.-]*\).*$/\1/p' | head -1)
+          if [ -z "$installed" ]; then
+            echo "::error::markdownlint-cli2 --version の出力を解釈できなかった。出力形式が変わった可能性がある。"
+            printf '%s\n' "$version_output"
+            exit 1
+          fi
+          if [ "$installed" != "$version" ]; then
+            echo "::error::インストールされた markdownlint-cli2 が ${installed} で、dot_config/shim-definitions の ${version} と一致しない。"
+            exit 1
+          fi
+          echo "markdownlint-cli2 ${installed} を確認した"
       - name: Run markdownlint-cli2 with reviewdog
         uses: reviewdog/action-setup@v1
       - name: markdownlint
