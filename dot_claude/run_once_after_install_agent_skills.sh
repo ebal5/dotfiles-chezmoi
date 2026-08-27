@@ -1,6 +1,13 @@
-{{ if lookPath "gh" -}}
 #!/usr/bin/env bash
 set -euo pipefail
+
+# gh の有無は実行時に見る。以前は chezmoi テンプレートの `lookPath "gh"` で
+# apply 時に判定していたが、素の shell にしてリンタを効かせるため実行時判定にした。
+# 判定の時点が apply 時から実行時に移るだけで、結果は変わらない。
+if ! command -v gh >/dev/null 2>&1; then
+  echo "[warn] gh command not found; skipping agent-skills install" >&2
+  exit 0
+fi
 
 # Install user-global agent skills.
 # Bumping a PIN changes this file's content hash, so chezmoi will re-run
@@ -15,16 +22,18 @@ set -euo pipefail
 # the lists below re-checked. minor adds skills, patch edits their contents.
 OWN_REPO="ebal5/agent-skills"
 OWN_PIN="v1.0.0"
+# 取得失敗は下の空配列チェックで明示的に捕まえるため、パイプの戻り値は問わない
+# shellcheck disable=SC2312
 mapfile -t OWN_SKILLS < <(
   gh api "repos/${OWN_REPO}/contents/install-sets/common.txt?ref=${OWN_PIN}" \
-    --jq '.content' | base64 -d \
-    | awk '/^[[:space:]]*#/ || /^[[:space:]]*$/ {next} {print $1}'
+    --jq '.content' | base64 -d |
+    awk '/^[[:space:]]*#/ || /^[[:space:]]*$/ {next} {print $1}'
 )
 
 # mapfile runs in a process substitution, so a failed fetch yields an empty
 # array instead of aborting. Bail out explicitly: an empty list would make the
 # prune step below delete every skill this script manages.
-if [ "${#OWN_SKILLS[@]}" -eq 0 ]; then
+if [[ "${#OWN_SKILLS[@]}" -eq 0 ]]; then
   echo "[error] could not read install-sets/common.txt from ${OWN_REPO}@${OWN_PIN}" >&2
   exit 1
 fi
@@ -65,13 +74,13 @@ is_declared() {
   local candidate="$1" declared
   for declared in "${DECLARED[@]}"; do
     # common.txt accepts "category/skill-name"; installs land flat
-    [ "${candidate}" = "${declared##*/}" ] && return 0
+    [[ "${candidate}" = "${declared##*/}" ]] && return 0
   done
   return 1
 }
 
 for manifest in "${SKILLS_DIR}"/*/SKILL.md; do
-  [ -f "${manifest}" ] || continue
+  [[ -f "${manifest}" ]] || continue
   dir=$(dirname "${manifest}")
   name=$(basename "${dir}")
 
@@ -81,17 +90,15 @@ for manifest in "${SKILLS_DIR}"/*/SKILL.md; do
     "${manifest}" || continue
 
   # Pre-directory layout left a flat <name>.md next to the <name>/ directory
-  if [ -f "${SKILLS_DIR}/${name}.md" ]; then
+  if [[ -f "${SKILLS_DIR}/${name}.md" ]]; then
     echo ">> prune legacy ${name}.md"
     rm -f "${SKILLS_DIR}/${name}.md"
   fi
 
+  # is_declared は真偽を返す述語。非ゼロは失敗ではないので set -e の無効化は意図通り
+  # shellcheck disable=SC2310
   if ! is_declared "${name}"; then
     echo ">> prune ${name} (no longer declared)"
     rm -rf "${dir:?}"
   fi
 done
-{{ else -}}
-#!/usr/bin/env bash
-echo "[warn] gh command not found; skipping agent-skills install" >&2
-{{ end -}}

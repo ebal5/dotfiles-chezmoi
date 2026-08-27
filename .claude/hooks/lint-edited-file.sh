@@ -44,7 +44,9 @@ $out"
 
 check_repo_conventions
 
-# chezmoiテンプレートは Goテンプレート構文のため shfmt/shellcheck がパースできない
+# chezmoiテンプレートは Goテンプレート構文のため shfmt/shellcheck がパースできない。
+# `.tmpl` に残っているのは分岐だけのランチャーで、シェルコードは `scripts/` 配下の
+# 素の `.sh` にあり、そちらは下の通常経路で検査される
 case "$file_path" in
   *.tmpl) exit 0 ;;
   *) ;;

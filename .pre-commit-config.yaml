@@ -22,7 +22,9 @@ repos:
       # （Bash経由の編集では発火しない）、CIはPRを作るまで走らないため、
       # shell/markdown のlintはここで担保する。
       # 除外: `.tmpl` はGoテンプレート構文、`extras/.../prompt.sh` はzsh専用構文
-      # （`function a b c { }`）で、いずれも shfmt/shellcheck がパースできない
+      # （`function a b c { }`）で、いずれも shfmt/shellcheck がパースできない。
+      # `.tmpl` に残るのは分岐だけのランチャーで、シェルコードは `scripts/` 配下の
+      # 素の `.sh` にあるため、このフックがそのまま担保する
       - id: shfmt
         name: shfmt
         description: シェルスクリプトを2スペースインデントで整形する

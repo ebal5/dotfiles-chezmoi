@@ -207,7 +207,8 @@ herdr側には署名検証もチェックサムも`plugin update`も無い
 
 代わりに[dot_config/herdr-plugins](dot_config/herdr-plugins)へ
 **完全な40桁commit SHA**でピン止めし、
-`run_onchange_after_install_herdr_plugins.sh.tmpl`が次を行う。
+`run_onchange_after_install_herdr_plugins.sh.tmpl`（本体は
+[scripts/install-herdr-plugins.sh](scripts/install-herdr-plugins.sh)）が次を行う。
 
 1. `~/.local/share/herdr-plugins/<owner>_<repo>`へ`git fetch --depth 1 <SHA>`で取得
 2. checkoutのHEADがピンと一致するか照合（不一致なら登録しない）
@@ -342,7 +343,7 @@ herdrのインストーラは`bash '/home/<user>/.claude/hooks/herdr-agent-state
 
 ### エージェントスキル
 
-スキルはプラグインではなく、`run_once_after_install_agent_skills.sh.tmpl`が
+スキルはプラグインではなく、`dot_claude/run_once_after_install_agent_skills.sh`が
 `gh skill install`でユーザースコープ（`~/.claude/skills/`）へ導入する。
 供給元は2つで、いずれもバージョンをピン留めしている。
 
@@ -472,7 +473,8 @@ CIによる自動化対象ではない。手動で更新する。
 mise upgrade
 ```
 
-mise本体はNix・APTいずれの管理下にもなく、初回のみ`executable_once_setup_ubuntu.sh.tmpl`が
+mise本体はNix・APTいずれの管理下にもなく、初回のみ`executable_once_setup_ubuntu.sh.tmpl`
+（本体は[scripts/setup-ubuntu.sh](scripts/setup-ubuntu.sh)）が
 公式インストーラで`~/.local/bin/mise`へ導入する。以降の更新は手動で行う。
 
 ```bash

@@ -100,19 +100,49 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | 規約 | 実装 |
 | --- | --- |
 | テーブルはcompact style（最小パディング）。CJK文字幅でaligned styleが崩れるため | markdownlint MD060（`style: compact`） |
-| 先頭に条件分岐を置く`.tmpl`で、その直後がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
+| 先頭に条件分岐を置く`.tmpl`で、その後（空行を挟んでもよい）がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
-| シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`）。**`.tmpl`は対象外** |
+| シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |
 
 新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。
 
 検査されない範囲も把握しておくこと:
 
-- **`.tmpl`のシェルコード**（shebangを持つもの4ファイル）はGoテンプレート構文のため
-  shfmt/shellcheckがパースできず、どのゲートも通らない。手で品質を確認する
+- **`.tmpl`のシェルコードは検査されない**。Goテンプレート構文をshfmt/shellcheckが
+  パースできないため。これを避けるために、`.tmpl`には分岐だけを置いて
+  シェルコードは`scripts/`配下の素の`.sh`に出す（次節）。現状`.tmpl`に残っている
+  シェルコードはランチャー3本の計6行だけで、その失敗モード（shebangが1行目に
+  来ない）は`check-repo-conventions.sh`の規約1が検出する
 - テーブル区切り行のダッシュ長（`| ------ |`）はMD060の対象外。表示上無害なので許容する
+
+## `.tmpl`ランチャーと本体スクリプトの分離
+
+シェルコードを持つ`.tmpl`は、条件分岐だけを残したランチャーにして、本体を
+`scripts/`配下の素の`.sh`に置く。素の`.sh`になれば既存のshfmt/shellcheck/prek/CI/
+PostToolUseフックがそのまま効くため、テンプレート用の検査機構を別に作らずに済む。
+
+| ランチャー | 本体 | 備考 |
+| --- | --- | --- |
+| `run_after_generate_shims.sh.tmpl` | `scripts/generate-shims.sh` | 毎回走るのでハッシュ不要 |
+| `run_onchange_after_install_herdr_plugins.sh.tmpl` | `scripts/install-herdr-plugins.sh` | 本体と定義ファイルの両方のハッシュを埋める |
+| `executable_once_setup_ubuntu.sh.tmpl` | `scripts/setup-ubuntu.sh` | 手動実行される展開物。再実行判定がないのでハッシュ不要 |
+
+守ること:
+
+- `scripts/`は`.chezmoiignore`でホームへ展開しない。ランチャーが
+  `{{ .chezmoi.sourceDir }}`経由で`exec`する
+- **`run_once_`/`run_onchange_`のランチャーには`{{ include "<本体パス>" | sha256sum }}`を
+  コメントで埋めること**。再実行はレンダリング結果のハッシュで判定されるため、
+  埋めないと本体を編集しても再実行されない（実測で確認済み）
+- 素の`.sh`を`#!/bin/sh`で書く場合は先頭に`# shellcheck shell=sh`を置く。
+  `.shellcheckrc`の`shell=bash`がshebangを上書きするため、付けないと
+  bash前提の指摘（SC2292等）が誤って出る
+- テンプレート側の条件式は現状の短絡評価を壊さないこと。
+  `executable_once_setup_ubuntu.sh.tmpl`の`REQUIRE_GUI`は
+  `and`の短絡で`.chezmoi.requireGUI`に触れずに済ませている。無条件に評価する形へ
+  変えると、このキーを設定していないマシンでレンダリングが失敗する
 
 ## 詳細ガイドライン
 
