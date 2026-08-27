@@ -17,6 +17,22 @@ description: セキュリティ検証済みコンポーネントと共有設定�
   （pre-commit経由は`prek install`、CIは`shared-settings-guard.yaml`）
 - 環境依存の値を共有設定に入れず、`~/.scripts/`のラッパー経由にする
 
+### キー順の正規化
+
+外部ツールが書き戻すたびにキー順が入れ替わるため、値が何も変わっていなくても
+差分が出る。差分自体は無害だが、混ざると上の目視確認で本当に変わったキーが埋もれる。
+
+`.github/scripts/normalize-shared-settings.sh`が`jq --sort-keys`で常に同じ順序に
+固定してこれを消す。pre-commitで自動的にかかり、CIは`--check`で崩れていないことを検査する。
+
+差分を確認するときは、先に正規化してから`git diff`を見る。コミット済みの側も
+正規化されているので、残る差分は値が変わったキーだけになる。
+
+```bash
+.github/scripts/normalize-shared-settings.sh
+git diff dot_claude/
+```
+
 ## セキュリティ検証済みコンポーネント
 
 以下のコンポーネントは事前にセキュリティ検証が完了しており、一定期間はセキュリティレビューの対象外とします。

@@ -4,6 +4,14 @@
 repos:
   - repo: local
     hooks:
+      # guard より先に走らせ、正規化済みの内容を検査させる
+      - id: shared-settings-normalize
+        name: shared settings normalize
+        description: 共有設定のキー順をjqで正規化し、意味のない差分を消す
+        entry: .github/scripts/normalize-shared-settings.sh
+        language: script
+        files: ^dot_claude/(settings\.json\.src|dot_mcp\.json\.src)$
+        pass_filenames: true
       - id: shared-settings-guard
         name: shared settings guard
         description: 共有設定へのマシン固有・組織固有の値の混入を防ぐ

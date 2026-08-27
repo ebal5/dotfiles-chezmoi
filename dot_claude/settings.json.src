@@ -1,8 +1,43 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "advisorModel": "opus",
+  "agentPushNotifEnabled": true,
+  "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "enabledPlugins": {},
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
+  "hooks": {
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "command": "~/.scripts/tmux_claude_title.sh session-end",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "~/.scripts/tmux_claude_title.sh session-start",
+            "type": "command"
+          },
+          {
+            "command": "~/.scripts/herdr_agent_state.sh session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ]
+  },
+  "outputStyle": "Concise",
   "permissions": {
     "allow": [
       "Bash(docker compose logs *)",
@@ -52,25 +87,6 @@
       "WebFetch(domain:docs.anthropic.com)",
       "WebSearch"
     ],
-    "deny": [
-      "Bash(rm -rf *)",
-      "Bash(git reset --hard *)",
-      "Bash(git push --force *)",
-      "Bash(git push -f *)",
-      "Bash(git push origin --force *)",
-      "Bash(git push origin -f *)",
-      "Bash(git clean -f *)",
-      "Bash(git clean -fd *)",
-      "Bash(git branch -D *)",
-      "Bash(chmod 777 *)",
-      "Bash(chmod -R 777 *)",
-      "Bash(dd *)",
-      "Bash(curl * | bash *)",
-      "Bash(curl * | sh *)",
-      "Bash(wget * | bash *)",
-      "Bash(wget * | sh *)",
-      "Bash(chezmoi destroy *)"
-    ],
     "ask": [
       "Bash(docker compose down *)",
       "Bash(docker compose restart *)",
@@ -93,46 +109,31 @@
       "Bash(chmod +x *)",
       "Bash(chezmoi apply *)",
       "Bash(sudo *)"
-    ]
-  },
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.scripts/tmux_claude_title.sh session-start"
-          },
-          {
-            "type": "command",
-            "command": "~/.scripts/herdr_agent_state.sh session",
-            "timeout": 10
-          }
-        ]
-      }
     ],
-    "SessionEnd": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "~/.scripts/tmux_claude_title.sh session-end"
-          }
-        ]
-      }
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git reset --hard *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git push origin --force *)",
+      "Bash(git push origin -f *)",
+      "Bash(git clean -f *)",
+      "Bash(git clean -fd *)",
+      "Bash(git branch -D *)",
+      "Bash(chmod 777 *)",
+      "Bash(chmod -R 777 *)",
+      "Bash(dd *)",
+      "Bash(curl * | bash *)",
+      "Bash(curl * | sh *)",
+      "Bash(wget * | bash *)",
+      "Bash(wget * | sh *)",
+      "Bash(chezmoi destroy *)"
     ]
   },
   "statusLine": {
-    "type": "command",
-    "command": "~/.scripts/claude_statusline.sh"
+    "command": "~/.scripts/claude_statusline.sh",
+    "type": "command"
   },
-  "enabledPlugins": {},
-  "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
-  "outputStyle": "Concise",
-  "tui": "fullscreen",
   "teammateMode": "auto",
-  "advisorModel": "opus"
+  "tui": "fullscreen"
 }

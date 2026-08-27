@@ -433,6 +433,29 @@ allowed-tools: Edit, Bash(npm:*)
 正当な追加でフックが落ちる場合は、スクリプト冒頭の`ALLOWED_OWNERS`／
 `ALLOWED_HOSTS`を更新する。
 
+### 共有設定のキー順の正規化
+
+外部ツールは書き戻すたびにキー順を変えるため、値が何も変わっていなくても
+「キーが入れ替わっただけ」の差分が出る。差分自体は無害だが、混ざると
+上の目視確認で本当に変わったキーが埋もれる。
+
+`.github/scripts/normalize-shared-settings.sh`が`jq --sort-keys`で
+`dot_claude/*.src`のキー順を常に同じ順序に固定する。
+
+| 実行経路 | 動作 |
+| --- | --- |
+| pre-commit（prek） | キー順を正規化して書き戻す。書き換えが起きたらコミットは中断するので、`git add`し直す |
+| GitHub Actions（`shared-settings-guard.yaml`） | `--check`で正規化済みかを検査する。書き換えはしない |
+| 手動 | `.github/scripts/normalize-shared-settings.sh`（`--check`で検査のみ） |
+
+差分を確認するときは、先に正規化してから`git diff`を見る。コミット済みの側も
+正規化されているので、残る差分は値が変わったキーだけになる。
+
+```bash
+.github/scripts/normalize-shared-settings.sh
+git diff dot_claude/
+```
+
 ## チェック内容
 
 ### shfmt

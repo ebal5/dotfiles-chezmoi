@@ -5,7 +5,6 @@
       "url": "https://mcp.context7.com/mcp"
     },
     "serena": {
-      "command": "uvx",
       "args": [
         "--from",
         "git+https://github.com/oraios/serena",
@@ -13,7 +12,8 @@
         "start-mcp-server",
         "--context",
         "ide-assistant"
-      ]
+      ],
+      "command": "uvx"
     }
   }
 }

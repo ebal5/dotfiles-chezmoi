@@ -104,6 +104,7 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
+| 共有設定（`dot_claude/*.src`）のキー順は`jq --sort-keys`で正規化する | `.github/scripts/normalize-shared-settings.sh` |
 | シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |
 
 新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。

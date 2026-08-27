@@ -7,6 +7,7 @@ on:
       - "dot_claude/settings.json.src"
       - "dot_claude/dot_mcp.json.src"
       - ".github/scripts/check-shared-settings.sh"
+      - ".github/scripts/normalize-shared-settings.sh"
 
 jobs:
   guard:
@@ -18,3 +19,7 @@ jobs:
       - uses: actions/checkout@v6
       - name: Check for machine/org specific values
         run: .github/scripts/check-shared-settings.sh
+      # キー順の正規化はローカルの pre-commit（prek）で自動的にかかる。
+      # フックを入れていない環境からのコミットでも崩れないようここで担保する
+      - name: Check key order is normalized
+        run: .github/scripts/normalize-shared-settings.sh --check
