@@ -13,9 +13,13 @@ set -uo pipefail
 # ロケール依存で、UTF-8ロケールでないと全角スペース (U+3000) に一致しない。
 # chezmoi 側は `bytes.TrimSpace`（Unicode対応）なので、固定しないと
 # 「全角スペース + パターン」の行でローカルとCIの結果が食い違う。
-# `C.UTF-8` が無い環境ではCにフォールバックしてASCIIのみになるが、
-# 見逃す方向なのでCIが最後に捕まえる
+# `C.UTF-8` が無い環境（macOS等）ではbashが警告を出しつつCにフォールバックし、
+# ASCIIのみになる。見逃す方向なのでCIが最後に捕まえる
 export LC_ALL=C.UTF-8
+
+# Go の `\s`（`[\t\n\f\r ]`）のうち行内に現れうるもの。chezmoi の commentRx が
+# コメントの開始と認める空白はこれだけで、全角スペースは含まない
+CHEZMOI_ASCII_SPACE=$' \t\f'
 
 status=0
 
@@ -247,7 +251,7 @@ CHEZMOI_SOURCE_SUFFIXES=(.tmpl .literal)
 CHEZMOI_TARGET_OK_MARKER="chezmoi-target-ok"
 
 check_chezmoi_target_paths() {
-  local file="$1" raw line lineno pattern component prefix suffix
+  local file="$1" raw line lineno pattern component prefix suffix ok_re
   local -a lines=() components=()
   mapfile -t lines <"$file"
   for lineno in "${!lines[@]}"; do
@@ -257,8 +261,12 @@ check_chezmoi_target_paths() {
     raw="${raw#$'\xef\xbb\xbf'}"
     # 誤検知を明示的に通すための逃がし。行末のコメントとして書かれた場合だけ
     # 効かせる。単なる部分一致にすると、マーカーと同じ綴りを含むパターン
-    # （`.config/chezmoi-target-ok/dot_trap`）まで黙って通してしまう
-    [[ $raw =~ (^|[[:space:]])#[[:space:]]*${CHEZMOI_TARGET_OK_MARKER}[[:space:]]*$ ]] && continue
+    # （`.config/chezmoi-target-ok/dot_trap`）まで黙って通してしまう。
+    # `#` の手前は `[[:space:]]` ではなくASCII空白に限る。`LC_ALL=C.UTF-8` 下では
+    # `[[:space:]]` が全角スペースにも一致するが、chezmoi はそれをコメントの
+    # 開始とみなさないため、逃がすとパターンが死んだ行を見逃す
+    ok_re="(^|[${CHEZMOI_ASCII_SPACE}])#[[:space:]]*${CHEZMOI_TARGET_OK_MARKER}[[:space:]]*$"
+    [[ $raw =~ $ok_re ]] && continue
 
     # 1. テンプレートアクションを外す。`.chezmoiignore` はレンダリングしてから
     #    パースされるため、`{{ if … }}pattern{{ end }}` の1行形式も有効で、

@@ -70,19 +70,21 @@ jobs:
           # 管理対象集合にしか出ないので、`chezmoi managed` を見る
           $managed = chezmoi managed --include files 2>$null
           if ($LASTEXITCODE -ne 0) {
+            # 空の集合に対して「除外されている」と報告しないこと。
+            # 読めなかったのであってアサーションは成立していない
             Write-Host "[ERROR] chezmoi managed failed with exit code $LASTEXITCODE"
             $errors++
-            $managed = @()
-          }
-          $unexpectedTargets = @(
-            "once_setup_ubuntu.sh"
-          )
-          foreach ($target in $unexpectedTargets) {
-            if ($managed -contains $target) {
-              Write-Host "[ERROR] $target is still managed on Windows (.chezmoiignore を確認すること)"
-              $errors++
-            } else {
-              Write-Host "[OK] $target is excluded from the managed set"
+          } else {
+            $unexpectedTargets = @(
+              "once_setup_ubuntu.sh"
+            )
+            foreach ($target in $unexpectedTargets) {
+              if ($managed -contains $target) {
+                Write-Host "[ERROR] $target is still managed on Windows (.chezmoiignore を確認すること)"
+                $errors++
+              } else {
+                Write-Host "[OK] $target is excluded from the managed set"
+              }
             }
           }
 
