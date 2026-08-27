@@ -4,10 +4,14 @@ name: Repo Conventions
 on:
   pull_request:
     paths:
-      - "**/*.tmpl"
+      # GitHub の filter pattern では `**` は「スラッシュを含む0文字以上の
+      # 任意の文字列」。`**/*.tmpl` はスラッシュを要求するため、ルート直下の
+      # `.tmpl`（ランチャー3本）に当たらない。`**.` の形で書く
+      - "**.tmpl"
       - "dot_config/shim-definitions"
-      - ".chezmoiignore"
-      - ".chezmoiremove"
+      # chezmoi はソースツリーのどのディレクトリの `.chezmoiignore` も読む
+      - "**.chezmoiignore"
+      - "**.chezmoiremove"
       # バージョン同期チェックの対象。linter.yaml だけを書き換えたPRでも走らせる
       - ".github/workflows/linter.yaml"
       - ".github/scripts/check-repo-conventions.sh"

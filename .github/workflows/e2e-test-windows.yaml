@@ -61,6 +61,21 @@ jobs:
             $errors++
           }
 
+          # `.chezmoiignore` のプラットフォーム別ブロックがターゲットパスで
+          # 書かれていることを実挙動で確かめる。ソース名で書くと何にも
+          # マッチせず、Linux専用ファイルがここに現れる（#217）
+          $unexpectedFiles = @(
+            "$env:USERPROFILE\once_setup_ubuntu.sh"
+          )
+          foreach ($file in $unexpectedFiles) {
+            if (Test-Path $file) {
+              Write-Host "[ERROR] $file should be excluded on Windows (.chezmoiignore を確認すること)"
+              $errors++
+            } else {
+              Write-Host "[OK] $file is excluded"
+            }
+          }
+
           Write-Host ""
           Write-Host "=== Summary ==="
           if ($errors -eq 0) {

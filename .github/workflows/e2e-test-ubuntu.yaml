@@ -67,6 +67,21 @@ jobs:
             errors=$((errors + 1))
           fi
 
+          # `.chezmoiignore` のプラットフォーム別ブロックがターゲットパスで
+          # 書かれていることを実挙動で確かめる。ソース名で書くと何にも
+          # マッチせず、Windows専用ファイルがここに現れる（#217）
+          unexpected_files=(
+            "$HOME/once_setup_windows.ps1"
+          )
+          for file in "${unexpected_files[@]}"; do
+            if [ -e "$file" ]; then
+              echo "[ERROR] $file should be excluded on Linux (.chezmoiignore を確認すること)"
+              errors=$((errors + 1))
+            else
+              echo "[OK] $file is excluded"
+            fi
+          done
+
           echo ""
           echo "=== Summary ==="
           if [ $errors -eq 0 ]; then

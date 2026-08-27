@@ -267,18 +267,27 @@ check_file() {
     return 0
   fi
 
-  case "${file#./}" in
-    */shim-definitions | shim-definitions) check_shim_definitions "$file" ;;
-    */.chezmoiignore | .chezmoiignore | */.chezmoiremove | .chezmoiremove)
+  # `.chezmoiignore.tmpl` は `*.tmpl` にも該当するため、先に判定して両方を通す。
+  # chezmoi はソースツリーのどのディレクトリにある `.chezmoiignore` も読むので
+  # ルート直下だけを見ない
+  case "$(basename -- "$file")" in
+    .chezmoiignore | .chezmoiignore.tmpl | .chezmoiremove | .chezmoiremove.tmpl)
       check_chezmoi_target_paths "$file"
       ;;
+    *) ;;
+  esac
+
+  case "${file#./}" in
+    */shim-definitions | shim-definitions) check_shim_definitions "$file" ;;
     *.tmpl) check_template_trim_marker "$file" ;;
     *) ;;
   esac
 }
 
 collect_default_targets() {
-  git ls-files -- '*.tmpl' 'dot_config/shim-definitions' '.chezmoiignore' '.chezmoiremove' 2>/dev/null ||
+  git ls-files -- '*.tmpl' 'dot_config/shim-definitions' \
+    ':(glob)**/.chezmoiignore' ':(glob)**/.chezmoiremove' \
+    '.chezmoiignore' '.chezmoiremove' 2>/dev/null ||
     find . \( -name '*.tmpl' -o -name '.chezmoiignore' -o -name '.chezmoiremove' \) -not -path './.git/*'
 }
 

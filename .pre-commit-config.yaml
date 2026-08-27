@@ -16,7 +16,7 @@ repos:
         description: chezmoiテンプレート・shim定義の機械的に判定できる規約を検査する
         entry: .github/scripts/check-repo-conventions.sh
         language: script
-        files: (\.tmpl|dot_config/shim-definitions|\.github/workflows/linter\.yaml|^\.chezmoi(ignore|remove))$
+        files: (\.tmpl|dot_config/shim-definitions|\.github/workflows/linter\.yaml|(^|/)\.chezmoi(ignore|remove))$
         pass_filenames: true
       # コミット前に必ず通る唯一の層。PostToolUseフックは編集手段に依存し
       # （Bash経由の編集では発火しない）、CIはPRを作るまで走らないため、
