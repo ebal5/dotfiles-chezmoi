@@ -48,6 +48,7 @@ jobs:
             "$HOME/.vimrc"
             "$HOME/.zshrc"
             "$HOME/.zshenv"
+            "$HOME/once_setup_ubuntu.sh"
           )
 
           errors=0
@@ -67,11 +68,12 @@ jobs:
             errors=$((errors + 1))
           fi
 
-          # `.chezmoiignore` のプラットフォーム別ブロックがターゲットパスで
-          # 書かれていることを実挙動で確かめる。ソース名で書くと何にも
-          # マッチせず、Windows専用ファイルがここに現れる（#217）
+          # Windows専用の成果物がホームに現れないことを実挙動で確かめる（#217）。
+          # Linux側は `.chezmoiignore` とテンプレートの空レンダリングの二重で
+          # 除外されているため、どちらが壊れてもここで落ちる
           unexpected_files=(
             "$HOME/once_setup_windows.ps1"
+            "$HOME/.config/powershell"
           )
           for file in "${unexpected_files[@]}"; do
             if [ -e "$file" ]; then
@@ -88,7 +90,7 @@ jobs:
             echo "All dotfiles verified successfully!"
             exit 0
           else
-            echo "$errors file(s) missing"
+            echo "$errors check(s) failed"
             exit 1
           fi
 

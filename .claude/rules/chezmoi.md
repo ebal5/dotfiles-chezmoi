@@ -24,6 +24,15 @@ description: Chezmoi設定管理ガイドライン
 - `run_`スクリプトを特定プラットフォームで動かしたくない場合、`.chezmoiignore`ではなく
   スクリプト側のテンプレート条件で囲む。chezmoiはレンダリング結果が空白のみのスクリプトを
   実行しないため、`{{ if eq .chezmoi.os "windows" }}`で囲めば他OSでは走らない
+- 通常のファイルも同じで、**レンダリング結果が空白のみならchezmoiは作らず、
+  すでにあれば削除する**（`targetstateentry.go`の`!t.empty && isEmpty(contents)`）。
+  条件分岐でファイル全体（shebangを含む）を囲めば、除外と残骸の撤去が同時に効く。
+  shebangを`{{ if }}`の外に置くとその1行だけが残り、対象外のOSにもファイルが置かれる
+- **`.chezmoiignore`は`.chezmoiremove`に優先する**。ignoreしたパスはremoveの対象からも
+  外れる（`sourcestate.go`の`s.remove.Glob`後の`s.Ignore()`スキップ）。
+  すでにホームにある残骸を撤去したいなら、ignoreに足すのではなく上の
+  「空レンダリング」を使うか、手で消す。なおソースエントリが残ったまま
+  `.chezmoiremove`に同じターゲットを書くと`inconsistent state`で失敗する
 
 ## テンプレートの注意点
 

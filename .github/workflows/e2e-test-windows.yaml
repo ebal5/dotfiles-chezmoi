@@ -42,6 +42,7 @@ jobs:
           $expectedFiles = @(
             "$env:USERPROFILE\.gitconfig"
             "$env:USERPROFILE\.vimrc"
+            "$env:USERPROFILE\once_setup_windows.ps1"
           )
 
           $errors = 0
@@ -62,8 +63,9 @@ jobs:
           }
 
           # `.chezmoiignore` のプラットフォーム別ブロックがターゲットパスで
-          # 書かれていることを実挙動で確かめる。ソース名で書くと何にも
-          # マッチせず、Linux専用ファイルがここに現れる（#217）
+          # 書かれていることを実挙動で確かめる。#217 の実害はこちら側だけで、
+          # ソース名で書かれていた間は `once_setup_ubuntu.sh` が
+          # （shebangの1行だけの中身で）ここに置かれていた
           $unexpectedFiles = @(
             "$env:USERPROFILE\once_setup_ubuntu.sh"
           )
@@ -82,7 +84,7 @@ jobs:
             Write-Host "All dotfiles verified successfully!"
             exit 0
           } else {
-            Write-Host "$errors file(s) missing"
+            Write-Host "$errors check(s) failed"
             exit 1
           }
 
