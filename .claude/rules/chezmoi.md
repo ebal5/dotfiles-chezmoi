@@ -16,6 +16,27 @@ description: Chezmoi設定管理ガイドライン
 
 - `.chezmoiignore` でホームディレクトリに適用しないファイルを指定
 - 新しいドキュメントや開発用ファイルを追加した場合は`.chezmoiignore`への追記を検討
+- **`.chezmoiignore`と`.chezmoiremove`のパターンはターゲットパス**（ホーム上での名前）で書く。
+  ソース名（`dot_`/`executable_`/`private_`/`run_`等のプレフィックスや`.tmpl`サフィックス）で
+  書くと何にもマッチせず、しかもエラーも出ないため「除外したつもり」で気づけない。
+  例: `executable_once_setup_ubuntu.sh.tmpl`ではなく`once_setup_ubuntu.sh`と書く
+  （`.github/scripts/check-repo-conventions.sh`が検出する）。
+  実在のターゲット名がたまたまプレフィックスと衝突する場合
+  （`.ssh/private_key`等）は行末に`# chezmoi-target-ok`を付けて通す
+- `run_`スクリプトを特定プラットフォームで動かしたくない場合、`.chezmoiignore`ではなく
+  スクリプト側のテンプレート条件で囲む。chezmoiはレンダリング結果が空白のみのスクリプトを
+  実行しないため、`{{ if eq .chezmoi.os "windows" }}`で囲めば他OSでは走らない
+- 通常のファイルも同じで、**レンダリング結果が空白のみならchezmoiは作らず、
+  すでにあれば削除する**（`targetstateentry.go`の`!t.empty && isEmpty(contents)`）。
+  条件分岐でファイル全体（shebangを含む）を囲めば、除外と残骸の撤去が同時に効く。
+  shebangを`{{ if }}`の外に置くとその1行だけが残り、対象外のOSにもファイルが置かれる。
+  ただし同じターゲットが`.chezmoiignore`にもあると撤去は効かない（ignoreが優先）。
+  また撤去は無条件なので、同名のユーザー作成ファイルがあっても消える
+- **`.chezmoiignore`は`.chezmoiremove`に優先する**。ignoreしたパスはremoveの対象からも
+  外れる（`sourcestate.go`の`s.remove.Glob`後の`s.Ignore()`スキップ）。
+  すでにホームにある残骸を撤去したいなら、ignoreに足すのではなく上の
+  「空レンダリング」を使うか、手で消す。なおソースエントリが残ったまま
+  `.chezmoiremove`に同じターゲットを書くと`inconsistent state`で失敗する
 
 ## テンプレートの注意点
 

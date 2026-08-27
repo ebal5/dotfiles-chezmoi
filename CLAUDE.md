@@ -86,7 +86,9 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 ## ファイル追加時の注意
 
 - 開発用ファイル（ドキュメント、設定等）を追加した場合、`.chezmoiignore`への追記が必要な場合がある
-- ホームディレクトリに展開不要なファイルは`.chezmoiignore`で除外する
+- ホームディレクトリに展開不要なファイルは`.chezmoiignore`で除外する。
+  **書くのはソース名ではなくターゲットパス**（`executable_once_setup_ubuntu.sh.tmpl`ではなく
+  `once_setup_ubuntu.sh`）。ソース名で書いても何にもマッチせず、エラーも出ない
 
 ## Claude Code固有の注意
 
@@ -114,6 +116,7 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | 先頭に条件分岐を置く`.tmpl`で、その後（空行を挟んでもよい）がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
 | `.tmpl`はchezmoiの設定ファイルが無い環境でもレンダリングできる（マシン固有のキーは`dig`等で既定値付きに読む） | 同上（configを持たない状態で`chezmoi archive`する） |
+| `.chezmoiignore`/`.chezmoiremove`はソース名ではなくターゲットパスで書く | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
 | 共有設定（`dot_claude/*.src`）のキー順は`jq --sort-keys`で正規化する | `.github/scripts/normalize-shared-settings.sh` |
@@ -129,6 +132,10 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
   シェルコードはランチャー3本の計6行だけで、その失敗モード（shebangが1行目に
   来ない）は`check-repo-conventions.sh`の規約1が検出する
 - テーブル区切り行のダッシュ長（`| ------ |`）はMD060の対象外。表示上無害なので許容する
+- **規約5は`.chezmoiignore`の書き方（ソース名かターゲットパスか）しか見ない**。
+  ターゲットパスの形をしていて実際には何にもマッチしないパターン（typoや
+  存在しないファイル）は検出できない。実挙動側はE2Eの除外アサーション
+  （`.github/workflows/e2e-test-*.yaml`）が担保する
 - **規約4のレンダリング検査が見るのは「実行しているOSでレンダリング対象になる
   テンプレートの、通過した分岐」だけ**。`.chezmoiignore`が除外するもの（Linuxで走らせた
   ときの`dot_config/powershell/`等）と、`{{ if eq .chezmoi.os "windows" }}`の中は見ない。
@@ -157,6 +164,11 @@ PostToolUseフックがそのまま効くため、テンプレート用の検査
 - **`run_once_`/`run_onchange_`のランチャーには`{{ include "<本体パス>" | sha256sum }}`を
   コメントで埋めること**。再実行はレンダリング結果のハッシュで判定されるため、
   埋めないと本体を編集しても再実行されない（実測で確認済み）
+- **shebangを含めてファイル全体を条件分岐の中に置くこと**。外に出すと対象外のOSで
+  shebangの1行だけが残って非空になり、中身のないファイルがホームに置かれる。
+  中に入れておけばレンダリング結果が空になり、chezmoiはファイルを作らず
+  既にある残骸も削除する（#217）。同じターゲットを`.chezmoiignore`にも書くと
+  撤去は効かない（ignoreが優先）
 - 素の`.sh`を`#!/bin/sh`で書く場合は先頭に`# shellcheck shell=sh`を置く。
   `.shellcheckrc`の`shell=bash`がshebangを上書きするため、付けないと
   bash前提の指摘（SC2292等）が誤って出る

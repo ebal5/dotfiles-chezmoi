@@ -42,6 +42,7 @@ jobs:
           $expectedFiles = @(
             "$env:USERPROFILE\.gitconfig"
             "$env:USERPROFILE\.vimrc"
+            "$env:USERPROFILE\once_setup_windows.ps1"
           )
 
           $errors = 0
@@ -61,13 +62,51 @@ jobs:
             $errors++
           }
 
+          # `.chezmoiignore` のプラットフォーム別ブロックがターゲットパスで
+          # 書かれていることを確かめる。ファイルの有無だけでは足りない。
+          # `executable_once_setup_ubuntu.sh.tmpl` は全体が条件分岐の中にあり
+          # Windows では空にレンダリングされるため、`.chezmoiignore` が壊れていても
+          # 実体は現れない。`.chezmoiignore` の側が実際に効いているかは
+          # 管理対象集合にしか出ないので、`chezmoi managed` を見る
+          $managed = chezmoi managed --include files 2>$null
+          if ($LASTEXITCODE -ne 0) {
+            # 空の集合に対して「除外されている」と報告しないこと。
+            # 読めなかったのであってアサーションは成立していない
+            Write-Host "[ERROR] chezmoi managed failed with exit code $LASTEXITCODE"
+            $errors++
+          } else {
+            $unexpectedTargets = @(
+              "once_setup_ubuntu.sh"
+            )
+            foreach ($target in $unexpectedTargets) {
+              if ($managed -contains $target) {
+                Write-Host "[ERROR] $target is still managed on Windows (.chezmoiignore を確認すること)"
+                $errors++
+              } else {
+                Write-Host "[OK] $target is excluded from the managed set"
+              }
+            }
+          }
+
+          $unexpectedFiles = @(
+            "$env:USERPROFILE\once_setup_ubuntu.sh"
+          )
+          foreach ($file in $unexpectedFiles) {
+            if (Test-Path $file) {
+              Write-Host "[ERROR] $file should not exist on Windows"
+              $errors++
+            } else {
+              Write-Host "[OK] $file is absent"
+            }
+          }
+
           Write-Host ""
           Write-Host "=== Summary ==="
           if ($errors -eq 0) {
             Write-Host "All dotfiles verified successfully!"
             exit 0
           } else {
-            Write-Host "$errors file(s) missing"
+            Write-Host "$errors check(s) failed"
             exit 1
           }
 

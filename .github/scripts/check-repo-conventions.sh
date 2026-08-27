@@ -9,6 +9,19 @@
 # 引数なしの場合はリポジトリ全体を検査する（CI用）。
 set -uo pipefail
 
+# パターンの前後の空白を落とす処理で bash の `[[:space:]]` を使う。これは
+# ロケール依存で、UTF-8ロケールでないと全角スペース (U+3000) に一致しない。
+# chezmoi 側は `bytes.TrimSpace`（Unicode対応）なので、固定しないと
+# 「全角スペース + パターン」の行でローカルとCIの結果が食い違う。
+# `C.UTF-8` が無い環境（macOS等）ではbashが警告を出し、環境のロケールが
+# そのまま残る。それがUTF-8なら判定は変わらず、C/POSIXならASCIIのみになる。
+# 後者は見逃す方向なのでCIが最後に捕まえる
+export LC_ALL=C.UTF-8
+
+# Go の `\s`（`[\t\n\f\r ]`）のうち行内に現れうるもの。chezmoi の commentRx が
+# コメントの開始と認める空白はこれだけで、全角スペースは含まない
+CHEZMOI_ASCII_SPACE=$' \t\f'
+
 status=0
 
 fail() {
@@ -258,6 +271,93 @@ check_templates_render_without_config() {
   rm -rf "$config_dir"
 }
 
+# 規約5: `.chezmoiignore` / `.chezmoiremove` のパターンは**ターゲットパス**
+#        （ホーム上での名前）で書く。chezmoi はソース名ではなくターゲットパスに
+#        マッチさせるため、`executable_once_setup_ubuntu.sh.tmpl` のように
+#        ソース名で書くと何にもマッチせず、除外したつもりのファイルが
+#        ホームに展開される（#217）。しかも何のエラーも出ない。
+#
+# 判定はパス要素の先頭プレフィックスと `.tmpl` サフィックスで行う。
+# `once_` / `onchange_` / `before_` / `after_` は含めない。これらは `run_` の
+# 後ろに付く修飾で、単体ではターゲットパスとして正しい
+# （`executable_once_setup_ubuntu.sh.tmpl` のターゲットは `once_setup_ubuntu.sh`）。
+#
+# 誤検知しうるターゲット名がある。`.ssh/private_key` のように、たまたま
+# プレフィックスと同じ綴りで始まる実在のファイル名や、`literal_` で
+# エスケープされたターゲット名（ソース `literal_dot_foo` のターゲットは
+# `dot_foo`）は原理的に区別がつかない。その場合は行末に
+# `# chezmoi-target-ok` を付けて明示的に通すこと。chezmoi 側はコメントとして
+# 捨てるのでパターンには影響しない。
+#
+# モデル化していない範囲: trim marker で行が連結される場合。
+# `# note {{ if true -}}` の次行は、レンダリング後には行頭 `#` のコメントに
+# 吸収されてパターンでなくなるが、この検査は行単位で見るため拾ってしまう。
+CHEZMOI_SOURCE_PREFIXES=(
+  create_ dot_ empty_ encrypted_ exact_ executable_ external_
+  literal_ modify_ private_ readonly_ remove_ run_ symlink_
+)
+# ソース名にしか現れないサフィックス（chezmoi.go の TemplateSuffix / literalSuffix）
+CHEZMOI_SOURCE_SUFFIXES=(.tmpl .literal)
+CHEZMOI_TARGET_OK_MARKER="chezmoi-target-ok"
+
+check_chezmoi_target_paths() {
+  local file="$1" raw line lineno pattern component prefix suffix ok_re
+  local -a lines=() components=()
+  mapfile -t lines <"$file"
+  for lineno in "${!lines[@]}"; do
+    raw=$(strip_cr "${lines[lineno]}")
+    lineno=$((lineno + 1))
+    # BOM を落とす。付いていると1行目だけ検査をすり抜ける
+    raw="${raw#$'\xef\xbb\xbf'}"
+    # 誤検知を明示的に通すための逃がし。行末のコメントとして書かれた場合だけ
+    # 効かせる。単なる部分一致にすると、マーカーと同じ綴りを含むパターン
+    # （`.config/chezmoi-target-ok/dot_trap`）まで黙って通してしまう。
+    # `#` の手前は `[[:space:]]` ではなくASCII空白に限る。`LC_ALL=C.UTF-8` 下では
+    # `[[:space:]]` が全角スペースにも一致するが、chezmoi はそれをコメントの
+    # 開始とみなさないため、逃がすとパターンが死んだ行を見逃す
+    ok_re="(^|[${CHEZMOI_ASCII_SPACE}])#[[:space:]]*${CHEZMOI_TARGET_OK_MARKER}[[:space:]]*$"
+    [[ $raw =~ $ok_re ]] && continue
+
+    # 1. テンプレートアクションを外す。`.chezmoiignore` はレンダリングしてから
+    #    パースされるため、`{{ if … }}pattern{{ end }}` の1行形式も有効で、
+    #    行ごと読み飛ばすとその中のパターンを見逃す。
+    #    複数行にまたがるアクションは断片が残るが、パターンとしては何にも
+    #    該当しないので誤検知にはならない
+    # 2. コメントを落とす。chezmoi は行頭または空白の後ろの `#` 以降を
+    #    コメントとして捨てる（sourcestate.go の commentRx）。ここで同じ規則で
+    #    落とさないと、`.zshrc # 旧名は dot_zshrc.tmpl` のような正しい行を
+    #    ソース名と誤判定する
+    # `LC_ALL=C` は必須。chezmoi の commentRx は Go の `\s`（ASCIIのみ）だが、
+    # sed の `[[:space:]]` はロケール依存で、CIランナーの `C.UTF-8` では
+    # 全角スペース (U+3000) にも一致する。揃えないと「全角スペース + `#`」の行で
+    # chezmoi と判定が食い違い、しかもローカルとCIでも結果が変わる
+    line=$(LC_ALL=C sed -E -e 's/\{\{[^{}]*\}\}//g' -e 's/(^|[[:space:]])#.*$//' <<<"$raw")
+    # 前後の空白を落とす（パターンの一部ではない）
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [[ -z $line ]] && continue
+
+    pattern="${line#!}"    # 否定パターンの `!`
+    pattern="${pattern%/}" # ディレクトリ指定の末尾スラッシュ
+    [[ -z $pattern ]] && continue
+
+    for suffix in "${CHEZMOI_SOURCE_SUFFIXES[@]}"; do
+      [[ $pattern == *"$suffix" ]] || continue
+      fail "$file" "$lineno" "ソース名で書かれている（\`$suffix\` はターゲットパスには現れない）。ターゲットパスで書くこと: $line"
+      continue 2
+    done
+
+    IFS='/' read -r -a components <<<"$pattern"
+    for component in "${components[@]}"; do
+      for prefix in "${CHEZMOI_SOURCE_PREFIXES[@]}"; do
+        [[ $component == "$prefix"* ]] || continue
+        fail "$file" "$lineno" "ソース名で書かれている（\`$prefix\` はchezmoiのソース名プレフィックス）。ターゲットパスで書くこと: $line"
+        break 2
+      done
+    done
+  done
+}
+
 check_file() {
   local file="$1"
   if [[ ! -f $file ]]; then
@@ -265,6 +365,16 @@ check_file() {
     fail "$file" 0 "ファイルが存在しない（またはディレクトリ）"
     return 0
   fi
+
+  # `.chezmoiignore.tmpl` は `*.tmpl` にも該当するため、先に判定して両方を通す。
+  # chezmoi はサブディレクトリの `.chezmoiignore` も読む（`.` 始まりの
+  # ディレクトリは走査対象外）ので、ルート直下だけを見ない
+  case "$(basename -- "$file")" in
+    .chezmoiignore | .chezmoiignore.tmpl | .chezmoiremove | .chezmoiremove.tmpl)
+      check_chezmoi_target_paths "$file"
+      ;;
+    *) ;;
+  esac
 
   case "$file" in
     */shim-definitions | shim-definitions) check_shim_definitions "$file" ;;
@@ -274,8 +384,9 @@ check_file() {
 }
 
 collect_default_targets() {
-  git ls-files -- '*.tmpl' 'dot_config/shim-definitions' 2>/dev/null ||
-    find . -name '*.tmpl' -not -path './.git/*'
+  git ls-files -- '*.tmpl' 'dot_config/shim-definitions' \
+    ':(glob)**/.chezmoiignore' ':(glob)**/.chezmoiremove' 2>/dev/null ||
+    find . \( -name '*.tmpl' -o -name '.chezmoiignore' -o -name '.chezmoiremove' \) -not -path './.git/*'
 }
 
 # バージョンの単一情報源はファイル単位ではなくファイル間の不変条件なので、

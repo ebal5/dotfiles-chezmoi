@@ -122,7 +122,7 @@ git checkout main  # または前のブランチに戻す
 chezmoi apply
 
 # 古い Cargo セットアップを再実行
-~/.local/share/chezmoi/executable_once_setup_ubuntu.sh
+~/once_setup_ubuntu.sh
 ```
 
 ### トラブルシューティング

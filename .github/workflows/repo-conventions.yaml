@@ -4,7 +4,10 @@ name: Repo Conventions
 on:
   pull_request:
     paths:
-      - "**/*.tmpl"
+      # GitHub の filter pattern では `**` は「スラッシュを含む0文字以上の
+      # 任意の文字列」。`**/*.tmpl` はスラッシュを要求するため、ルート直下の
+      # `.tmpl`（ランチャー3本）に当たらない。`**.` の形で書く
+      - "**.tmpl"
       # 規約4（configなしでレンダリングできる）はソース全体の不変条件。
       # レンダリング結果に影響するファイルも対象にする
       - ".chezmoiignore"
