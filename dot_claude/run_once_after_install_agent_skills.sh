@@ -1,6 +1,13 @@
-{{ if lookPath "gh" -}}
 #!/usr/bin/env bash
 set -euo pipefail
+
+# gh の有無は実行時に見る。以前は chezmoi テンプレートの `lookPath "gh"` で
+# apply 時に判定していたが、素の shell にしてリンタを効かせるため実行時判定にした。
+# 判定の時点が apply 時から実行時に移るだけで、結果は変わらない。
+if ! command -v gh >/dev/null 2>&1; then
+  echo "[warn] gh command not found; skipping agent-skills install" >&2
+  exit 0
+fi
 
 # Install user-global agent skills.
 # Bumping a PIN changes this file's content hash, so chezmoi will re-run
@@ -19,8 +26,8 @@ OWN_PIN="v1.0.0"
 # shellcheck disable=SC2312
 mapfile -t OWN_SKILLS < <(
   gh api "repos/${OWN_REPO}/contents/install-sets/common.txt?ref=${OWN_PIN}" \
-    --jq '.content' | base64 -d \
-    | awk '/^[[:space:]]*#/ || /^[[:space:]]*$/ {next} {print $1}'
+    --jq '.content' | base64 -d |
+    awk '/^[[:space:]]*#/ || /^[[:space:]]*$/ {next} {print $1}'
 )
 
 # mapfile runs in a process substitution, so a failed fetch yields an empty
@@ -95,7 +102,3 @@ for manifest in "${SKILLS_DIR}"/*/SKILL.md; do
     rm -rf "${dir:?}"
   fi
 done
-{{ else -}}
-#!/usr/bin/env bash
-echo "[warn] gh command not found; skipping agent-skills install" >&2
-{{ end -}}

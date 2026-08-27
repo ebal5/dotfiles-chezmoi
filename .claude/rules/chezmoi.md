@@ -26,7 +26,8 @@ description: Chezmoi設定管理ガイドライン
 ## shim管理（uvx/pnpm ラッパースクリプト）
 
 - 定義ファイル: `dot_config/shim-definitions`（形式: `runner:package[:alias]`）
-- `chezmoi apply`時に`run_after_generate_shims.sh.tmpl`が`~/.scripts/`にshimを自動生成
+- `chezmoi apply`時に`run_after_generate_shims.sh.tmpl`（本体は`scripts/generate-shims.sh`）が
+  `~/.scripts/`にshimを自動生成
 - 新しいuvx/pnpmツールを追加する場合は定義ファイルに1行追加するだけでよい
 - `pnpm`ランナーは生成時に`pnpm dlx`にマッピングされる
 - `@version`付きパッケージはalias必須（例: `uvx:tool@1.2.3:toolname`）。

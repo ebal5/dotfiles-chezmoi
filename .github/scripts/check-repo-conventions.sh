@@ -50,9 +50,16 @@ check_template_trim_marker() {
   # 閉じていない、または閉じた行の後ろに続きがある場合は対象外
   [[ -n $action_end ]] || return 0
 
-  # アクション直後の行が shebang でなければ、行がずれても実害はない
-  local next_line
-  next_line=$(strip_cr "${lines[action_end + 1]-}")
+  # アクションの後ろにある空行を読み飛ばして shebang を探す。
+  # 直後の行だけを見ると `{{ if }}` / 空行 / shebang の並びを取りこぼす
+  # （空行はレンダリング結果に残るので、shebangは1行目に来ない）。
+  local next_line i2=$((action_end + 1))
+  while :; do
+    next_line=$(strip_cr "${lines[i2]-}")
+    [[ -n ${next_line//[[:space:]]/} ]] && break
+    [[ $i2 -ge ${#lines[@]} ]] && return 0
+    i2=$((i2 + 1))
+  done
   [[ $next_line == '#!'* ]] || return 0
 
   line=$(strip_cr "${lines[action_end]}")

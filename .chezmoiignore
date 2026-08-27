@@ -17,6 +17,10 @@ docs/
 # Extra snippets - chezmoi管轄外のスニペット置き場（必要時に手動で利用）
 extras/
 
+# Script bodies - `.tmpl` ランチャーが exec する本体スクリプト。
+# ホームへ展開せず、ソースディレクトリに置いたまま実行する
+scripts/
+
 # Development and maintenance files - 開発・メンテナンス用ファイル
 .gitignore
 .github/

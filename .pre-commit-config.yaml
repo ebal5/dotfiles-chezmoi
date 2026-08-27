@@ -18,19 +18,13 @@ repos:
         language: script
         files: (\.tmpl|dot_config/shim-definitions|\.github/workflows/linter\.yaml)$
         pass_filenames: true
-      - id: tmpl-shell
-        name: tmpl shell
-        description: chezmoiテンプレートのシェルコードをshellcheckにかける
-        entry: .github/scripts/check-tmpl-shell.sh
-        language: script
-        files: \.sh\.tmpl$
-        pass_filenames: true
       # コミット前に必ず通る唯一の層。PostToolUseフックは編集手段に依存し
       # （Bash経由の編集では発火しない）、CIはPRを作るまで走らないため、
       # shell/markdown のlintはここで担保する。
       # 除外: `.tmpl` はGoテンプレート構文、`extras/.../prompt.sh` はzsh専用構文
       # （`function a b c { }`）で、いずれも shfmt/shellcheck がパースできない。
-      # `.sh.tmpl` のshellcheckは上の tmpl-shell フックが担当する（shfmtは対象外）
+      # `.tmpl` に残るのは分岐だけのランチャーで、シェルコードは `scripts/` 配下の
+      # 素の `.sh` にあるため、このフックがそのまま担保する
       - id: shfmt
         name: shfmt
         description: シェルスクリプトを2スペースインデントで整形する

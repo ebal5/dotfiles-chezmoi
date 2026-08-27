@@ -66,9 +66,6 @@ shfmt -i 2 -ci -w .
 # シェルスクリプトの静的解析
 shellcheck $(shfmt -f .)
 
-# chezmoiテンプレート（`.sh.tmpl`）内のシェルコードの静的解析
-.github/scripts/check-tmpl-shell.sh
-
 # Markdownのリント（`.`はトップレベルしか見ないためグロブで指定する）
 markdownlint-cli2 "**/*.md"
 ```
@@ -93,8 +90,7 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
   lintの指摘をstderrに出して`exit 2`で返すのが正しい終わり方
 - `Write`/`Edit`後は`.claude/hooks/lint-edited-file.sh`がPostToolUseフックとして
   ファイル種別ごとにlintを実行する（`.sh`→shfmt+shellcheck、`.md`→markdownlint-cli2、
-  `.sh.tmpl`→check-tmpl-shell.sh、それ以外の`.tmpl`はスキップ）。
-  編集のたびに手でlintを流す必要はない
+  `.tmpl`はスキップ）。編集のたびに手でlintを流す必要はない
 
 ## 静的検査で担保している規約
 
@@ -104,31 +100,49 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | 規約 | 実装 |
 | --- | --- |
 | テーブルはcompact style（最小パディング）。CJK文字幅でaligned styleが崩れるため | markdownlint MD060（`style: compact`） |
-| 先頭に条件分岐を置く`.tmpl`で、その直後がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
+| 先頭に条件分岐を置く`.tmpl`で、その後（空行を挟んでもよい）がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
 | シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |
-| `.sh.tmpl`のシェルコードの品質。shebang前の行アクションにtrim marker必須 | `.github/scripts/check-tmpl-shell.sh`（テンプレートアクションを無害化した一時ファイルをshellcheckにかける） |
 
 新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。
 
-`.sh.tmpl`のシェルコードは`check-tmpl-shell.sh`が担保する。テンプレートアクションを
-無害化した一時ファイル（行数を保存するため、行全体のアクションは空行、インラインは
-リテラルトークンに置換）を作り、shebangから判定したシェル種別で`shellcheck`にかける。
-`chezmoi execute-template`でのレンダリング方式と実測で比較して選んだ経緯と根拠は
-スクリプト冒頭のコメントに書いてある。
-
 検査されない範囲も把握しておくこと:
 
-- **`.sh.tmpl`にshfmtはかからない**。整形結果を一時ファイルから元の`.tmpl`へ書き戻す
-  経路が存在しないため。実装の都合ではなく原理的な制約なので、`.tmpl`のインデントは
-  手で揃える
-- **`{{ else }}`を持つ`.tmpl`は両方の枝が連結された状態で検査される**。片方の枝で
-  定義した変数をもう片方で使っていても素通りする
-- **複数行にまたがるテンプレートアクション**は`check-tmpl-shell.sh`が扱えず、
-  検査せずエラーにする。アクションは1行に収めること
+- **`.tmpl`のシェルコードは検査されない**。Goテンプレート構文をshfmt/shellcheckが
+  パースできないため。これを避けるために、`.tmpl`には分岐だけを置いて
+  シェルコードは`scripts/`配下の素の`.sh`に出す（次節）。現状`.tmpl`に残っている
+  シェルコードはランチャー3本の計6行だけで、その失敗モード（shebangが1行目に
+  来ない）は`check-repo-conventions.sh`の規約1が検出する
 - テーブル区切り行のダッシュ長（`| ------ |`）はMD060の対象外。表示上無害なので許容する
+
+## `.tmpl`ランチャーと本体スクリプトの分離
+
+シェルコードを持つ`.tmpl`は、条件分岐だけを残したランチャーにして、本体を
+`scripts/`配下の素の`.sh`に置く。素の`.sh`になれば既存のshfmt/shellcheck/prek/CI/
+PostToolUseフックがそのまま効くため、テンプレート用の検査機構を別に作らずに済む。
+
+| ランチャー | 本体 | 備考 |
+| --- | --- | --- |
+| `run_after_generate_shims.sh.tmpl` | `scripts/generate-shims.sh` | 毎回走るのでハッシュ不要 |
+| `run_onchange_after_install_herdr_plugins.sh.tmpl` | `scripts/install-herdr-plugins.sh` | 本体と定義ファイルの両方のハッシュを埋める |
+| `executable_once_setup_ubuntu.sh.tmpl` | `scripts/setup-ubuntu.sh` | 手動実行される展開物。再実行判定がないのでハッシュ不要 |
+
+守ること:
+
+- `scripts/`は`.chezmoiignore`でホームへ展開しない。ランチャーが
+  `{{ .chezmoi.sourceDir }}`経由で`exec`する
+- **`run_once_`/`run_onchange_`のランチャーには`{{ include "<本体パス>" | sha256sum }}`を
+  コメントで埋めること**。再実行はレンダリング結果のハッシュで判定されるため、
+  埋めないと本体を編集しても再実行されない（実測で確認済み）
+- 素の`.sh`を`#!/bin/sh`で書く場合は先頭に`# shellcheck shell=sh`を置く。
+  `.shellcheckrc`の`shell=bash`がshebangを上書きするため、付けないと
+  bash前提の指摘（SC2292等）が誤って出る
+- テンプレート側の条件式は現状の短絡評価を壊さないこと。
+  `executable_once_setup_ubuntu.sh.tmpl`の`REQUIRE_GUI`は
+  `and`の短絡で`.chezmoi.requireGUI`に触れずに済ませている。無条件に評価する形へ
+  変えると、このキーを設定していないマシンでレンダリングが失敗する
 
 ## 詳細ガイドライン
 

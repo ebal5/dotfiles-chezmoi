@@ -69,26 +69,26 @@ shellcheckが検出するため、ここには書かない。
 ## `.tmpl`ファイルの扱い
 
 Chezmoiテンプレート（`.tmpl`）はGoテンプレート構文 `{{ }}` を含むため、
-shfmtとshellcheckを直接かけることはできない。
-`.sh.tmpl`については`.github/scripts/check-tmpl-shell.sh`が
-テンプレートアクションを無害化した一時ファイルを作り、shellcheckにかける。
-行数を保存するので、報告される行番号は元の`.tmpl`の行番号と一致する。
+shfmtとshellcheckがパースできない。したがって**`.tmpl`にシェルコードを置かない**。
 
-制限:
+条件分岐だけを`.tmpl`のランチャーに残し、本体は`scripts/`配下の素の`.sh`に置く。
+素の`.sh`は既存のゲート（shfmt / shellcheck / prek / CI / PostToolUseフック）が
+そのまま担保する。詳細は[CLAUDE.md](../../CLAUDE.md)の
+「`.tmpl`ランチャーと本体スクリプトの分離」を参照。
 
-- **shfmtは対象外**。整形結果を一時ファイルから元の`.tmpl`へ書き戻す経路が
-  ないため。インデント（2スペース）は手で揃えること
-- `{{ else }}`を持つファイルは両方の枝が連結された状態で検査される
-- テンプレートアクションは1行に収めること。複数行にまたがる形は検査できない
-- shebangより前に置ける行アクションはtrim marker付き（`{{ ... -}}`）のみ。
-  markerが無いとレンダリング後にshebangが1行目に来ない
+ランチャーを書くときの注意:
 
-`.sh.tmpl`以外の`.tmpl`（`.ps1.tmpl`、`.json.tmpl`等）は対象外。
+- 先頭に条件分岐を置き、その後にshebangが続くならtrim marker（`-}}`）が必須。
+  空行を挟んでも同じ（`check-repo-conventions.sh`が検出する）
+- `run_once_`/`run_onchange_`のランチャーには
+  `{{ include "<本体パス>" | sha256sum }}`をコメントで埋める。
+  埋めないと本体を編集しても再実行されない
+- `#!/bin/sh`で書く本体には先頭に`# shellcheck shell=sh`を置く
 
 ## 編集後のlint実行
 
 PostToolUseフック（`.claude/hooks/lint-edited-file.sh`）が編集後に
 shfmtでフォーマットし、shellcheckの指摘があれば返すため、手動実行は不要。
-`.sh.tmpl`は上記のチェッカー経由でshellcheckのみ実行する。
+`.tmpl`はスキップされる（シェルコードを置かないため問題にならない）。
 
 全ファイルに対して実行する場合は `/lint:all` コマンドを使用。
