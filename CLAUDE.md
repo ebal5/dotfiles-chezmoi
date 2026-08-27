@@ -39,6 +39,12 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 - **winget**（Windows）: Nix CLIツールのWindows対応版 + Windows専用アプリ
 - **uvx/pnpm shim**（`dot_config/shim-definitions`）: `chezmoi apply`時に`~/.scripts/`へラッパースクリプトを自動生成。新ツール追加は定義ファイルに1行追加するだけ
 - 判定基準: CLIツール→Nix、ビルド依存→APT、PJごとのバージョン固定が必要→mise、root権限必要→APT、Pythonツール(ruff等)→uvx shim、JSツール(markdownlint-cli2等)→pnpm shim
+- markdownlint-cli2 だけはバージョンを固定する（現在 `0.23.2`）。`.markdownlint-cli2.yaml`で
+  MD060の`style`を明示しており、ルールの挙動がバージョンに依存するため、CIとローカルで
+  版が食い違うと「ローカルで通ったのにCIで落ちる」が起きる。
+  **固定箇所は`dot_config/shim-definitions`の1行だけ**。CI（`.github/workflows/linter.yaml`）は
+  そこからバージョンを抽出して`npm install -g`する。更新時に直すのはこの1箇所で、
+  乖離を検出する仕組みではなく乖離が起こりえない形にしてある
 - Nixはグローバルに1バージョンしか置けないため、PJごとに異なるバージョンを使い分けるツール（terraform等）はNixではなくmiseで管理する。
   ただしグローバルの`~/.config/mise/config.toml`ではなく、各プロジェクトの`mise.toml`に書く
 

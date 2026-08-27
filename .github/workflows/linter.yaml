@@ -59,7 +59,18 @@ jobs:
         with:
           node-version: "22"
       - name: Install markdownlint-cli2
-        run: npm install -g markdownlint-cli2
+        # バージョンは dot_config/shim-definitions を単一情報源として抽出する。
+        # ここにハードコードするとローカルの pnpm shim と黙って乖離するため。
+        # この形を保っているかは .github/scripts/check-repo-conventions.sh が検査する
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^pnpm:markdownlint-cli2@\(.*\):markdownlint-cli2$/\1/p' dot_config/shim-definitions)
+          if [ -z "$version" ]; then
+            echo "::error::dot_config/shim-definitions から markdownlint-cli2 のバージョンを抽出できなかった。定義の形式を確認すること。"
+            exit 1
+          fi
+          echo "markdownlint-cli2@${version} をインストールする"
+          npm install -g "markdownlint-cli2@${version}"
       - name: Run markdownlint-cli2 with reviewdog
         uses: reviewdog/action-setup@v1
       - name: markdownlint

@@ -33,7 +33,10 @@ Markdownlintルールに準拠したドキュメント作成を推奨:
   aligned styleが文字幅の違いで破綻するため。`.markdownlint-cli2.yaml`で
   `style: compact`を明示している（既定の`consistent`はファイル内で揃っていれば
   aligned styleも通してしまう）。区切り行のダッシュ長（`| ------ |`）はMD060の
-  対象外で誰も検出しないが、表示上は無害なので許容する
+  対象外で誰も検出しないが、表示上は無害なので許容する。
+  MD060の挙動がバージョン依存になるため、markdownlint-cli2はバージョンを固定している。
+  固定箇所は`dot_config/shim-definitions`の1行だけで、CIもそこから抽出して使う
+  （[CLAUDE.md](../../CLAUDE.md)の「ツール管理方針」を参照）
 
   compact styleの例:
 

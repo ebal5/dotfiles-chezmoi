@@ -14,7 +14,7 @@ uvx:mypy
 uvx:ty
 
 # JS/TS tools (pnpm dlx)
-pnpm:markdownlint-cli2
+pnpm:markdownlint-cli2@0.23.2:markdownlint-cli2
 pnpm:ccmanager
 pnpm:ccusage
 pnpm:@biomejs/biome:biome
