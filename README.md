@@ -435,18 +435,34 @@ allowed-tools: Edit, Bash(npm:*)
 
 ### 共有設定のキー順の正規化
 
-外部ツールは書き戻すたびにキー順を変えるため、値が何も変わっていなくても
-「キーが入れ替わっただけ」の差分が出る。差分自体は無害だが、混ざると
-上の目視確認で本当に変わったキーが埋もれる。
+外部ツールが書き戻す際にキー順が変わることがあり、値が何も変わっていなくても
+「キーが入れ替わっただけ」の差分が出る（実際に起きたのは1回だが、その1回で
+4行の差分が出た）。差分自体は無害だが、混ざると上の目視確認で本当に変わった
+キーが埋もれる。
 
 `.github/scripts/normalize-shared-settings.sh`が`jq --sort-keys`で
 `dot_claude/*.src`のキー順を常に同じ順序に固定する。
 
+```bash
+# 正規化して書き戻す
+.github/scripts/normalize-shared-settings.sh
+# 正規化済みかを検査する（書き換えない）
+.github/scripts/normalize-shared-settings.sh --check
+```
+
+正規化そのものは手で走らせる。pre-commitとCIはどちらも`--check`で、
+崩れたままコミットされるのを止めるだけ。
+
 | 実行経路 | 動作 |
 | --- | --- |
-| pre-commit（prek） | キー順を正規化して書き戻す。書き換えが起きたらコミットは中断するので、`git add`し直す |
-| GitHub Actions（`shared-settings-guard.yaml`） | `--check`で正規化済みかを検査する。書き換えはしない |
-| 手動 | `.github/scripts/normalize-shared-settings.sh`（`--check`で検査のみ） |
+| 手動 | キー順を正規化して書き戻す |
+| pre-commit（prek） | `--check`。崩れていたらコミットを中断する |
+| GitHub Actions（`shared-settings-guard.yaml`） | `--check`。同じ検査をCIでも走らせる |
+
+pre-commitフックをあえて書き換えない形にしてあるのは、ステージ済みと未ステージの
+変更が同じファイルに同居している状態（`git add`のあとにClaude Codeが書き戻すと
+簡単に起きる）でprekがstashと衝突し、自分の修正をロールバックしてしまうため。
+コミットは中断するのに`git add`するものが無い、という抜けられない状態になる。
 
 差分を確認するときは、先に正規化してから`git diff`を見る。コミット済みの側も
 正規化されているので、残る差分は値が変わったキーだけになる。
@@ -455,6 +471,12 @@ allowed-tools: Edit, Bash(npm:*)
 .github/scripts/normalize-shared-settings.sh
 git diff dot_claude/
 ```
+
+副次的な効果として、`check-shared-settings.sh`の抜け穴が1つ塞がる。
+同スクリプトは行単位の文字列照合なので、`\u002f`のようなJSONエスケープで
+書かれたパスやホスト名を素通りさせるが、jqは出力時にエスケープを解くため、
+正規化を通すと検出できるようになる（エスケープされたままのファイルは
+`--check`が先に落とす）。
 
 ## チェック内容
 

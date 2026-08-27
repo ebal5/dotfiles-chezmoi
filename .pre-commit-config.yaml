@@ -4,11 +4,15 @@
 repos:
   - repo: local
     hooks:
-      # guard より先に走らせ、正規化済みの内容を検査させる
-      - id: shared-settings-normalize
-        name: shared settings normalize
-        description: 共有設定のキー順をjqで正規化し、意味のない差分を消す
-        entry: .github/scripts/normalize-shared-settings.sh
+      # 検査だけで、ここではファイルを書き換えない。
+      # 書き換えるフックにすると、ステージ済みと未ステージの変更が同じファイルに
+      # 同居している状態（`git add` 後に Claude Code が書き戻すと簡単に起きる）で
+      # prek が stash と衝突して自分の修正をロールバックし、
+      # 「直したと言うが直っていない」コミットの無限ループになる
+      - id: shared-settings-normalize-check
+        name: shared settings normalize check
+        description: 共有設定のキー順が正規化されているかを検査する
+        entry: .github/scripts/normalize-shared-settings.sh --check
         language: script
         files: ^dot_claude/(settings\.json\.src|dot_mcp\.json\.src)$
         pass_filenames: true
