@@ -219,34 +219,51 @@ check_markdownlint_version_source() {
 # `once_` / `onchange_` / `before_` / `after_` は含めない。これらは `run_` の
 # 後ろに付く修飾で、単体ではターゲットパスとして正しい
 # （`executable_once_setup_ubuntu.sh.tmpl` のターゲットは `once_setup_ubuntu.sh`）。
+#
+# `literal_` でエスケープされたターゲット名（ソース `literal_dot_foo` の
+# ターゲットは `dot_foo`）だけは正しく書いても引っかかる。原理的に区別が
+# つかないので、そのときはこの検査の方を直すこと。現状そんなファイルは無い。
 CHEZMOI_SOURCE_PREFIXES=(
   create_ dot_ empty_ encrypted_ exact_ executable_ external_
   literal_ modify_ private_ readonly_ remove_ run_ symlink_
 )
-CHEZMOI_TEMPLATE_SUFFIX=".tmpl"
+# ソース名にしか現れないサフィックス（chezmoi.go の TemplateSuffix / literalSuffix）
+CHEZMOI_SOURCE_SUFFIXES=(.tmpl .literal)
 
 check_chezmoi_target_paths() {
-  local file="$1" line lineno pattern component prefix
+  local file="$1" raw line lineno pattern component prefix suffix
   local -a lines=() components=()
   mapfile -t lines <"$file"
   for lineno in "${!lines[@]}"; do
-    line=$(strip_cr "${lines[lineno]}")
+    raw=$(strip_cr "${lines[lineno]}")
     lineno=$((lineno + 1))
+    # BOM を落とす。付いていると1行目だけ検査をすり抜ける
+    raw="${raw#$'\xef\xbb\xbf'}"
+
+    # 1. テンプレートアクションを外す。`.chezmoiignore` はレンダリングしてから
+    #    パースされるため、`{{ if … }}pattern{{ end }}` の1行形式も有効で、
+    #    行ごと読み飛ばすとその中のパターンを見逃す。
+    #    複数行にまたがるアクションは断片が残るが、パターンとしては何にも
+    #    該当しないので誤検知にはならない
+    # 2. コメントを落とす。chezmoi は行頭または空白の後ろの `#` 以降を
+    #    コメントとして捨てる（sourcestate.go の commentRx）。ここで同じ規則で
+    #    落とさないと、`.zshrc # 旧名は dot_zshrc.tmpl` のような正しい行を
+    #    ソース名と誤判定する
+    line=$(sed -E -e 's/\{\{[^{}]*\}\}//g' -e 's/(^|[[:space:]])#.*$//' <<<"$raw")
     # 前後の空白を落とす（パターンの一部ではない）
     line="${line#"${line%%[![:space:]]*}"}"
     line="${line%"${line##*[![:space:]]}"}"
-    [[ -z $line || $line == \#* ]] && continue
-    # Goテンプレートの分岐行はパターンではない
-    [[ $line == '{{'* ]] && continue
+    [[ -z $line ]] && continue
 
     pattern="${line#!}"    # 否定パターンの `!`
     pattern="${pattern%/}" # ディレクトリ指定の末尾スラッシュ
     [[ -z $pattern ]] && continue
 
-    if [[ $pattern == *"$CHEZMOI_TEMPLATE_SUFFIX" ]]; then
-      fail "$file" "$lineno" "ソース名で書かれている（\`$CHEZMOI_TEMPLATE_SUFFIX\` はターゲットパスには現れない）。ターゲットパスで書くこと: $line"
-      continue
-    fi
+    for suffix in "${CHEZMOI_SOURCE_SUFFIXES[@]}"; do
+      [[ $pattern == *"$suffix" ]] || continue
+      fail "$file" "$lineno" "ソース名で書かれている（\`$suffix\` はターゲットパスには現れない）。ターゲットパスで書くこと: $line"
+      continue 2
+    done
 
     IFS='/' read -r -a components <<<"$pattern"
     for component in "${components[@]}"; do

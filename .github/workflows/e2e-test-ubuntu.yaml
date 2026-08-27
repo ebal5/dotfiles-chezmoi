@@ -68,19 +68,35 @@ jobs:
             errors=$((errors + 1))
           fi
 
-          # Windows専用の成果物がホームに現れないことを実挙動で確かめる（#217）。
-          # Linux側は `.chezmoiignore` とテンプレートの空レンダリングの二重で
-          # 除外されているため、どちらが壊れてもここで落ちる
+          # Windows専用の成果物がホームに現れないことを確かめる。
+          # ただしファイルの有無だけでは #217 を再現できない。Linux では
+          # Windows専用テンプレートが空にレンダリングされ、chezmoi は空の
+          # ファイルを作らないため、`.chezmoiignore` が壊れていても実体は
+          # 現れなかった。実際に退行するのは管理対象集合の方なので、
+          # `chezmoi managed` の出力を見る
+          unexpected_targets=(
+            "once_setup_windows.ps1"
+          )
+          managed=$("$HOME/.local/bin/chezmoi" managed --include files)
+          for target in "${unexpected_targets[@]}"; do
+            if printf '%s\n' "$managed" | grep -qxF "$target"; then
+              echo "[ERROR] $target is still managed on Linux (.chezmoiignore を確認すること)"
+              errors=$((errors + 1))
+            else
+              echo "[OK] $target is excluded from the managed set"
+            fi
+          done
+
           unexpected_files=(
             "$HOME/once_setup_windows.ps1"
             "$HOME/.config/powershell"
           )
           for file in "${unexpected_files[@]}"; do
             if [ -e "$file" ]; then
-              echo "[ERROR] $file should be excluded on Linux (.chezmoiignore を確認すること)"
+              echo "[ERROR] $file should not exist on Linux"
               errors=$((errors + 1))
             else
-              echo "[OK] $file is excluded"
+              echo "[OK] $file is absent"
             fi
           done
 
