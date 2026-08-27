@@ -1,2 +1,5 @@
 # Minimum package release age before installation (minutes). 4320 = 3 days (supply chain attack mitigation)
+# NOTE: this is a pnpm setting. npm reads this file too but ignores the key
+# ("Unknown user config"), so CI's `npm install -g` is NOT covered by it.
+# .github/workflows/markdownlint-version-update.yaml checks publish age itself.
 minimum-release-age=4320

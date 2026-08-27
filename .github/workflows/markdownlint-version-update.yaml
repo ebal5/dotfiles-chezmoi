@@ -1,0 +1,204 @@
+---
+name: markdownlint-cli2 update
+
+on:
+  schedule:
+    - cron: "0 3 * * 4" # 毎週木曜 03:00 UTC (JST 12:00)。flake.lock 更新(月 09:00 UTC)と分ける
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: markdownlint-version-update
+  cancel-in-progress: false
+
+env:
+  # バージョンの単一情報源。CI の lint も `.github/workflows/linter.yaml` が
+  # ここから抽出して使うため、更新するのはこのファイルの1行だけでよい
+  SHIM_DEFS: dot_config/shim-definitions
+  BRANCH: chore/markdownlint-cli2-update
+  # リリース直後のバージョンには飛びつかない。`dot_npmrc` の
+  # `minimum-release-age=4320`（分。3日）と同じ趣旨の設定が別に存在するが、
+  # あちらは pnpm 専用で `npm install -g` には効かない（npm は Unknown user
+  # config として無視する）。単位も違うので一元化はせず、二重に持つ
+  MIN_RELEASE_AGE_DAYS: "3"
+
+jobs:
+  update:
+    name: Check for new markdownlint-cli2 and verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+
+      - name: Resolve target version
+        id: resolve
+        run: |
+          set -euo pipefail
+
+          CURRENT=$(sed -n 's/^pnpm:markdownlint-cli2@\([^:]*\):.*$/\1/p' "$SHIM_DEFS")
+          # 後段で正規表現に埋め込むため、ここで形を確定させておく
+          if ! printf '%s' "$CURRENT" | grep -qE '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::$SHIM_DEFS から現在のバージョンを読み取れなかった（取得値: '${CURRENT}'）。定義の形式が変わった可能性がある。"
+            exit 1
+          fi
+
+          # 公開から MIN_RELEASE_AGE_DAYS 日以上経った安定版だけを候補にする
+          CUTOFF=$(date -u -d "${MIN_RELEASE_AGE_DAYS} days ago" +%Y-%m-%dT%H:%M:%S.000Z)
+          TARGET=$(npm view markdownlint-cli2 time --json | jq -r --arg cutoff "$CUTOFF" '
+            to_entries
+            | map(select(.key | test("^[0-9]+\\.[0-9]+\\.[0-9]+$")))
+            | map(select(.value <= $cutoff))
+            | .[].key
+          ' | sort -V | tail -1)
+
+          if [ -z "$TARGET" ]; then
+            echo "::error::候補バージョンを1つも取得できなかった。npm registry の応答を確認すること。"
+            exit 1
+          fi
+
+          echo "current=$CURRENT / target=$TARGET (cutoff=$CUTOFF)"
+
+          NEWEST=$(printf '%s\n%s\n' "$CURRENT" "$TARGET" | sort -V | tail -1)
+          if [ "$TARGET" = "$CURRENT" ] || [ "$NEWEST" != "$TARGET" ]; then
+            echo "更新なし（固定中の $CURRENT が候補 $TARGET 以上）"
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          {
+            echo "changed=true"
+            echo "current=$CURRENT"
+            echo "target=$TARGET"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Bump the pinned version
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          CURRENT: ${{ steps.resolve.outputs.current }}
+          TARGET: ${{ steps.resolve.outputs.target }}
+        run: |
+          set -euo pipefail
+
+          # `.` をエスケープする。素で置くと `0.23.2` が `0x23y2` のような
+          # 文字列にもマッチする。CURRENT は resolve ステップで
+          # `<数字>.<数字>.<数字>` に限定済みなので、対象は `.` だけでよい
+          CURRENT_RE=${CURRENT//./\\.}
+          sed -i "s|^pnpm:markdownlint-cli2@${CURRENT_RE}:|pnpm:markdownlint-cli2@${TARGET}:|" "$SHIM_DEFS"
+
+          if git diff --quiet -- "$SHIM_DEFS"; then
+            echo "::error::$SHIM_DEFS を書き換えられなかった。定義の記述形式が変わった可能性がある。"
+            exit 1
+          fi
+
+          # 単一情報源の形が保たれていることを既存のチェッカーで確認する
+          .github/scripts/check-repo-conventions.sh
+
+      - name: Commit to update branch
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          TARGET: ${{ steps.resolve.outputs.target }}
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$SHIM_DEFS"
+          git commit -m "chore(lint): markdownlint-cli2 を ${TARGET} に更新"
+
+      # この仕組みの中核。新バージョンで既存の .md が全部通るかを実際に確かめる。
+      # GITHUB_TOKEN が作成した PR では workflow がトリガーされないため、
+      # 検証はこのワークフロー内で実施し結果を PR 本文に残す
+      - name: Verify all Markdown passes with the new version
+        id: verify
+        if: steps.resolve.outputs.changed == 'true'
+        continue-on-error: true
+        env:
+          TARGET: ${{ steps.resolve.outputs.target }}
+        run: |
+          set -euo pipefail
+          npm install -g "markdownlint-cli2@${TARGET}"
+          markdownlint-cli2 "**/*.md" 2>&1 | tee /tmp/markdownlint-output.txt
+
+      - name: Create or update pull request
+        if: steps.resolve.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CURRENT: ${{ steps.resolve.outputs.current }}
+          TARGET: ${{ steps.resolve.outputs.target }}
+          VERIFY_OUTCOME: ${{ steps.verify.outcome }}
+          RUN_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        run: |
+          set -euo pipefail
+
+          # 追跡ブランチが無い状態で --force-with-lease を使うと fatal になるため、
+          # リモートに既存ブランチがある場合のみ lease を付ける
+          if git fetch origin "+refs/heads/${BRANCH}:refs/remotes/origin/${BRANCH}"; then
+            git push origin "$BRANCH" --force-with-lease
+          else
+            git push origin "$BRANCH"
+          fi
+
+          if [ "$VERIFY_OUTCOME" = "success" ]; then
+            VERIFY_LINE="✅ 全 Markdown が \`markdownlint-cli2@${TARGET}\` で通った"
+          else
+            VERIFY_LINE="❌ \`markdownlint-cli2@${TARGET}\` で指摘が出た — **マージしないこと**"
+          fi
+
+          {
+            echo "## markdownlint-cli2 週次更新"
+            echo
+            echo "- \`${CURRENT}\` → \`${TARGET}\`（公開から ${MIN_RELEASE_AGE_DAYS} 日以上経過した安定版のみ候補）"
+            echo "- 検証: ${VERIFY_LINE}"
+            echo "- 実行ログ: ${RUN_URL}"
+            echo
+            echo "### 更新箇所"
+            echo
+            echo "- \`${SHIM_DEFS}\` の1行のみ。CI の lint もここから抽出して使う"
+            echo
+            echo "### lint 結果"
+            echo
+            echo '```'
+            cat /tmp/markdownlint-output.txt 2>/dev/null || echo "(検証ステップが出力を残さなかった)"
+            echo '```'
+            echo
+            echo "### 補足"
+            echo
+            echo "\`GITHUB_TOKEN\` で作成した PR では CI が自動で走らないことがある。"
+            echo "lint の検証は上記の実行ログ内で実施済み。"
+            echo
+            echo "### ローカルでの確認手順"
+            echo
+            echo '```bash'
+            echo "git fetch origin ${BRANCH} && git switch ${BRANCH}"
+            echo "chezmoi apply ~/.config/shim-definitions ~/.scripts"
+            echo "markdownlint-cli2 \"**/*.md\""
+            echo '```'
+          } > /tmp/pr-body.md
+
+          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // ""')
+
+          if [ -n "$EXISTING" ]; then
+            gh pr edit "$EXISTING" --body-file /tmp/pr-body.md
+            gh pr comment "$EXISTING" --body "markdownlint-cli2 を \`${TARGET}\` に更新し直した（検証: ${VERIFY_OUTCOME}）。"
+          else
+            gh pr create \
+              --base main \
+              --head "$BRANCH" \
+              --title "chore(lint): markdownlint-cli2 を ${TARGET} に更新" \
+              --body-file /tmp/pr-body.md \
+              --label "dependencies" \
+              --label "automated"
+          fi
+
+      - name: Fail if lint verification failed
+        if: steps.resolve.outputs.changed == 'true' && steps.verify.outcome == 'failure'
+        run: |
+          echo "::error::新しい markdownlint-cli2 で既存の Markdown が通らなかった。PR はマージせず調査すること。"
+          exit 1
