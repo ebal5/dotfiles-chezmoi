@@ -57,6 +57,14 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 - `~/.config/local/git_user_config` - Gitユーザー情報
 - `~/.config/local/tmux_repo_names` - tmuxタイトル用リポジトリ短縮名
 
+テンプレートが読む値（現状は`requireGUI`のみ）だけは例外で、`~/.config/chezmoi/chezmoi.toml`に
+置く。`~/.config/local/`はシェルから読むだけの場所で、chezmoiのテンプレートは自身のconfigしか
+データ源にできないため。テンプレート側は既定値付きで読むので、このファイルが無くても動く。
+
+`[data.chezmoi]`はchezmoiの予約名前空間に相乗りしており、`os`や`sourceDir`のような組み込みキーを
+警告なしに上書きできてしまう。既存マシンの設定を壊さないため移設していないが、キー名は
+組み込みと衝突しないものにすること。
+
 ## 開発コマンド
 
 ```bash
@@ -68,6 +76,9 @@ shellcheck $(shfmt -f .)
 
 # Markdownのリント（`.`はトップレベルしか見ないためグロブで指定する）
 markdownlint-cli2 "**/*.md"
+
+# 共有設定（dot_claude/*.src）のキー順を正規化する。ステージ前に走らせる
+.github/scripts/normalize-shared-settings.sh
 ```
 
 GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Windows）が自動実行される。
@@ -104,9 +115,11 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | テーブルはcompact style（最小パディング）。CJK文字幅でaligned styleが崩れるため | markdownlint MD060（`style: compact`） |
 | 先頭に条件分岐を置く`.tmpl`で、その後（空行を挟んでもよい）がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
+| `.tmpl`はchezmoiの設定ファイルが無い環境でもレンダリングできる（マシン固有のキーは`dig`等で既定値付きに読む） | 同上（configを持たない状態で`chezmoi archive`する） |
 | `.chezmoiignore`/`.chezmoiremove`はソース名ではなくターゲットパスで書く | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
+| 共有設定（`dot_claude/*.src`）のキー順は`jq --sort-keys`で正規化する | `.github/scripts/normalize-shared-settings.sh` |
 | シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |
 
 新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。
@@ -119,10 +132,18 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
   シェルコードはランチャー3本の計6行だけで、その失敗モード（shebangが1行目に
   来ない）は`check-repo-conventions.sh`の規約1が検出する
 - テーブル区切り行のダッシュ長（`| ------ |`）はMD060の対象外。表示上無害なので許容する
-- **規約4は`.chezmoiignore`の書き方（ソース名かターゲットパスか）しか見ない**。
+- **規約5は`.chezmoiignore`の書き方（ソース名かターゲットパスか）しか見ない**。
   ターゲットパスの形をしていて実際には何にもマッチしないパターン（typoや
   存在しないファイル）は検出できない。実挙動側はE2Eの除外アサーション
   （`.github/workflows/e2e-test-*.yaml`）が担保する
+- **規約4のレンダリング検査が見るのは「実行しているOSでレンダリング対象になる
+  テンプレートの、通過した分岐」だけ**。`.chezmoiignore`が除外するもの（Linuxで走らせた
+  ときの`dot_config/powershell/`等）と、`{{ if eq .chezmoi.os "windows" }}`の中は見ない。
+  Windows側は`e2e-test-windows.yaml`がconfigを作らずにapplyすることで結果的にカバーしている。
+  また組み込みキー（`.chezmoi.kernel`等）の直接参照は、通常のマシンには値があるため検出できない。
+  CIのchezmoiは版を固定していない（ローカルはNix版）ので、テンプレート解釈の
+  バージョン依存な変化は乖離しうる。`.chezmoiremove`はテンプレートとして評価するが、
+  「何が消えるか」は見ない
 
 ## `.tmpl`ランチャーと本体スクリプトの分離
 
@@ -133,7 +154,7 @@ PostToolUseフックがそのまま効くため、テンプレート用の検査
 | ランチャー | 本体 | 備考 |
 | --- | --- | --- |
 | `run_after_generate_shims.sh.tmpl` | `scripts/generate-shims.sh` | 毎回走るのでハッシュ不要 |
-| `run_onchange_after_install_herdr_plugins.sh.tmpl` | `scripts/install-herdr-plugins.sh` | 本体と定義ファイルの両方のハッシュを埋める |
+| `run_after_install_herdr_plugins.sh.tmpl` | `scripts/install-herdr-plugins.sh` | 毎回走るのでハッシュ不要 |
 | `executable_once_setup_ubuntu.sh.tmpl` | `scripts/setup-ubuntu.sh` | 手動実行される展開物。再実行判定がないのでハッシュ不要 |
 
 守ること:
@@ -151,10 +172,6 @@ PostToolUseフックがそのまま効くため、テンプレート用の検査
 - 素の`.sh`を`#!/bin/sh`で書く場合は先頭に`# shellcheck shell=sh`を置く。
   `.shellcheckrc`の`shell=bash`がshebangを上書きするため、付けないと
   bash前提の指摘（SC2292等）が誤って出る
-- テンプレート側の条件式は現状の短絡評価を壊さないこと。
-  `executable_once_setup_ubuntu.sh.tmpl`の`REQUIRE_GUI`は
-  `and`の短絡で`.chezmoi.requireGUI`に触れずに済ませている。無条件に評価する形へ
-  変えると、このキーを設定していないマシンでレンダリングが失敗する
 
 ## 詳細ガイドライン
 

@@ -1,0 +1,13 @@
+{{ if ne .chezmoi.os "windows" -}}
+#!/bin/sh
+# ランチャー。本体は `scripts/install-herdr-plugins.sh`。
+# テンプレート構文を含むとshfmt/shellcheckがパースできないため、シェルコードは
+# 素の `.sh` に置いて既存のlintゲートに乗せ、ここには分岐だけを残す。
+#
+# `run_onchange_` ではなく `run_after_`。プラグインの置き場所を移した、
+# レジストリを別マシンから持ち込んだ、といった経路では定義ファイルもテンプレも
+# 変わらないため、レンダリング結果のハッシュで再実行を判定すると自己修復が
+# 一度も働かない（#219）。毎回走るのでハッシュは埋めない。
+# 整合していれば取得もビルドも登録もせず、何も出力せずに終わる。
+exec sh "{{ .chezmoi.sourceDir }}/scripts/install-herdr-plugins.sh"
+{{ end -}}

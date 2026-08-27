@@ -4,6 +4,18 @@
 repos:
   - repo: local
     hooks:
+      # 検査だけで、ここではファイルを書き換えない。
+      # 書き換えるフックにすると、ステージ済みと未ステージの変更が同じファイルに
+      # 同居している状態（`git add` 後に Claude Code が書き戻すと簡単に起きる）で
+      # prek が stash と衝突して自分の修正をロールバックし、
+      # 「直したと言うが直っていない」コミットの無限ループになる
+      - id: shared-settings-normalize-check
+        name: shared settings normalize check
+        description: 共有設定のキー順が正規化されているかを検査する
+        entry: .github/scripts/normalize-shared-settings.sh --check
+        language: script
+        files: ^dot_claude/(settings\.json\.src|dot_mcp\.json\.src)$
+        pass_filenames: true
       - id: shared-settings-guard
         name: shared settings guard
         description: 共有設定へのマシン固有・組織固有の値の混入を防ぐ
@@ -13,10 +25,13 @@ repos:
         pass_filenames: true
       - id: repo-conventions
         name: repo conventions
+        # 規約4（configなしでレンダリングできる）はソース全体の不変条件なので、
+        # レンダリング結果に影響するファイル（本体スクリプト、include対象、
+        # `.chezmoiignore`）も起動対象に含める
         description: chezmoiテンプレート・shim定義の機械的に判定できる規約を検査する
         entry: .github/scripts/check-repo-conventions.sh
         language: script
-        files: (\.tmpl|dot_config/shim-definitions|\.github/workflows/linter\.yaml|(^|/)\.chezmoi(ignore|remove))$
+        files: (\.tmpl|\.chezmoiignore|\.chezmoiremove|^scripts/.*\.sh|dot_config/(shim-definitions|herdr-plugins)|\.github/workflows/linter\.yaml)$
         pass_filenames: true
       # コミット前に必ず通る唯一の層。PostToolUseフックは編集手段に依存し
       # （Bash経由の編集では発火しない）、CIはPRを作るまで走らないため、

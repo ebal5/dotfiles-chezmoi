@@ -8,10 +8,13 @@ on:
       # 任意の文字列」。`**/*.tmpl` はスラッシュを要求するため、ルート直下の
       # `.tmpl`（ランチャー3本）に当たらない。`**.` の形で書く
       - "**.tmpl"
+      # 規約4（configなしでレンダリングできる）はソース全体の不変条件。
+      # レンダリング結果に影響するファイルも対象にする
+      - ".chezmoiignore"
+      - ".chezmoiremove"
+      - "scripts/**"
+      - "dot_config/herdr-plugins"
       - "dot_config/shim-definitions"
-      # chezmoi はサブディレクトリの `.chezmoiignore` も読む
-      - "**.chezmoiignore"
-      - "**.chezmoiremove"
       # バージョン同期チェックの対象。linter.yaml だけを書き換えたPRでも走らせる
       - ".github/workflows/linter.yaml"
       - ".github/scripts/check-repo-conventions.sh"
@@ -24,5 +27,19 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v6
+      # 「設定ファイルが無い環境で全テンプレートがレンダリングできるか」の検査に使う。
+      # ローカルでは Nix 経由の chezmoi が使われる
+      - name: Install chezmoi
+        run: |
+          set -euo pipefail
+          sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          # curl が失敗しても `sh -c ""` は exit 0 になる。入っていることを裏取りしないと
+          # 検査が無言でスキップされたままジョブが緑になる
+          "$HOME/.local/bin/chezmoi" --version
       - name: Check chezmoi/shim conventions
         run: .github/scripts/check-repo-conventions.sh
+        env:
+          # 規約4のレンダリング検査を担保するジョブ。chezmoi が無ければ
+          # スキップではなく失敗させる
+          REQUIRE_CHEZMOI: "1"

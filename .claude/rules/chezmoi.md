@@ -43,6 +43,14 @@ description: Chezmoi設定管理ガイドライン
 - `run_after_`スクリプトで条件分岐（`{{ if ... }}`）をshebang行の前に置く場合、
   trim marker（`{{ if ... -}}`）を使うこと。そうしないとshebangが2行目になり実行に失敗する
   （`.github/scripts/check-repo-conventions.sh`が検出する）
+- chezmoiは`missingkey=error`でテンプレートを実行する。`~/.config/chezmoi/chezmoi.toml`
+  由来のキー（`.chezmoi.requireGUI`等）を直接参照すると、そのキーを設定していない
+  マシンで`chezmoi apply`全体が失敗する。`dig "requireGUI" true .chezmoi`のように
+  既定値付きで読み、設定ファイルが無くても成立する形にすること。
+  開発機にはconfigがあるので手元では気づけないため、
+  `.github/scripts/check-repo-conventions.sh`がconfigを持たない状態で
+  `chezmoi archive`して検査する（見えるのは実行OSで展開対象になる
+  テンプレートの通過した分岐だけ。詳細はCLAUDE.mdの「検査されない範囲」）
 
 ## shim管理（uvx/pnpm ラッパースクリプト）
 

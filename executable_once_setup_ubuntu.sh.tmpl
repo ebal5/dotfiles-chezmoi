@@ -1,19 +1,23 @@
-{{ if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "ubuntu") -}}
+{{ if and (eq .chezmoi.os "linux") (eq (dig "id" "" .chezmoi.osRelease) "ubuntu") -}}
 #!/bin/bash
 # ランチャー。本体は `scripts/setup-ubuntu.sh`。
 # テンプレート構文を含むとshfmt/shellcheckがパースできないため、シェルコードは
 # 素の `.sh` に置いて既存のlintゲートに乗せ、ここには分岐だけを残す。
 #
-# REQUIRE_GUI は「非WSL かつ GUI が必要」を意味する。この条件式は現状のまま
-# 維持すること。`and` は短絡評価なので、WSL環境では `.chezmoi.requireGUI` に
-# 触れずに済む。無条件に評価する形に変えると、このキーを設定していないマシンで
-# レンダリングが失敗する。
+# REQUIRE_GUI は「非WSL かつ GUI が必要」を意味する。非WSLのLinuxは既定でGUI機と
+# みなし、日本語フォントを入れる。不要なら `~/.config/chezmoi/chezmoi.toml` に
+# `[data.chezmoi] requireGUI = false` を書いて `chezmoi apply` し直す。
+#
+# 無い可能性のあるキーは `dig` で既定値付きに読むこと（理由は
+# `.claude/rules/chezmoi.md`）。`.chezmoi.requireGUI` は設定していないマシンが、
+# `.chezmoi.kernel` / `.chezmoi.osRelease` は `/proc/sys/kernel` や
+# `/etc/os-release` が読めない環境が、それぞれ空になる。
 #
 # shebang を条件分岐の中に入れているのは、対象外のOSでレンダリング結果を
 # 空にするため。外に出すとその1行だけが残って非空になり、Ubuntu以外の
 # Linux・macOS・Windows のホームに中身のないファイルが置かれる（#217）。
 # 空になれば chezmoi は作らず、既にある残骸も削除する。
-REQUIRE_GUI={{ if and (not (.chezmoi.kernel.osrelease | lower | contains "microsoft")) (.chezmoi.requireGUI) }}true{{ else }}false{{ end }}
+REQUIRE_GUI={{ if and (not (dig "osrelease" "" .chezmoi.kernel | lower | contains "microsoft")) (dig "requireGUI" true .chezmoi) }}true{{ else }}false{{ end }}
 export REQUIRE_GUI
 exec bash "{{ .chezmoi.sourceDir }}/scripts/setup-ubuntu.sh"
 {{ end }}

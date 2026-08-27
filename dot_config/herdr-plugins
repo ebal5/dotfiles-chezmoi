@@ -1,5 +1,5 @@
 # herdr プラグインのピン止め定義
-# run_onchange_after_install_herdr_plugins.sh.tmpl が読み込む
+# run_after_install_herdr_plugins.sh.tmpl が読み込む
 #
 # 形式: <owner>/<repo>[/<subdir>]  <40桁commit SHA>  [ビルドコマンド]
 #   - SHA は完全な 40 桁のみ。タグ・ブランチは不可（取得後に HEAD と照合する）

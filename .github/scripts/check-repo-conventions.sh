@@ -222,7 +222,56 @@ check_markdownlint_version_source() {
   fi
 }
 
-# 規約4: `.chezmoiignore` / `.chezmoiremove` のパターンは**ターゲットパス**
+# 規約4: chezmoiのソースディレクトリは、設定ファイルが無い環境でもレンダリングできること。
+#
+# chezmoiはテンプレートを`missingkey=error`で実行するため、
+# `~/.config/chezmoi/chezmoi.toml`にしか無いキー（`.chezmoi.requireGUI`等）を
+# 直接参照すると、そのキーを書いていないマシンで`chezmoi apply`全体が失敗する。
+# 開発機にはconfigがあるので手元では気づけない（#216はこれで長く残った）。
+#
+# 「非組み込みのキーを直接参照していないか」を文字列で判定しようとすると、
+# 組み込み変数のホワイトリスト維持とコメント内の誤検知がついて回る。
+# configを持たない状態で実際にレンダリングすれば、判定はchezmoi自身が行う。
+# キー以外の失敗（`include`先の欠落、テンプレート構文エラー）も同時に捕まる。
+#
+# レンダリングには`archive`（tarを作って捨てるだけ）を使う。`apply --dry-run`でも
+# 同じ判定になるが、あちらは宛先の指定や`--dry-run`の付け忘れが事故になりうる。
+#
+# 守備範囲は「実行しているOSでレンダリング対象になるテンプレートの、通過した分岐」だけ。
+# `.chezmoiignore`が除外するものと通らなかった分岐は見ない
+# （CLAUDE.mdの「検査されない範囲」を参照）。
+check_templates_render_without_config() {
+  local chezmoi_bin root config_dir output
+  if ! chezmoi_bin=$(command -v chezmoi); then
+    # 黙ってスキップすると「検査したつもり」の素通りになるので、この検査を
+    # 担保する呼び出し側（repo-conventions.yaml）は REQUIRE_CHEZMOI=1 を立てる。
+    # 「CIなら落とす」にすると、バージョン検査だけを目的に同じスクリプトを呼ぶ
+    # markdownlint-version-update.yaml まで巻き込む
+    if [[ -n ${REQUIRE_CHEZMOI:-} ]]; then
+      fail "(chezmoi templates)" 0 "chezmoi が見つからない。この検査はレンダリングを実行するので chezmoi が必須"
+      return 0
+    fi
+    printf '注意: chezmoi が無いため「configなしでのレンダリング」検査をスキップした（REQUIRE_CHEZMOI=1 なら落とす）\n' >&2
+    return 0
+  fi
+  if ! root=$(git rev-parse --show-toplevel 2>/dev/null); then
+    root="$PWD"
+  fi
+  # 実マシンのconfigを確実に無視するため、存在しないパスを渡す
+  if ! config_dir=$(mktemp -d); then
+    fail "(chezmoi templates)" 0 "一時ディレクトリを作れない"
+    return 0
+  fi
+
+  if ! output=$("$chezmoi_bin" archive --source "$root" \
+    --config "$config_dir/absent.toml" --output /dev/null 2>&1); then
+    printf '%s\n' "$output" >&2
+    fail "(chezmoi templates)" 0 "設定ファイルが無い環境でレンダリングに失敗する（原因は直前のエラー）。マシン固有のキーが原因なら \`dig \"key\" <既定値> .chezmoi\` のように既定値付きで読むこと"
+  fi
+  rm -rf "$config_dir"
+}
+
+# 規約5: `.chezmoiignore` / `.chezmoiremove` のパターンは**ターゲットパス**
 #        （ホーム上での名前）で書く。chezmoi はソース名ではなくターゲットパスに
 #        マッチさせるため、`executable_once_setup_ubuntu.sh.tmpl` のように
 #        ソース名で書くと何にもマッチせず、除外したつもりのファイルが
@@ -358,8 +407,12 @@ main() {
       check_file "$file"
     done
     version_source_requested "$@" && check_markdownlint_version_source
+    # ソースディレクトリ全体の不変条件で、どのファイルが渡ったかに依らない。
+    # 呼び出し側（prek/CI）のパターンと同期させると穴が空くので、常に検査する
+    check_templates_render_without_config
   else
     check_markdownlint_version_source
+    check_templates_render_without_config
     local -a targets=()
     mapfile -t targets < <(collect_default_targets || true)
     for file in "${targets[@]}"; do

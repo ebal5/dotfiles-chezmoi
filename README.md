@@ -16,6 +16,7 @@ Bash と Zsh に対応。
 # 一時的に使うchezmoiをインストールする
 sh -c "$(curl -fsLS get.chezmoi.io)"
 # このリポジトリを所定ディレクトリにクローンし適用
+# GUIが不要なマシンは apply の前に requireGUI を設定する（後述）
 ${HOME}/bin/chezmoi init https://github.com/ebal5/dotfiles-chezmoi.git
 ${HOME}/bin/chezmoi apply
 # 初期スクリプトを起動する
@@ -29,6 +30,25 @@ ${HOME}/once_setup_ubuntu.sh
 # 初期に使用したchezmoiを削除しNixでインストールしたものを利用するようにする
 rm ~/bin/chezmoi
 ```
+
+#### GUIが不要なマシンの場合（requireGUI）
+
+`once_setup_ubuntu.sh` は非WSLのLinuxを既定でGUI機とみなし、日本語フォント
+（`fonts-migmix`、`fonts-ipafont-*`）を導入する。ヘッドレスなサーバなどで不要なら、
+`chezmoi apply` の**前に** `~/.config/chezmoi/chezmoi.toml` で上書きする。
+
+```toml
+[data.chezmoi]
+  requireGUI = false
+```
+
+この値は `chezmoi apply` の時点で `~/once_setup_ubuntu.sh` に焼き込まれるため、
+後から変える場合は toml を編集してから `chezmoi apply` をやり直す
+（設定していないマシンでも既定値で動く。ファイル自体が無くてもよい）。
+既にインストールしたフォントは apply をやり直しても消えない。
+
+値は TOML の真偽値で書くこと。`"false"` のような文字列や別のセクションに
+書いた場合は「設定されていない」とみなされ、既定値の true になる。
 
 ## install 後の作業
 
@@ -207,25 +227,35 @@ herdr側には署名検証もチェックサムも`plugin update`も無い
 
 代わりに[dot_config/herdr-plugins](dot_config/herdr-plugins)へ
 **完全な40桁commit SHA**でピン止めし、
-`run_onchange_after_install_herdr_plugins.sh.tmpl`（本体は
-[scripts/install-herdr-plugins.sh](scripts/install-herdr-plugins.sh)）が次を行う。
+`run_after_install_herdr_plugins.sh.tmpl`（本体は
+[scripts/install-herdr-plugins.sh](scripts/install-herdr-plugins.sh)）が
+引数なしの`chezmoi apply`と`chezmoi update`のたびに次を行う
+（パスを指定した部分applyと`--exclude scripts`では走らない）。
 
 1. `~/.local/share/herdr-plugins/<owner>_<repo>`へ`git fetch --depth 1 <SHA>`で取得
 2. checkoutのHEADがピンと一致するか照合（不一致なら登録しない）
 3. 定義ファイルに書いたビルドコマンドだけを実行（herdr側の`[[build]]`は走らない）
-4. `herdr plugin link`で登録
+4. `herdr plugin link`で登録（既に登録済みなら、herdrが持っているリンク先が
+   今回のcheckoutを指しているかまで照合し、別のパスなら貼り直す）
 
 結果として、**何が実行されるかは定義ファイルの1行だけで決まり、
 バージョン更新はPRのdiffに現れる**。
 
 | 状況 | 挙動 |
 | --- | --- |
-| 定義ファイル未変更 | 何もしない（`run_onchange_`） |
+| すべて整合 | 取得もビルドも登録もせず、何も出力しない |
 | SHA変更 | `git clean -xdff`してから再取得・再ビルド |
 | ビルド失敗 | linkせずに次のプラグインへ進む |
 | 定義から削除 | `herdr plugin unlink`してcheckoutごと削除 |
+| 1行でも処理に失敗 | その回は削除をしない。エラーが解消するまで定義からの削除は反映されない |
 | 手動でunlink済み | 次回applyで再link |
-| herdr未導入 | 何もせず終了 |
+| 登録先が今回のcheckoutと別のパス | 再link（無効化してあれば`--disabled`で無効のまま） |
+| 同じidを宣言する定義が2行 | 先の行を採り、後の行は警告して登録しない |
+| レジストリを読めない | 警告して登録に触らない（無効化を有効へ戻さないため） |
+| jq未導入 | リンク先を照合できないため警告し、idの有無だけで判定 |
+| herdrが応答しない | 1呼び出し15秒で打ち切り、警告して登録に触らない |
+| 上流がmanifestのidを変更 | 新しいidでlinkしてから古いidの登録を外す |
+| herdr未導入 | 何も出力せず終了 |
 
 導入済み:
 
@@ -432,6 +462,66 @@ allowed-tools: Edit, Bash(npm:*)
 
 正当な追加でフックが落ちる場合は、スクリプト冒頭の`ALLOWED_OWNERS`／
 `ALLOWED_HOSTS`を更新する。
+
+### 共有設定のキー順の正規化
+
+外部ツールが書き戻す際にキー順が変わることがあり、値が何も変わっていなくても
+「キーが入れ替わっただけ」の差分が出る。頻度は低く、このファイルを触った15コミット中
+履歴に残っているのは1回（`6c0de2d`、2行）、ほかに#218時点の作業ツリーで1回（4行）。
+差分自体は無害だが、混ざると上の目視確認で本当に変わったキーが埋もれる。
+
+`.github/scripts/normalize-shared-settings.sh`が`jq --sort-keys`で
+`dot_claude/*.src`のキー順を常に同じ順序に固定する。
+
+```bash
+# 正規化して書き戻す
+.github/scripts/normalize-shared-settings.sh
+# 正規化済みかを検査する（書き換えない）
+.github/scripts/normalize-shared-settings.sh --check
+```
+
+正規化そのものは手で走らせる。pre-commitとCIはどちらも`--check`で、
+崩れたままコミットされるのを止めるだけ。
+
+| 実行経路 | 動作 |
+| --- | --- |
+| 手動 | キー順を正規化して書き戻す |
+| pre-commit（prek） | `--check`。崩れていたらコミットを中断する |
+| GitHub Actions（`shared-settings-guard.yaml`） | `--check`。同じ検査をCIでも走らせる |
+
+pre-commitフックをあえて書き換えない形にしてあるのは、ステージ済みと未ステージの
+変更が同じファイルに同居している状態（`git add`のあとにClaude Codeが書き戻すと
+簡単に起きる）でprekがstashと衝突し、自分の修正をロールバックしてしまうため。
+コミットは中断するのに`git add`するものが無い、という抜けられない状態になる。
+
+差分を確認するときは、先に正規化してから`git diff`を見る。コミット済みの側も
+正規化されているので、残る差分は値が変わったキーだけになる。
+
+```bash
+.github/scripts/normalize-shared-settings.sh
+git diff dot_claude/
+```
+
+#### 採らなかった案
+
+- **何もしない**。頻度が低いので現状維持でも回るが、確認を素通りさせる方向の
+  失敗なので、コストが低いうちに潰しておく。正規化スクリプト自体は数十行で、
+  既存のpre-commit+CIの層にそのまま乗る
+- **共通のキーとマシンごとに変わるキーでファイルを分ける**。Claude Codeは
+  単一ファイルに書き戻すので、分けてもツール側が結合してくれるわけではなく、
+  キー順の問題も解決しない。マシンごとに値を変えたい場合の受け皿にもならない
+  （下記のとおり`settings.json`にはオーバーライド経路が無い）
+
+副次的な効果として、`check-shared-settings.sh`の抜け穴が1つ塞がる。
+同スクリプトは行単位の文字列照合なので、`\u002f`のようなJSONエスケープで
+書かれた値を素通りさせるが、jqは出力時にエスケープを解くため、正規化を通すと
+元の文字列として照合されるようになる（エスケープされたままのファイルは
+`--check`が先に落とす）。
+
+塞がるのはエスケープの層だけで、ガード自体の検出範囲は広がらない。
+ホスト名の判定は`check-shared-settings.sh`が持つTLDリスト
+（`com|net|org|io|dev|ai|jp|cloud|app|me`）に載っているものだけが対象なので、
+`.local`や`.internal`のような社内向けTLDは正規化しても検出されない。
 
 ## チェック内容
 
