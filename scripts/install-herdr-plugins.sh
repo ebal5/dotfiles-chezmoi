@@ -27,9 +27,11 @@ mkdir -p "$STATE"
 # 登録済みか調べる。jq が無い環境では素の文字列一致にフォールバックする
 is_linked() {
   if command -v jq >/dev/null 2>&1; then
+    # shellcheck disable=SC2312 # herdrが失敗すればjqも一致せず「未登録」を返す。述語なので非ゼロは失敗ではない
     herdr plugin list --json 2>/dev/null |
       jq -e --arg id "$1" '.result.plugins[]? | select((.plugin_id // .id) == $id)' >/dev/null 2>&1
   else
+    # shellcheck disable=SC2312 # 同上。フォールバック側も同じ性質
     herdr plugin list --json 2>/dev/null | grep -qF "\"$1\""
   fi
 }
@@ -123,6 +125,7 @@ while IFS= read -r line || [ -n "$line" ]; do
     echo "herdr-plugins: ERROR: no herdr-plugin.toml in $plugin_dir" >&2
     continue
   fi
+  # shellcheck disable=SC2312 # sedが失敗すればidが空になり、直後の -z チェックが明示的に捕まえる
   id=$(sed -n 's/^id[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' "$manifest" | head -1)
   if [ -z "$id" ]; then
     echo "herdr-plugins: ERROR: could not read plugin id from $manifest" >&2
