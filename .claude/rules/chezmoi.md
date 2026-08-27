@@ -29,7 +29,9 @@ description: Chezmoi設定管理ガイドライン
 - 通常のファイルも同じで、**レンダリング結果が空白のみならchezmoiは作らず、
   すでにあれば削除する**（`targetstateentry.go`の`!t.empty && isEmpty(contents)`）。
   条件分岐でファイル全体（shebangを含む）を囲めば、除外と残骸の撤去が同時に効く。
-  shebangを`{{ if }}`の外に置くとその1行だけが残り、対象外のOSにもファイルが置かれる
+  shebangを`{{ if }}`の外に置くとその1行だけが残り、対象外のOSにもファイルが置かれる。
+  ただし同じターゲットが`.chezmoiignore`にもあると撤去は効かない（ignoreが優先）。
+  また撤去は無条件なので、同名のユーザー作成ファイルがあっても消える
 - **`.chezmoiignore`は`.chezmoiremove`に優先する**。ignoreしたパスはremoveの対象からも
   外れる（`sourcestate.go`の`s.remove.Glob`後の`s.Ignore()`スキップ）。
   すでにホームにある残骸を撤去したいなら、ignoreに足すのではなく上の

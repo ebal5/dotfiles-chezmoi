@@ -9,6 +9,14 @@
 # 引数なしの場合はリポジトリ全体を検査する（CI用）。
 set -uo pipefail
 
+# パターンの前後の空白を落とす処理で bash の `[[:space:]]` を使う。これは
+# ロケール依存で、UTF-8ロケールでないと全角スペース (U+3000) に一致しない。
+# chezmoi 側は `bytes.TrimSpace`（Unicode対応）なので、固定しないと
+# 「全角スペース + パターン」の行でローカルとCIの結果が食い違う。
+# `C.UTF-8` が無い環境ではCにフォールバックしてASCIIのみになるが、
+# 見逃す方向なのでCIが最後に捕まえる
+export LC_ALL=C.UTF-8
+
 status=0
 
 fail() {
@@ -247,8 +255,10 @@ check_chezmoi_target_paths() {
     lineno=$((lineno + 1))
     # BOM を落とす。付いていると1行目だけ検査をすり抜ける
     raw="${raw#$'\xef\xbb\xbf'}"
-    # 誤検知を明示的に通すための逃がし
-    [[ $raw == *"$CHEZMOI_TARGET_OK_MARKER"* ]] && continue
+    # 誤検知を明示的に通すための逃がし。行末のコメントとして書かれた場合だけ
+    # 効かせる。単なる部分一致にすると、マーカーと同じ綴りを含むパターン
+    # （`.config/chezmoi-target-ok/dot_trap`）まで黙って通してしまう
+    [[ $raw =~ (^|[[:space:]])#[[:space:]]*${CHEZMOI_TARGET_OK_MARKER}[[:space:]]*$ ]] && continue
 
     # 1. テンプレートアクションを外す。`.chezmoiignore` はレンダリングしてから
     #    パースされるため、`{{ if … }}pattern{{ end }}` の1行形式も有効で、
