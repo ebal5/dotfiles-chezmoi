@@ -21,10 +21,14 @@
 set -euo pipefail
 
 # 既定の対象はスクリプトの位置からリポジトリルートを求めて解決する。cwd 依存だと、
-# ルート以外から実行したときに「対象が1つも無い」で黙って成功してしまう
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-REPO_ROOT=$(cd -- "$SCRIPT_DIR/../.." && pwd)
-DEFAULT_TARGETS=("dot_claude/settings.json.src" "dot_claude/dot_mcp.json.src")
+# ルート以外から実行したときに「対象が1つも無い」で黙って成功してしまう。
+# シンボリックリンク越しに呼ばれても見失わないよう実体を解決する
+SCRIPT_PATH=$(readlink -f -- "${BASH_SOURCE[0]}")
+REPO_ROOT=$(cd -- "$(dirname -- "$SCRIPT_PATH")/../.." && pwd)
+DEFAULT_TARGETS=(
+  "$REPO_ROOT/dot_claude/settings.json.src"
+  "$REPO_ROOT/dot_claude/dot_mcp.json.src"
+)
 
 # 複数ドキュメントや空入力を弾いてから整形する。jq は `{"a":1}{"b":2}` のような
 # ストリームも空入力も黙って通すため、そのまま書き戻すと壊れたファイルが残り、
@@ -123,7 +127,7 @@ normalize_file() {
     fail "$file" "正規化されていない（キー順、またはJSONエスケープの表現が異なる）"
     unnormalized=1
     # 差分が無い場合は上の cmp で除いてあるので、diff は必ず非ゼロで返る
-    diff -u -- "$file" "$normalized" >&2 || true
+    diff -u --label "$file" --label "$file (正規化後)" -- "$file" "$normalized" >&2 || true
     return 0
   fi
 
@@ -156,9 +160,12 @@ normalize_file() {
 explicit_targets=1
 if [[ ${#targets[@]} -eq 0 ]]; then
   explicit_targets=0
-  # 相対パスのまま扱えるようルートへ移る。引数で明示された場合は移らないので、
-  # 呼び出し側の cwd 基準の相対パスがそのまま通る
-  cd -- "$REPO_ROOT"
+  # スクリプトを .github/scripts/ の外へ動かすと REPO_ROOT が別の場所を指す。
+  # 「対象が消えたので飛ばす」と区別が付かず黙って成功するので、ここで落とす
+  if [[ ! -d "$REPO_ROOT/dot_claude" ]]; then
+    printf '既定の対象を解決できない（%s に dot_claude が無い）。スクリプトを .github/scripts/ から移していないか確認すること。\n' "$REPO_ROOT" >&2
+    exit 1
+  fi
   targets=("${DEFAULT_TARGETS[@]}")
 fi
 

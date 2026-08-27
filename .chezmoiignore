@@ -45,8 +45,10 @@ bakups/
 # Temporary files - 一時ファイル
 *.tmp
 *.temp
-# normalize-shared-settings.sh の一時ファイル（`*.tmp` では拾えない名前）
-*.normalize.*
+# normalize-shared-settings.sh の一時ファイル（`*.tmp` では拾えない名前）。
+# 生成されるのは `dot_claude/` 配下だけなので、`/` を跨がない `*` では
+# 届かない（このファイル冒頭の `*.md` と同じ理由）
+**/*.normalize.*
 
 # IDE and editor files - IDE・エディタファイル
 .vscode/
