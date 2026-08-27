@@ -66,16 +66,29 @@ fi
 `[[ ]]`の使用（SC2292）や変数のクォート（SC2086）は`.shellcheckrc`の`enable=all`で
 shellcheckが検出するため、ここには書かない。
 
-## `.tmpl`ファイルの制限事項
+## `.tmpl`ファイルの扱い
 
 Chezmoiテンプレート（`.tmpl`）はGoテンプレート構文 `{{ }}` を含むため、
-shfmtとshellcheckはパースに失敗する。これは既知の制限であり、
-`.tmpl`ファイルのシェルコード部分は手動で品質を確認する必要がある。
+shfmtとshellcheckを直接かけることはできない。
+`.sh.tmpl`については`.github/scripts/check-tmpl-shell.sh`が
+テンプレートアクションを無害化した一時ファイルを作り、shellcheckにかける。
+行数を保存するので、報告される行番号は元の`.tmpl`の行番号と一致する。
+
+制限:
+
+- **shfmtは対象外**。整形結果を一時ファイルから元の`.tmpl`へ書き戻す経路が
+  ないため。インデント（2スペース）は手で揃えること
+- `{{ else }}`を持つファイルは両方の枝が連結された状態で検査される
+- テンプレートアクションは1行に収めること。複数行にまたがる形は検査できない
+- shebangより前に置ける行アクションはtrim marker付き（`{{ ... -}}`）のみ。
+  markerが無いとレンダリング後にshebangが1行目に来ない
+
+`.sh.tmpl`以外の`.tmpl`（`.ps1.tmpl`、`.json.tmpl`等）は対象外。
 
 ## 編集後のlint実行
 
 PostToolUseフック（`.claude/hooks/lint-edited-file.sh`）が編集後に
 shfmtでフォーマットし、shellcheckの指摘があれば返すため、手動実行は不要。
-`.tmpl`ファイルは上記の制限によりフックがスキップする。
+`.sh.tmpl`は上記のチェッカー経由でshellcheckのみ実行する。
 
 全ファイルに対して実行する場合は `/lint:all` コマンドを使用。

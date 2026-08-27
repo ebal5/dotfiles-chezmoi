@@ -43,6 +43,9 @@ sudo apt install -y \
 
 # Install Nix
 if ! command -v nix >/dev/null 2>&1; then
+  # 取得に失敗するとインストーラが黙って何もせず進む（このスクリプトは set -e を使わない）。
+  # 既知の弱点だが、bootstrap用インストーラの定型なのでここでは構造を変えない
+  # shellcheck disable=SC2312
   curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install --no-confirm
   . "$HOME/.nix-profile/etc/profile.d/nix.sh"
 fi
@@ -54,14 +57,16 @@ if ! grep -q "experimental-features = nix-command flakes" "$HOME/.config/nix/nix
 fi
 
 # Install tools via Nix flake (if flake.nix exists in dotfiles)
-if [ -f "$HOME/.local/share/chezmoi/flake.nix" ]; then
+if [[ -f "$HOME/.local/share/chezmoi/flake.nix" ]]; then
   nix flake update "$HOME/.local/share/chezmoi" --no-write-lock-file 2>/dev/null || true
   nix profile add "$HOME/.local/share/chezmoi"
 fi
 
-if [ ! -x "$HOME/.local/bin/mise" ]; then
+if [[ ! -x "$HOME/.local/bin/mise" ]]; then
   gpg --keyserver hkps://keyserver.ubuntu.com --recv-keys 0x7413A06D
-  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh
+  # 同上。curl が失敗しても gpg 側で検証に失敗するため、実害は install.sh が空になる程度
+  # shellcheck disable=SC2312
+  curl https://mise.jdx.dev/install.sh.sig | gpg --decrypt >install.sh
   sh ./install.sh
   rm ./install.sh
 fi
@@ -74,7 +79,7 @@ git clone https://github.com/joaojacome/bitwarden-ssh-agent.git ~/.bw-ssh-agent
 if ! cd ~/.bw-ssh-agent; then
   echo "Warning: Failed to change directory to ~/.bw-ssh-agent" >&2
 else
-  git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2 2>&1 > /dev/null
+  git checkout 6237a3604d640533ad4123d23e23ddfd4e3666d2 >/dev/null 2>&1
 fi
 if ! cd "$HOME"; then
   echo "Warning: Failed to change directory to $HOME" >&2

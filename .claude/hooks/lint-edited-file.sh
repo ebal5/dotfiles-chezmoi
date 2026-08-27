@@ -44,8 +44,24 @@ $out"
 
 check_repo_conventions
 
-# chezmoiテンプレートは Goテンプレート構文のため shfmt/shellcheck がパースできない
+# `.sh.tmpl` のシェルコードは専用チェッカー経由で shellcheck にかける
+# （テンプレートアクションを除去した一時ファイルを検査する）。
+# shfmt は整形結果を `.tmpl` に書き戻す経路がないため対象外。
+check_tmpl_shell() {
+  local checker="$project_dir/.github/scripts/check-tmpl-shell.sh" out
+  [[ -x $checker ]] || return 0
+  out=$("$checker" "$file_path" 2>&1) && return 0
+  log_and_exit "shellcheck が問題を報告しました（$file_path のシェルコード）。修正してください:
+
+$out"
+}
+
+# `.tmpl` は Goテンプレート構文のため shfmt/shellcheck を直接かけられない
 case "$file_path" in
+  *.sh.tmpl)
+    check_tmpl_shell
+    exit 0
+    ;;
   *.tmpl) exit 0 ;;
   *) ;;
 esac

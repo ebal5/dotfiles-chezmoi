@@ -23,6 +23,7 @@ while IFS= read -r line || [ -n "$line" ]; do
   # Skip comments and empty lines
   case "$line" in
     "#"* | "") continue ;;
+    *) ;;
   esac
 
   # Parse fields (split on :)
@@ -44,6 +45,7 @@ while IFS= read -r line || [ -n "$line" ]; do
           echo "shim-gen: ERROR: package '$package' contains @ but no alias specified, skipping" >&2
           continue
           ;;
+        *) ;;
       esac
       ;;
   esac
@@ -69,6 +71,8 @@ $exec_line"
   target="$SHIM_DIR/$cmd"
 
   # Write only if different
+  # cat が失敗したら内容不一致として書き直す。それで正しい
+  # shellcheck disable=SC2312
   if [ -f "$target" ] && [ "$(cat "$target")" = "$content" ]; then
     continue
   fi

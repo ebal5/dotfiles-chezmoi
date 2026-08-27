@@ -66,6 +66,9 @@ shfmt -i 2 -ci -w .
 # シェルスクリプトの静的解析
 shellcheck $(shfmt -f .)
 
+# chezmoiテンプレート（`.sh.tmpl`）内のシェルコードの静的解析
+.github/scripts/check-tmpl-shell.sh
+
 # Markdownのリント（`.`はトップレベルしか見ないためグロブで指定する）
 markdownlint-cli2 "**/*.md"
 ```
@@ -90,7 +93,8 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
   lintの指摘をstderrに出して`exit 2`で返すのが正しい終わり方
 - `Write`/`Edit`後は`.claude/hooks/lint-edited-file.sh`がPostToolUseフックとして
   ファイル種別ごとにlintを実行する（`.sh`→shfmt+shellcheck、`.md`→markdownlint-cli2、
-  `.tmpl`はスキップ）。編集のたびに手でlintを流す必要はない
+  `.sh.tmpl`→check-tmpl-shell.sh、それ以外の`.tmpl`はスキップ）。
+  編集のたびに手でlintを流す必要はない
 
 ## 静的検査で担保している規約
 
@@ -104,14 +108,26 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
-| シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`）。**`.tmpl`は対象外** |
+| シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |
+| `.sh.tmpl`のシェルコードの品質。shebang前の行アクションにtrim marker必須 | `.github/scripts/check-tmpl-shell.sh`（テンプレートアクションを無害化した一時ファイルをshellcheckにかける） |
 
 新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。
 
+`.sh.tmpl`のシェルコードは`check-tmpl-shell.sh`が担保する。テンプレートアクションを
+無害化した一時ファイル（行数を保存するため、行全体のアクションは空行、インラインは
+リテラルトークンに置換）を作り、shebangから判定したシェル種別で`shellcheck`にかける。
+`chezmoi execute-template`でのレンダリング方式と実測で比較して選んだ経緯と根拠は
+スクリプト冒頭のコメントに書いてある。
+
 検査されない範囲も把握しておくこと:
 
-- **`.tmpl`のシェルコード**（shebangを持つもの4ファイル）はGoテンプレート構文のため
-  shfmt/shellcheckがパースできず、どのゲートも通らない。手で品質を確認する
+- **`.sh.tmpl`にshfmtはかからない**。整形結果を一時ファイルから元の`.tmpl`へ書き戻す
+  経路が存在しないため。実装の都合ではなく原理的な制約なので、`.tmpl`のインデントは
+  手で揃える
+- **`{{ else }}`を持つ`.tmpl`は両方の枝が連結された状態で検査される**。片方の枝で
+  定義した変数をもう片方で使っていても素通りする
+- **複数行にまたがるテンプレートアクション**は`check-tmpl-shell.sh`が扱えず、
+  検査せずエラーにする。アクションは1行に収めること
 - テーブル区切り行のダッシュ長（`| ------ |`）はMD060の対象外。表示上無害なので許容する
 
 ## 詳細ガイドライン
