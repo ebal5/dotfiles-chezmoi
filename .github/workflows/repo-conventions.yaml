@@ -6,6 +6,8 @@ on:
     paths:
       - "**/*.tmpl"
       - "dot_config/shim-definitions"
+      - ".chezmoiignore"
+      - ".chezmoiremove"
       # バージョン同期チェックの対象。linter.yaml だけを書き換えたPRでも走らせる
       - ".github/workflows/linter.yaml"
       - ".github/scripts/check-repo-conventions.sh"

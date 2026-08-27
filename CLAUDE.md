@@ -75,7 +75,9 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 ## ファイル追加時の注意
 
 - 開発用ファイル（ドキュメント、設定等）を追加した場合、`.chezmoiignore`への追記が必要な場合がある
-- ホームディレクトリに展開不要なファイルは`.chezmoiignore`で除外する
+- ホームディレクトリに展開不要なファイルは`.chezmoiignore`で除外する。
+  **書くのはソース名ではなくターゲットパス**（`executable_once_setup_ubuntu.sh.tmpl`ではなく
+  `once_setup_ubuntu.sh`）。ソース名で書いても何にもマッチせず、エラーも出ない
 
 ## Claude Code固有の注意
 
@@ -102,6 +104,7 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | テーブルはcompact style（最小パディング）。CJK文字幅でaligned styleが崩れるため | markdownlint MD060（`style: compact`） |
 | 先頭に条件分岐を置く`.tmpl`で、その後（空行を挟んでもよい）がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
+| `.chezmoiignore`/`.chezmoiremove`はソース名ではなくターゲットパスで書く | 同上 |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
 | シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |

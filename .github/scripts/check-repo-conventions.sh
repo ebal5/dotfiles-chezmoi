@@ -209,6 +209,56 @@ check_markdownlint_version_source() {
   fi
 }
 
+# 規約4: `.chezmoiignore` / `.chezmoiremove` のパターンは**ターゲットパス**
+#        （ホーム上での名前）で書く。chezmoi はソース名ではなくターゲットパスに
+#        マッチさせるため、`executable_once_setup_ubuntu.sh.tmpl` のように
+#        ソース名で書くと何にもマッチせず、除外したつもりのファイルが
+#        ホームに展開される（#217）。しかも何のエラーも出ない。
+#
+# 判定はパス要素の先頭プレフィックスと `.tmpl` サフィックスで行う。
+# `once_` / `onchange_` / `before_` / `after_` は含めない。これらは `run_` の
+# 後ろに付く修飾で、単体ではターゲットパスとして正しい
+# （`executable_once_setup_ubuntu.sh.tmpl` のターゲットは `once_setup_ubuntu.sh`）。
+CHEZMOI_SOURCE_PREFIXES=(
+  create_ dot_ empty_ encrypted_ exact_ executable_ external_
+  literal_ modify_ private_ readonly_ remove_ run_ symlink_
+)
+CHEZMOI_TEMPLATE_SUFFIX=".tmpl"
+
+check_chezmoi_target_paths() {
+  local file="$1" line lineno pattern component prefix
+  local -a lines=() components=()
+  mapfile -t lines <"$file"
+  for lineno in "${!lines[@]}"; do
+    line=$(strip_cr "${lines[lineno]}")
+    lineno=$((lineno + 1))
+    # 前後の空白を落とす（パターンの一部ではない）
+    line="${line#"${line%%[![:space:]]*}"}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [[ -z $line || $line == \#* ]] && continue
+    # Goテンプレートの分岐行はパターンではない
+    [[ $line == '{{'* ]] && continue
+
+    pattern="${line#!}"    # 否定パターンの `!`
+    pattern="${pattern%/}" # ディレクトリ指定の末尾スラッシュ
+    [[ -z $pattern ]] && continue
+
+    if [[ $pattern == *"$CHEZMOI_TEMPLATE_SUFFIX" ]]; then
+      fail "$file" "$lineno" "ソース名で書かれている（\`$CHEZMOI_TEMPLATE_SUFFIX\` はターゲットパスには現れない）。ターゲットパスで書くこと: $line"
+      continue
+    fi
+
+    IFS='/' read -r -a components <<<"$pattern"
+    for component in "${components[@]}"; do
+      for prefix in "${CHEZMOI_SOURCE_PREFIXES[@]}"; do
+        [[ $component == "$prefix"* ]] || continue
+        fail "$file" "$lineno" "ソース名で書かれている（\`$prefix\` はchezmoiのソース名プレフィックス）。ターゲットパスで書くこと: $line"
+        break 2
+      done
+    done
+  done
+}
+
 check_file() {
   local file="$1"
   if [[ ! -f $file ]]; then
@@ -217,16 +267,19 @@ check_file() {
     return 0
   fi
 
-  case "$file" in
+  case "${file#./}" in
     */shim-definitions | shim-definitions) check_shim_definitions "$file" ;;
+    */.chezmoiignore | .chezmoiignore | */.chezmoiremove | .chezmoiremove)
+      check_chezmoi_target_paths "$file"
+      ;;
     *.tmpl) check_template_trim_marker "$file" ;;
     *) ;;
   esac
 }
 
 collect_default_targets() {
-  git ls-files -- '*.tmpl' 'dot_config/shim-definitions' 2>/dev/null ||
-    find . -name '*.tmpl' -not -path './.git/*'
+  git ls-files -- '*.tmpl' 'dot_config/shim-definitions' '.chezmoiignore' '.chezmoiremove' 2>/dev/null ||
+    find . \( -name '*.tmpl' -o -name '.chezmoiignore' -o -name '.chezmoiremove' \) -not -path './.git/*'
 }
 
 # バージョンの単一情報源はファイル単位ではなくファイル間の不変条件なので、

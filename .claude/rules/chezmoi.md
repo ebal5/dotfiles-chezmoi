@@ -16,6 +16,14 @@ description: Chezmoi設定管理ガイドライン
 
 - `.chezmoiignore` でホームディレクトリに適用しないファイルを指定
 - 新しいドキュメントや開発用ファイルを追加した場合は`.chezmoiignore`への追記を検討
+- **`.chezmoiignore`と`.chezmoiremove`のパターンはターゲットパス**（ホーム上での名前）で書く。
+  ソース名（`dot_`/`executable_`/`private_`/`run_`等のプレフィックスや`.tmpl`サフィックス）で
+  書くと何にもマッチせず、しかもエラーも出ないため「除外したつもり」で気づけない。
+  例: `executable_once_setup_ubuntu.sh.tmpl`ではなく`once_setup_ubuntu.sh`と書く
+  （`.github/scripts/check-repo-conventions.sh`が検出する）
+- `run_`スクリプトを特定プラットフォームで動かしたくない場合、`.chezmoiignore`ではなく
+  スクリプト側のテンプレート条件で囲む。chezmoiはレンダリング結果が空白のみのスクリプトを
+  実行しないため、`{{ if eq .chezmoi.os "windows" }}`で囲めば他OSでは走らない
 
 ## テンプレートの注意点
 

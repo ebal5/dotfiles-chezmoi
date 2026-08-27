@@ -71,12 +71,11 @@ flake.lock
 .config/sh-like-aliases
 .config/herdr-plugins
 .config/tmux/
-executable_once_setup_ubuntu.sh.tmpl
+once_setup_ubuntu.sh
 {{ end }}
 
 {{ if ne .chezmoi.os "windows" }}
 # Windows専用ファイル（Linux/macOSでは除外）
 .config/powershell/
-executable_once_setup_windows.ps1.tmpl
-run_after_setup_powershell_profile.ps1.tmpl
+once_setup_windows.ps1
 {{ end }}
