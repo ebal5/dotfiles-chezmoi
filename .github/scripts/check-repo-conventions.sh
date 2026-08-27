@@ -220,15 +220,23 @@ check_markdownlint_version_source() {
 # 後ろに付く修飾で、単体ではターゲットパスとして正しい
 # （`executable_once_setup_ubuntu.sh.tmpl` のターゲットは `once_setup_ubuntu.sh`）。
 #
-# `literal_` でエスケープされたターゲット名（ソース `literal_dot_foo` の
-# ターゲットは `dot_foo`）だけは正しく書いても引っかかる。原理的に区別が
-# つかないので、そのときはこの検査の方を直すこと。現状そんなファイルは無い。
+# 誤検知しうるターゲット名がある。`.ssh/private_key` のように、たまたま
+# プレフィックスと同じ綴りで始まる実在のファイル名や、`literal_` で
+# エスケープされたターゲット名（ソース `literal_dot_foo` のターゲットは
+# `dot_foo`）は原理的に区別がつかない。その場合は行末に
+# `# chezmoi-target-ok` を付けて明示的に通すこと。chezmoi 側はコメントとして
+# 捨てるのでパターンには影響しない。
+#
+# モデル化していない範囲: trim marker で行が連結される場合。
+# `# note {{ if true -}}` の次行は、レンダリング後には行頭 `#` のコメントに
+# 吸収されてパターンでなくなるが、この検査は行単位で見るため拾ってしまう。
 CHEZMOI_SOURCE_PREFIXES=(
   create_ dot_ empty_ encrypted_ exact_ executable_ external_
   literal_ modify_ private_ readonly_ remove_ run_ symlink_
 )
 # ソース名にしか現れないサフィックス（chezmoi.go の TemplateSuffix / literalSuffix）
 CHEZMOI_SOURCE_SUFFIXES=(.tmpl .literal)
+CHEZMOI_TARGET_OK_MARKER="chezmoi-target-ok"
 
 check_chezmoi_target_paths() {
   local file="$1" raw line lineno pattern component prefix suffix
@@ -239,6 +247,8 @@ check_chezmoi_target_paths() {
     lineno=$((lineno + 1))
     # BOM を落とす。付いていると1行目だけ検査をすり抜ける
     raw="${raw#$'\xef\xbb\xbf'}"
+    # 誤検知を明示的に通すための逃がし
+    [[ $raw == *"$CHEZMOI_TARGET_OK_MARKER"* ]] && continue
 
     # 1. テンプレートアクションを外す。`.chezmoiignore` はレンダリングしてから
     #    パースされるため、`{{ if … }}pattern{{ end }}` の1行形式も有効で、
@@ -249,7 +259,11 @@ check_chezmoi_target_paths() {
     #    コメントとして捨てる（sourcestate.go の commentRx）。ここで同じ規則で
     #    落とさないと、`.zshrc # 旧名は dot_zshrc.tmpl` のような正しい行を
     #    ソース名と誤判定する
-    line=$(sed -E -e 's/\{\{[^{}]*\}\}//g' -e 's/(^|[[:space:]])#.*$//' <<<"$raw")
+    # `LC_ALL=C` は必須。chezmoi の commentRx は Go の `\s`（ASCIIのみ）だが、
+    # sed の `[[:space:]]` はロケール依存で、CIランナーの `C.UTF-8` では
+    # 全角スペース (U+3000) にも一致する。揃えないと「全角スペース + `#`」の行で
+    # chezmoi と判定が食い違い、しかもローカルとCIでも結果が変わる
+    line=$(LC_ALL=C sed -E -e 's/\{\{[^{}]*\}\}//g' -e 's/(^|[[:space:]])#.*$//' <<<"$raw")
     # 前後の空白を落とす（パターンの一部ではない）
     line="${line#"${line%%[![:space:]]*}"}"
     line="${line%"${line##*[![:space:]]}"}"
@@ -285,8 +299,8 @@ check_file() {
   fi
 
   # `.chezmoiignore.tmpl` は `*.tmpl` にも該当するため、先に判定して両方を通す。
-  # chezmoi はソースツリーのどのディレクトリにある `.chezmoiignore` も読むので
-  # ルート直下だけを見ない
+  # chezmoi はサブディレクトリの `.chezmoiignore` も読む（`.` 始まりの
+  # ディレクトリは走査対象外）ので、ルート直下だけを見ない
   case "$(basename -- "$file")" in
     .chezmoiignore | .chezmoiignore.tmpl | .chezmoiremove | .chezmoiremove.tmpl)
       check_chezmoi_target_paths "$file"
@@ -294,7 +308,7 @@ check_file() {
     *) ;;
   esac
 
-  case "${file#./}" in
+  case "$file" in
     */shim-definitions | shim-definitions) check_shim_definitions "$file" ;;
     *.tmpl) check_template_trim_marker "$file" ;;
     *) ;;
@@ -303,8 +317,7 @@ check_file() {
 
 collect_default_targets() {
   git ls-files -- '*.tmpl' 'dot_config/shim-definitions' \
-    ':(glob)**/.chezmoiignore' ':(glob)**/.chezmoiremove' \
-    '.chezmoiignore' '.chezmoiremove' 2>/dev/null ||
+    ':(glob)**/.chezmoiignore' ':(glob)**/.chezmoiremove' 2>/dev/null ||
     find . \( -name '*.tmpl' -o -name '.chezmoiignore' -o -name '.chezmoiremove' \) -not -path './.git/*'
 }
 

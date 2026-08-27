@@ -9,7 +9,7 @@ on:
       # `.tmpl`（ランチャー3本）に当たらない。`**.` の形で書く
       - "**.tmpl"
       - "dot_config/shim-definitions"
-      # chezmoi はソースツリーのどのディレクトリの `.chezmoiignore` も読む
+      # chezmoi はサブディレクトリの `.chezmoiignore` も読む
       - "**.chezmoiignore"
       - "**.chezmoiremove"
       # バージョン同期チェックの対象。linter.yaml だけを書き換えたPRでも走らせる

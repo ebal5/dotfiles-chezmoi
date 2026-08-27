@@ -20,7 +20,9 @@ description: Chezmoi設定管理ガイドライン
   ソース名（`dot_`/`executable_`/`private_`/`run_`等のプレフィックスや`.tmpl`サフィックス）で
   書くと何にもマッチせず、しかもエラーも出ないため「除外したつもり」で気づけない。
   例: `executable_once_setup_ubuntu.sh.tmpl`ではなく`once_setup_ubuntu.sh`と書く
-  （`.github/scripts/check-repo-conventions.sh`が検出する）
+  （`.github/scripts/check-repo-conventions.sh`が検出する）。
+  実在のターゲット名がたまたまプレフィックスと衝突する場合
+  （`.ssh/private_key`等）は行末に`# chezmoi-target-ok`を付けて通す
 - `run_`スクリプトを特定プラットフォームで動かしたくない場合、`.chezmoiignore`ではなく
   スクリプト側のテンプレート条件で囲む。chezmoiはレンダリング結果が空白のみのスクリプトを
   実行しないため、`{{ if eq .chezmoi.os "windows" }}`で囲めば他OSでは走らない

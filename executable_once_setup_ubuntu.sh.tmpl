@@ -1,5 +1,5 @@
+{{ if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "ubuntu") -}}
 #!/bin/bash
-{{ if and (eq .chezmoi.os "linux") (eq .chezmoi.osRelease.id "ubuntu") }}
 # ランチャー。本体は `scripts/setup-ubuntu.sh`。
 # テンプレート構文を含むとshfmt/shellcheckがパースできないため、シェルコードは
 # 素の `.sh` に置いて既存のlintゲートに乗せ、ここには分岐だけを残す。
@@ -8,6 +8,11 @@
 # 維持すること。`and` は短絡評価なので、WSL環境では `.chezmoi.requireGUI` に
 # 触れずに済む。無条件に評価する形に変えると、このキーを設定していないマシンで
 # レンダリングが失敗する。
+#
+# shebang を条件分岐の中に入れているのは、対象外のOSでレンダリング結果を
+# 空にするため。外に出すとその1行だけが残って非空になり、Ubuntu以外の
+# Linux・macOS・Windows のホームに中身のないファイルが置かれる（#217）。
+# 空になれば chezmoi は作らず、既にある残骸も削除する。
 REQUIRE_GUI={{ if and (not (.chezmoi.kernel.osrelease | lower | contains "microsoft")) (.chezmoi.requireGUI) }}true{{ else }}false{{ end }}
 export REQUIRE_GUI
 exec bash "{{ .chezmoi.sourceDir }}/scripts/setup-ubuntu.sh"
