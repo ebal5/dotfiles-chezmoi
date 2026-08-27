@@ -45,6 +45,8 @@ bakups/
 # Temporary files - 一時ファイル
 *.tmp
 *.temp
+# normalize-shared-settings.sh の一時ファイル（`*.tmp` では拾えない名前）
+*.normalize.*
 
 # IDE and editor files - IDE・エディタファイル
 .vscode/

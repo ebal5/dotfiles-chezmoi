@@ -20,7 +20,11 @@
 # 引数なしの場合は DEFAULT_TARGETS を対象にする。
 set -euo pipefail
 
-DEFAULT_TARGETS="dot_claude/settings.json.src dot_claude/dot_mcp.json.src"
+# 既定の対象はスクリプトの位置からリポジトリルートを求めて解決する。cwd 依存だと、
+# ルート以外から実行したときに「対象が1つも無い」で黙って成功してしまう
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd -- "$SCRIPT_DIR/../.." && pwd)
+DEFAULT_TARGETS=("dot_claude/settings.json.src" "dot_claude/dot_mcp.json.src")
 
 # 複数ドキュメントや空入力を弾いてから整形する。jq は `{"a":1}{"b":2}` のような
 # ストリームも空入力も黙って通すため、そのまま書き戻すと壊れたファイルが残り、
@@ -116,7 +120,7 @@ normalize_file() {
   fi
 
   if [[ $check_only -eq 1 ]]; then
-    fail "$file" "キー順が正規化されていない"
+    fail "$file" "正規化されていない（キー順、またはJSONエスケープの表現が異なる）"
     unnormalized=1
     # 差分が無い場合は上の cmp で除いてあるので、diff は必ず非ゼロで返る
     diff -u -- "$file" "$normalized" >&2 || true
@@ -124,16 +128,27 @@ normalize_file() {
   fi
 
   # 同じディレクトリに書いてから mv する。`>` で直接上書きすると、書き込みが
-  # 途中で失敗した（ディスクフル等）ときに元の内容が失われる。`cp` で作るのは
-  # 元のパーミッションを引き継ぐため
-  staging="$file.normalize.tmp.$$"
-  if ! cp -- "$file" "$staging" || ! cat -- "$normalized" >"$staging"; then
+  # 途中で失敗した（ディスクフル等）ときに元の内容が失われる。
+  # 名前を決め打ちにせず mktemp で作るのは、その名前で先回りして置かれた
+  # シンボリックリンクを `>` が辿り、リンク先を壊すのを防ぐため
+  if ! staging=$(mktemp -- "$file.normalize.XXXXXX"); then
+    staging=""
+    fail "$file" "一時ファイルを作れなかった（元の内容は変更していない）"
+    return 0
+  fi
+  # mktemp は 600 で作るので、元のパーミッションに合わせ直す
+  if ! chmod --reference="$file" -- "$staging" || ! cat -- "$normalized" >"$staging"; then
     fail "$file" "一時ファイルへの書き込みに失敗した（元の内容は変更していない）"
     rm -f -- "$staging"
     staging=""
     return 0
   fi
-  mv -f -- "$staging" "$file"
+  if ! mv -f -- "$staging" "$file"; then
+    fail "$file" "書き戻しに失敗した（元の内容は変更していない）"
+    rm -f -- "$staging"
+    staging=""
+    return 0
+  fi
   staging=""
   printf '%s: キー順を正規化した\n' "$file"
 }
@@ -141,8 +156,10 @@ normalize_file() {
 explicit_targets=1
 if [[ ${#targets[@]} -eq 0 ]]; then
   explicit_targets=0
-  # shellcheck disable=SC2206 # 空白区切りの固定リストなので分割してよい
-  targets=($DEFAULT_TARGETS)
+  # 相対パスのまま扱えるようルートへ移る。引数で明示された場合は移らないので、
+  # 呼び出し側の cwd 基準の相対パスがそのまま通る
+  cd -- "$REPO_ROOT"
+  targets=("${DEFAULT_TARGETS[@]}")
 fi
 
 for target in "${targets[@]}"; do
@@ -166,8 +183,10 @@ done
 if [[ $unnormalized -eq 1 ]]; then
   cat >&2 <<'MSG'
 
-共有設定のキー順が正規化されていない。
-`.github/scripts/normalize-shared-settings.sh` を実行し、その差分をコミットすること。
+共有設定が正規化されていない。
+`.github/scripts/normalize-shared-settings.sh` を実行し、`git diff` で中身を確認してから
+`git add` すること。ステージ済みの内容だけが崩れている場合、スクリプトは何も書き換えず
+`git add` し直すこと自体が修正になる。
 MSG
 fi
 

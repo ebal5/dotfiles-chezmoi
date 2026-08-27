@@ -68,6 +68,9 @@ shellcheck $(shfmt -f .)
 
 # Markdownのリント（`.`はトップレベルしか見ないためグロブで指定する）
 markdownlint-cli2 "**/*.md"
+
+# 共有設定（dot_claude/*.src）のキー順を正規化する。ステージ前に走らせる
+.github/scripts/normalize-shared-settings.sh
 ```
 
 GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Windows）が自動実行される。
