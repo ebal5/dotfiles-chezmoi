@@ -13,8 +13,9 @@ set -uo pipefail
 # ロケール依存で、UTF-8ロケールでないと全角スペース (U+3000) に一致しない。
 # chezmoi 側は `bytes.TrimSpace`（Unicode対応）なので、固定しないと
 # 「全角スペース + パターン」の行でローカルとCIの結果が食い違う。
-# `C.UTF-8` が無い環境（macOS等）ではbashが警告を出しつつCにフォールバックし、
-# ASCIIのみになる。見逃す方向なのでCIが最後に捕まえる
+# `C.UTF-8` が無い環境（macOS等）ではbashが警告を出し、環境のロケールが
+# そのまま残る。それがUTF-8なら判定は変わらず、C/POSIXならASCIIのみになる。
+# 後者は見逃す方向なのでCIが最後に捕まえる
 export LC_ALL=C.UTF-8
 
 # Go の `\s`（`[\t\n\f\r ]`）のうち行内に現れうるもの。chezmoi の commentRx が
