@@ -26,12 +26,10 @@ jobs:
           mkdir -p "$HOME/.local/share"
           ln -s "$GITHUB_WORKSPACE" "$HOME/.local/share/chezmoi"
 
-          # Create chezmoi config with required template variables
-          mkdir -p "$HOME/.config/chezmoi"
-          cat > "$HOME/.config/chezmoi/chezmoi.toml" << 'EOF'
-          [data.chezmoi]
-            requireGUI = false
-          EOF
+          # chezmoi の設定ファイルは意図的に作らない。
+          # `~/.config/chezmoi/chezmoi.toml` に requireGUI を書いていない実マシンを
+          # 再現するため（#216 の回帰テスト）。ここで config を書くと、
+          # テンプレートが未定義キーを直接参照して落ちる状態を CI が見逃す。
 
           # Apply dotfiles (skip heavy setup scripts)
           "$HOME/.local/bin/chezmoi" apply --exclude scripts --force
@@ -74,6 +72,39 @@ jobs:
             exit 0
           else
             echo "$errors file(s) missing"
+            exit 1
+          fi
+
+      - name: Verify requireGUI handling
+        run: |
+          set -euo pipefail
+          chezmoi="$HOME/.local/bin/chezmoi"
+          launcher="$HOME/once_setup_ubuntu.sh"
+
+          # 設定ファイルを作っていない = requireGUI 未定義。#216 の回帰テスト。
+          # レンダリングが通り、非WSLの既定 true になること
+          echo "=== without chezmoi config ==="
+          if grep -qx 'REQUIRE_GUI=true' "$launcher"; then
+            echo "[OK] renders without the key, defaults to REQUIRE_GUI=true"
+          else
+            echo "[ERROR] unexpected rendering without config"
+            grep -n 'REQUIRE_GUI' "$launcher" || true
+            exit 1
+          fi
+
+          # 明示値が既定に勝つこと。config がある状態の apply 経路もここで通す
+          echo "=== with requireGUI = false ==="
+          mkdir -p "$HOME/.config/chezmoi"
+          cat > "$HOME/.config/chezmoi/chezmoi.toml" << 'EOF'
+          [data.chezmoi]
+            requireGUI = false
+          EOF
+          "$chezmoi" apply --exclude scripts --force
+          if grep -qx 'REQUIRE_GUI=false' "$launcher"; then
+            echo "[OK] the explicit value overrides the default"
+          else
+            echo "[ERROR] requireGUI = false was not honored"
+            grep -n 'REQUIRE_GUI' "$launcher" || true
             exit 1
           fi
 
