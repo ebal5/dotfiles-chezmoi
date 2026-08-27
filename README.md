@@ -16,6 +16,7 @@ Bash と Zsh に対応。
 # 一時的に使うchezmoiをインストールする
 sh -c "$(curl -fsLS get.chezmoi.io)"
 # このリポジトリを所定ディレクトリにクローンし適用
+# GUIが不要なマシンは apply の前に requireGUI を設定する（後述）
 ${HOME}/bin/chezmoi init https://github.com/ebal5/dotfiles-chezmoi.git
 ${HOME}/bin/chezmoi apply
 # 初期スクリプトを起動する
@@ -29,6 +30,25 @@ ${HOME}/once_setup_ubuntu.sh
 # 初期に使用したchezmoiを削除しNixでインストールしたものを利用するようにする
 rm ~/bin/chezmoi
 ```
+
+#### GUIが不要なマシンの場合（requireGUI）
+
+`once_setup_ubuntu.sh` は非WSLのLinuxを既定でGUI機とみなし、日本語フォント
+（`fonts-migmix`、`fonts-ipafont-*`）を導入する。ヘッドレスなサーバなどで不要なら、
+`chezmoi apply` の**前に** `~/.config/chezmoi/chezmoi.toml` で上書きする。
+
+```toml
+[data.chezmoi]
+  requireGUI = false
+```
+
+この値は `chezmoi apply` の時点で `~/once_setup_ubuntu.sh` に焼き込まれるため、
+後から変える場合は toml を編集してから `chezmoi apply` をやり直す
+（設定していないマシンでも既定値で動く。ファイル自体が無くてもよい）。
+既にインストールしたフォントは apply をやり直しても消えない。
+
+値は TOML の真偽値で書くこと。`"false"` のような文字列や別のセクションに
+書いた場合は「設定されていない」とみなされ、既定値の true になる。
 
 ## install 後の作業
 

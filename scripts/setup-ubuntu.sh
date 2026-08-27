@@ -5,6 +5,8 @@
 #
 # REQUIRE_GUI: ランチャーが注入する。「非WSL **かつ** GUI が必要」の意味で、
 # 単に「GUIが必要」ではない。WSL では常に false になる。
+# ランチャーを経由せず直接実行された場合は判断材料が無いので、安全側
+# （フォントを入れない）に倒す。ランチャー経由の既定は非WSLなら true。
 REQUIRE_GUI="${REQUIRE_GUI:-false}"
 
 sudo apt update
