@@ -126,7 +126,7 @@ PostToolUseフックがそのまま効くため、テンプレート用の検査
 | ランチャー | 本体 | 備考 |
 | --- | --- | --- |
 | `run_after_generate_shims.sh.tmpl` | `scripts/generate-shims.sh` | 毎回走るのでハッシュ不要 |
-| `run_onchange_after_install_herdr_plugins.sh.tmpl` | `scripts/install-herdr-plugins.sh` | 本体と定義ファイルの両方のハッシュを埋める |
+| `run_after_install_herdr_plugins.sh.tmpl` | `scripts/install-herdr-plugins.sh` | 毎回走るのでハッシュ不要 |
 | `executable_once_setup_ubuntu.sh.tmpl` | `scripts/setup-ubuntu.sh` | 手動実行される展開物。再実行判定がないのでハッシュ不要 |
 
 守ること:

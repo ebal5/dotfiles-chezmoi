@@ -207,25 +207,35 @@ herdr側には署名検証もチェックサムも`plugin update`も無い
 
 代わりに[dot_config/herdr-plugins](dot_config/herdr-plugins)へ
 **完全な40桁commit SHA**でピン止めし、
-`run_onchange_after_install_herdr_plugins.sh.tmpl`（本体は
-[scripts/install-herdr-plugins.sh](scripts/install-herdr-plugins.sh)）が次を行う。
+`run_after_install_herdr_plugins.sh.tmpl`（本体は
+[scripts/install-herdr-plugins.sh](scripts/install-herdr-plugins.sh)）が
+引数なしの`chezmoi apply`と`chezmoi update`のたびに次を行う
+（パスを指定した部分applyと`--exclude scripts`では走らない）。
 
 1. `~/.local/share/herdr-plugins/<owner>_<repo>`へ`git fetch --depth 1 <SHA>`で取得
 2. checkoutのHEADがピンと一致するか照合（不一致なら登録しない）
 3. 定義ファイルに書いたビルドコマンドだけを実行（herdr側の`[[build]]`は走らない）
-4. `herdr plugin link`で登録
+4. `herdr plugin link`で登録（既に登録済みなら、herdrが持っているリンク先が
+   今回のcheckoutを指しているかまで照合し、別のパスなら貼り直す）
 
 結果として、**何が実行されるかは定義ファイルの1行だけで決まり、
 バージョン更新はPRのdiffに現れる**。
 
 | 状況 | 挙動 |
 | --- | --- |
-| 定義ファイル未変更 | 何もしない（`run_onchange_`） |
+| すべて整合 | 取得もビルドも登録もせず、何も出力しない |
 | SHA変更 | `git clean -xdff`してから再取得・再ビルド |
 | ビルド失敗 | linkせずに次のプラグインへ進む |
 | 定義から削除 | `herdr plugin unlink`してcheckoutごと削除 |
+| 1行でも処理に失敗 | その回は削除をしない。エラーが解消するまで定義からの削除は反映されない |
 | 手動でunlink済み | 次回applyで再link |
-| herdr未導入 | 何もせず終了 |
+| 登録先が今回のcheckoutと別のパス | 再link（無効化してあれば`--disabled`で無効のまま） |
+| 同じidを宣言する定義が2行 | 先の行を採り、後の行は警告して登録しない |
+| レジストリを読めない | 警告して登録に触らない（無効化を有効へ戻さないため） |
+| jq未導入 | リンク先を照合できないため警告し、idの有無だけで判定 |
+| herdrが応答しない | 1呼び出し15秒で打ち切り、警告して登録に触らない |
+| 上流がmanifestのidを変更 | 新しいidでlinkしてから古いidの登録を外す |
+| herdr未導入 | 何も出力せず終了 |
 
 導入済み:
 
