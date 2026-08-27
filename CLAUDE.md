@@ -102,6 +102,7 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | テーブルはcompact style（最小パディング）。CJK文字幅でaligned styleが崩れるため | markdownlint MD060（`style: compact`） |
 | 先頭に条件分岐を置く`.tmpl`で、その直後がshebangならtrim marker（`-}}`）必須 | `.github/scripts/check-repo-conventions.sh` |
 | shim定義は`runner:package[:alias]`形式、`@`を含むpackageはalias必須 | 同上 |
+| markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
 | シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`）。**`.tmpl`は対象外** |
 

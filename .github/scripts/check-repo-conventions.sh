@@ -110,6 +110,98 @@ check_shim_definitions() {
   done
 }
 
+# 規約3: markdownlint-cli2 のバージョンは dot_config/shim-definitions を単一情報源とする。
+#
+# `.markdownlint-cli2.yaml` で MD060 の style を明示しており、ルールの挙動が
+# バージョンに依存する。CIとローカルで版が食い違うと「ローカルで通ったのに
+# CIで落ちる」が起きる。固定箇所を2つ持って一致を検査するのではなく、
+# CI側が shim 定義から抽出することで、そもそもドリフトを起こしえなくする。
+#
+# その設計がなし崩しにされるのを防ぐため、次の3点を検査する:
+#   1. shim 定義でバージョンが固定されていること
+#   2. linter.yaml が markdownlint-cli2 のバージョンをハードコードしていないこと
+#      （「簡潔にしよう」と直書きに戻されると単一情報源が黙って崩れる）
+#   3. linter.yaml が shim 定義を参照していること
+MARKDOWNLINT_PKG="markdownlint-cli2"
+SHIM_DEFS_FILE="dot_config/shim-definitions"
+LINTER_WORKFLOW_FILE=".github/workflows/linter.yaml"
+
+# shim定義から `runner:<package>[@<version>][:alias]` を探す。
+# 出力: "<行番号> <バージョン>"。行が無ければ "0"、バージョン未固定なら "<行番号>" のみ
+find_shim_version() {
+  local pkg="$1" file="$2" line lineno rest
+  local -a lines=()
+  mapfile -t lines <"$file"
+  for lineno in "${!lines[@]}"; do
+    line=$(strip_cr "${lines[lineno]}")
+    [[ -z $line || $line == \#* ]] && continue
+    # runner を落として package 以降だけを見る
+    rest="${line#*:}"
+    if [[ $rest == "$pkg" || $rest == "$pkg:"* ]]; then
+      printf '%s\n' "$((lineno + 1))"
+      return 0
+    fi
+    if [[ $rest == "$pkg@"* ]]; then
+      rest="${rest#"$pkg@"}"
+      printf '%s %s\n' "$((lineno + 1))" "${rest%%:*}"
+      return 0
+    fi
+  done
+  printf '0\n'
+}
+
+check_markdownlint_version_source() {
+  local shim_lineno shim_ver line lineno rest
+  local refs_shim_defs=0 mentions_pkg=0 hardcoded_lineno=0
+  local -a lines=()
+
+  if [[ ! -f $SHIM_DEFS_FILE ]]; then
+    fail "$SHIM_DEFS_FILE" 0 "バージョンの単一情報源が無い"
+    return 0
+  fi
+
+  read -r shim_lineno shim_ver < <(find_shim_version "$MARKDOWNLINT_PKG" "$SHIM_DEFS_FILE" || true)
+  if [[ $shim_lineno -eq 0 ]]; then
+    fail "$SHIM_DEFS_FILE" 0 "$MARKDOWNLINT_PKG の shim 定義が無い。CIもここからバージョンを読むため、消すとCIが壊れる"
+  elif [[ -z $shim_ver ]]; then
+    fail "$SHIM_DEFS_FILE" "$shim_lineno" "$MARKDOWNLINT_PKG のバージョンが固定されていない（\`pnpm:$MARKDOWNLINT_PKG@<version>:$MARKDOWNLINT_PKG\` の形にすること）"
+  fi
+
+  if [[ ! -f $LINTER_WORKFLOW_FILE ]]; then
+    fail "$LINTER_WORKFLOW_FILE" 0 "$MARKDOWNLINT_PKG を実行するワークフローが無い"
+    return 0
+  fi
+
+  mapfile -t lines <"$LINTER_WORKFLOW_FILE"
+  for lineno in "${!lines[@]}"; do
+    line=$(strip_cr "${lines[lineno]}")
+    # コメント行は除外する。「shim定義から抽出する」と書いたコメントだけが残り、
+    # 実行される側は非固定インストールに戻っている、を通してしまうため
+    [[ $line =~ ^[[:space:]]*# ]] && continue
+    [[ $line == *"$SHIM_DEFS_FILE"* ]] && refs_shim_defs=1
+    [[ $line == *"$MARKDOWNLINT_PKG"* ]] || continue
+    mentions_pkg=1
+    # packageは正規表現ではなく文字列一致で切り出すため、`@`を含む
+    # scoped package を対象にしても壊れない
+    [[ $line == *"$MARKDOWNLINT_PKG@"* ]] || continue
+    rest="${line#*"$MARKDOWNLINT_PKG@"}"
+    # `@${version}` のような変数参照ではなく、数字で始まる直書きだけを拾う
+    [[ $rest =~ ^[0-9] ]] || continue
+    [[ $hardcoded_lineno -eq 0 ]] && hardcoded_lineno=$((lineno + 1))
+  done
+
+  if [[ $mentions_pkg -eq 0 ]]; then
+    fail "$LINTER_WORKFLOW_FILE" 0 "$MARKDOWNLINT_PKG への言及が無い。markdownlint ジョブが消えている"
+    return 0
+  fi
+  if [[ $hardcoded_lineno -ne 0 ]]; then
+    fail "$LINTER_WORKFLOW_FILE" "$hardcoded_lineno" "$MARKDOWNLINT_PKG のバージョンが直書きされている。$SHIM_DEFS_FILE から抽出すること（固定箇所を1つに保つ）"
+  fi
+  if [[ $refs_shim_defs -eq 0 ]]; then
+    fail "$LINTER_WORKFLOW_FILE" 0 "$SHIM_DEFS_FILE を参照していない。$MARKDOWNLINT_PKG のバージョンはそこから抽出すること（固定箇所を1つに保つ）"
+  fi
+}
+
 check_file() {
   local file="$1"
   if [[ ! -f $file ]]; then
@@ -130,13 +222,26 @@ collect_default_targets() {
     find . -name '*.tmpl' -not -path './.git/*'
 }
 
+# バージョンの単一情報源はファイル単位ではなくファイル間の不変条件なので、
+# 引数にどちらか一方でも含まれていれば両方を読んで検査する。
+version_source_requested() {
+  local file normalized
+  for file in "$@"; do
+    normalized="${file#./}"
+    [[ $normalized == "$SHIM_DEFS_FILE" || $normalized == "$LINTER_WORKFLOW_FILE" ]] && return 0
+  done
+  return 1
+}
+
 main() {
   local file
   if [[ $# -gt 0 ]]; then
     for file in "$@"; do
       check_file "$file"
     done
+    version_source_requested "$@" && check_markdownlint_version_source
   else
+    check_markdownlint_version_source
     local -a targets=()
     mapfile -t targets < <(collect_default_targets || true)
     for file in "${targets[@]}"; do
