@@ -76,6 +76,9 @@ shellcheck $(shfmt -f .)
 
 # Markdownのリント（`.`はトップレベルしか見ないためグロブで指定する）
 markdownlint-cli2 "**/*.md"
+
+# 共有設定（dot_claude/*.src）のキー順を正規化する。ステージ前に走らせる
+.github/scripts/normalize-shared-settings.sh
 ```
 
 GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Windows）が自動実行される。
@@ -113,6 +116,7 @@ GitHub Actionsで上記に加え、JSON Schema検証、E2Eテスト（Ubuntu/Win
 | `.tmpl`はchezmoiの設定ファイルが無い環境でもレンダリングできる（マシン固有のキーは`dig`等で既定値付きに読む） | 同上（configを持たない状態で`chezmoi archive`する） |
 | markdownlint-cli2のバージョンはshim定義が単一情報源。CIが直書きに戻していないこと | 同上 |
 | 共有設定（`dot_claude/*.src`）にマシン固有・組織固有の値を入れない | `.github/scripts/check-shared-settings.sh` |
+| 共有設定（`dot_claude/*.src`）のキー順は`jq --sort-keys`で正規化する | `.github/scripts/normalize-shared-settings.sh` |
 | シェルスクリプトの品質（`[[ ]]`推奨、クォート漏れ等） | shellcheck（`.shellcheckrc`で`enable=all`） |
 
 新しい規約を足すときは、機械的に判定できるなら文章ではなく上記のいずれかに実装する。

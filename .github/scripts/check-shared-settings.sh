@@ -19,7 +19,15 @@ json.schemastore.org mcp.context7.com nixos.org starship.rs chezmoi.io"
 # マシンローカルの追加禁止語（1行1パターン、存在する場合のみ適用）
 DENYLIST="${HOME}/.config/local/shared-settings-denylist"
 
-DEFAULT_TARGETS="dot_claude/settings.json.src dot_claude/dot_mcp.json.src"
+# 既定の対象はスクリプトの位置から解決する。cwd 基準の相対パスにすると、
+# リポジトリルート以外から実行したときに「対象が1つも無い」で黙って exit 0 し、
+# 検査したつもりの素通りになる（normalize-shared-settings.sh と同じ扱い）
+SCRIPT_PATH=$(readlink -f -- "${BASH_SOURCE[0]}")
+REPO_ROOT=$(cd -- "$(dirname -- "$SCRIPT_PATH")/../.." && pwd)
+DEFAULT_TARGETS=(
+  "$REPO_ROOT/dot_claude/settings.json.src"
+  "$REPO_ROOT/dot_claude/dot_mcp.json.src"
+)
 
 status=0
 
@@ -80,8 +88,11 @@ check_file() {
 
 targets=("$@")
 if [[ ${#targets[@]} -eq 0 ]]; then
-  # shellcheck disable=SC2206 # 空白区切りの固定リストなので分割してよい
-  targets=($DEFAULT_TARGETS)
+  if [[ ! -d "$REPO_ROOT/dot_claude" ]]; then
+    printf '既定の対象を解決できない（%s に dot_claude が無い）。スクリプトを .github/scripts/ から移していないか確認すること。\n' "$REPO_ROOT" >&2
+    exit 1
+  fi
+  targets=("${DEFAULT_TARGETS[@]}")
 fi
 
 for target in "${targets[@]}"; do
