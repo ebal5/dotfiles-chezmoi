@@ -4,7 +4,6 @@ This file contains Claude Code standards applied across all projects.
 
 ## Search
 
-- Prefer the Grep/Glob tools over shell commands for searching files
 - Never use the `find ... -exec grep` pattern in the shell: it gets blocked
   by automode and `rg` covers it. Use `rg` and scope it with `--type`/`-t`
   (language) or `-g`/`--glob` (extension/path globs). For more complex needs,
@@ -25,8 +24,8 @@ This file contains Claude Code standards applied across all projects.
 ## Progress updates during work
 
 - Before the first tool call, say in one sentence what you are about to do
-- While working, give a brief update only when you find something important or
-  change direction
+- While working, give a brief update when you find something important, change
+  direction, or have been working for a while without saying anything
 - When finished, lead with the outcome: the first sentence should answer "what
   happened" or "what did you find", with supporting detail after it
 
@@ -46,5 +45,6 @@ Files written to disk (documents, reports, summaries) run long by default.
   wide multi-file investigation. Do not delegate what you can finish in a
   handful of tool calls, and do not use subagents to verify your own work
   (the `claude-code-guide` case above is the intended exception)
-- Use `low`/`medium` effort as the primary lever for cost and latency wherever
-  quality holds. Step up to `xhigh` only for demanding coding and agentic work
+- When setting `effort:` in skill or agent frontmatter, start from `medium` and
+  raise it only where quality measurably drops. To get less thinking, lower
+  effort rather than adding "think less" instructions
