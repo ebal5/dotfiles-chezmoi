@@ -1,24 +1,14 @@
 ---
-paths: "**/*mise*", .tool-versions, executable_once_setup_*
+paths: "**/*mise*", .tool-versions, scripts/setup-ubuntu.sh
 description: mise（ツールバージョン管理）
 ---
 
 # mise（ツールバージョン管理）
 
-## 概要
+このリポジトリでmiseが受け持つのは、プロジェクトごとにバージョンを固定する必要が
+あるツール（Node.js、Python等のランタイム、shellcheck、shfmt、terraform等）。
+Nixとの使い分けは[CLAUDE.md](../../CLAUDE.md)の「ツール管理方針」を参照。
 
-mise（旧rtx）はプロジェクトごとのツールバージョン管理ツール。
-asdfの高速なRust実装。Node.js、Python等の言語ランタイムに加え、
-プロジェクトごとにバージョンを固定したいツール（shellcheck、shfmt、terraform等）を管理する。
-
-## 基本コマンド
-
-- `mise install` - 設定ファイルに基づいてツールをインストール
-- `mise use <tool>@<version>` - ツールのバージョンを指定して使用
-- `mise ls` - インストール済みツールを一覧表示
-- `mise current` - 現在のディレクトリで有効なツールバージョンを表示
-
-## 設定ファイル
-
-- `.mise.toml` または `mise.toml` - miseネイティブ設定
-- `.tool-versions` - asdf互換の設定ファイル
+- miseの導入とグローバルのNode.js/Pythonは`scripts/setup-ubuntu.sh`が入れる
+- terraformのようにPJごとに版が違うツールは、グローバルの
+  `~/.config/mise/config.toml`ではなく各プロジェクトの`mise.toml`に書く

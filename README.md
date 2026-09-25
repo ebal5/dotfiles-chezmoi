@@ -575,6 +575,24 @@ NOTE: Node.jsの更新にはリリース署名鍵の検証が必要。
 `gpg: Can't check signature: No public key`で失敗する場合は
 [nodejs/release-keys](https://github.com/nodejs/release-keys)から該当鍵をimportする。
 
+### Claude Code の指示文（想定モデル）
+
+`dot_claude/CLAUDE.md`、`.claude/rules/`、`dot_claude/commands/`の指示文と、
+`settings.json.src`の`effortLevel`は **Claude Opus 5.5** に合わせてある。
+
+モデル名はここにだけ書き、指示文の中には書かない。指示文は毎セッション読み込まれるため、
+モデル名を書くとそのモデルが退役した後も残り続け、古い前提を伝えてしまう。
+
+新しいモデルに切り替えたら、指示文を監査してからこの節のモデル名を更新する。
+
+```text
+/claude-api prompt-audit
+```
+
+監査で見るのは、前のモデル向けの回避策（冗長さ・検証・進捗報告の調整）が
+新しいモデルでもまだ必要か、そして`effortLevel`の値が新しいモデルの既定と
+思考量に合っているか。
+
 ## その他
 
 - マイグレーション履歴は [MIGRATION.md](MIGRATION.md) を参照

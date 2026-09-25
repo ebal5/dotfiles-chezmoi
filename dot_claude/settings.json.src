@@ -3,7 +3,7 @@
   "advisorModel": "opus",
   "agentPushNotifEnabled": true,
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
+  "effortLevel": "medium",
   "enabledPlugins": {},
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
