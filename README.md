@@ -422,17 +422,21 @@ allowed-tools: Edit, Bash(npm:*)
 - GitHub CLI: PR/Issue閲覧、ステータス確認
 - Web検索、ドキュメント取得
 
-確認が必要な操作（askリスト）:
+確認が必要な主な操作（askリスト）:
 
-- `git push`, `git branch -D`, `git worktree remove --force`
-- `git rebase`のうち、`--exec`/`-x`付きと、書き換え対象に`main`を指定するもの
-  （main上での`git rebase`はパターンで検出できない。force pushはdenyなので
-  リモートは壊れず、ローカルはreflogで戻せる）
+- `git push`、ブランチの強制削除・移動（`-D`、`-f`、`--force`）、`git worktree remove --force`
+- `git rebase`のうち、`--exec`/`-x`付きと、最後の引数が`main`のもの
+  （main上での`git rebase`はパターンで検出できない。ローカルはreflogで戻せる）
+- `git merge --ff-only`に`--no-ff`/`--ff`を後置してマージコミットを作るもの
 - `gh api`（`-f`/`-F`で暗黙にPOSTになり、GraphQLは常にPOSTのため読み取りを判別できない）
 - `gh issue create`, `gh pr create`, `gh label create`
 
+force push（`--force`、`--force-with-lease`、`-f`、`+refspec`）はdeny。
+
 ask は allow より優先されるため、allow で例外を作るには ask 側の広いパターンを外す必要がある。
 `--ff-only`以外の`git merge`はどのルールにも一致せず、auto modeでは分類器の判断に委ねられる。
+gitは長いオプションを一意な接頭辞に省略できる（`--exe`が`--exec`として通る）ため、
+オプションを塞ぐパターンは`*--ex*`のように接頭辞で書く。
 
 ### 設定のカスタマイズ
 
