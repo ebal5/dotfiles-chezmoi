@@ -419,19 +419,21 @@ allowed-tools: Edit, Bash(npm:*)
 
 - Git操作: fetch, checkout, add, commit, branch, stash, `merge --ff-only`, rebase,
   `worktree list/remove`
+- `chmod +x`
 - GitHub CLI: PR/Issue閲覧、ステータス確認
 - Web検索、ドキュメント取得
 
 確認が必要な主な操作（askリスト）:
 
-- `git push`、ブランチの強制削除・移動（`-D`、`-f`、`--force`）、`git worktree remove --force`
+- `git push`、ブランチの強制削除・移動・上書き（`-D`、`-M`、`-C`、`-f`、`--force`）、
+  `git worktree remove --force`
 - `git rebase`のうち、`--exec`/`-x`付きと、最後の引数が`main`のもの
   （main上での`git rebase`はパターンで検出できない。ローカルはreflogで戻せる）
 - `git merge --ff-only`に`--no-ff`/`--ff`を後置してマージコミットを作るもの
 - `gh api`（`-f`/`-F`で暗黙にPOSTになり、GraphQLは常にPOSTのため読み取りを判別できない）
 - `gh issue create`, `gh pr create`, `gh label create`
 
-force push（`--force`、`--force-with-lease`、`-f`、`+refspec`）はdeny。
+force push（`--force`、`--force-with-lease`、`-f`、`+refspec`。`git -C <dir> push`も含む）はdeny。
 
 ask は allow より優先されるため、allow で例外を作るには ask 側の広いパターンを外す必要がある。
 `--ff-only`以外の`git merge`はどのルールにも一致せず、auto modeでは分類器の判断に委ねられる。
