@@ -417,14 +417,22 @@ allowed-tools: Edit, Bash(npm:*)
 
 デフォルトで許可されている操作（確認なし）:
 
-- Git操作: fetch, checkout, add, commit, branch, reset
+- Git操作: fetch, checkout, add, commit, branch, stash, `merge --ff-only`, rebase,
+  `worktree list/remove`
 - GitHub CLI: PR/Issue閲覧、ステータス確認
 - Web検索、ドキュメント取得
 
 確認が必要な操作（askリスト）:
 
-- `git push`, `git merge`
+- `git push`, `git branch -D`, `git worktree remove --force`
+- `git rebase`のうち、`--exec`/`-x`付きと、書き換え対象に`main`を指定するもの
+  （main上での`git rebase`はパターンで検出できない。force pushはdenyなので
+  リモートは壊れず、ローカルはreflogで戻せる）
+- `gh api`（`-f`/`-F`で暗黙にPOSTになり、GraphQLは常にPOSTのため読み取りを判別できない）
 - `gh issue create`, `gh pr create`, `gh label create`
+
+ask は allow より優先されるため、allow で例外を作るには ask 側の広いパターンを外す必要がある。
+`--ff-only`以外の`git merge`はどのルールにも一致せず、auto modeでは分類器の判断に委ねられる。
 
 ### 設定のカスタマイズ
 
