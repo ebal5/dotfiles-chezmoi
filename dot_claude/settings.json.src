@@ -1,6 +1,6 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
-  "advisorModel": "opus",
+  "advisorModel": "fable",
   "agentPushNotifEnabled": true,
   "alwaysThinkingEnabled": true,
   "effortLevel": "medium",
