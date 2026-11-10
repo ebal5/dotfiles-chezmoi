@@ -1,12 +1,25 @@
 typeset -U path
 
 # config for ssh-agent
-SSH_AGENT_ENV=$HOME/.ssh/agent-env
-if [[ -r $SSH_AGENT_ENV ]]; then
-    . $SSH_AGENT_ENV >/dev/null
-fi
-if [[ -z "$SSH_AGENT_PID" ]] || ! kill -0 $SSH_AGENT_PID 2>/dev/null; then
-    [[ -d "${SSH_AGENT_ENV%/*}" ]] || mkdir -m 700 -p "${SSH_AGENT_ENV%/*}"
-    ssh-agent > "$SSH_AGENT_ENV" && chmod 600 "$SSH_AGENT_ENV"
-    . $SSH_AGENT_ENV >/dev/null
+# ソケットを固定パスに置き、生存確認はPIDではなくソケットへの接続で行う。
+# - PIDで判定すると、再起動後に同じユーザーの別プロセス（systemd --user等）へ
+#   再利用されたときに誤判定する（kill -0が成功する）
+# - WSLでは起動時にログインシェルが2本同時に走る。確認から起動までをflockで
+#   直列化し、2本目は1本目が立てたagentを使う
+# ssh-add -lは接続できないときだけ終了コード2を返す
+export SSH_AUTH_SOCK=$HOME/.ssh/agent.sock
+unset SSH_AGENT_PID
+ssh-add -l >/dev/null 2>&1
+if (( $? == 2 )); then
+    [[ -d $HOME/.ssh ]] || mkdir -m 700 -p "$HOME/.ssh"
+    # サブシェル( )にしないこと。zshはサブシェル末尾のコマンドをexecで置き換えるため、
+    # 9>&-がロックごと閉じてしまい、ssh-agentがbindする前に排他が外れる
+    {
+        flock 9 2>/dev/null
+        ssh-add -l >/dev/null 2>&1
+        if (( $? == 2 )); then
+            rm -f "$SSH_AUTH_SOCK"
+            ssh-agent -a "$SSH_AUTH_SOCK" >/dev/null 9>&-
+        fi
+    } 9>"$HOME/.ssh/agent.lock"
 fi
