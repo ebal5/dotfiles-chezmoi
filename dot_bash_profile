@@ -1,14 +1,20 @@
 [ -e "$HOME/.profile" ] && . $HOME/.profile
 
 # config for ssh-agent
-SSH_AGENT_ENV=$HOME/.ssh/agent-env
-if [ -r $SSH_AGENT_ENV ]; then
-  . $SSH_AGENT_ENV >/dev/null
-fi
-if [ -z "$SSH_AGENT_PID" ] || ! kill -0 $SSH_AGENT_PID 2>/dev/null; then
-  [ -d "${SSH_AGENT_ENV%/*}" ] || mkdir -m 700 -p "${SSH_AGENT_ENV%/*}"
-  ssh-agent >$SSH_AGENT_ENV
-  . $SSH_AGENT_ENV >/dev/null
+# 固定ソケット＋flockで起動する（理由はdot_zshenvを参照）
+export SSH_AUTH_SOCK="$HOME/.ssh/agent.sock"
+unset SSH_AGENT_PID
+ssh-add -l >/dev/null 2>&1
+if [ $? -eq 2 ]; then
+  [ -d "$HOME/.ssh" ] || mkdir -m 700 -p "$HOME/.ssh"
+  {
+    flock 9 2>/dev/null
+    ssh-add -l >/dev/null 2>&1
+    if [ $? -eq 2 ]; then
+      rm -f "$SSH_AUTH_SOCK"
+      ssh-agent -a "$SSH_AUTH_SOCK" >/dev/null 9>&-
+    fi
+  } 9>"$HOME/.ssh/agent.lock"
 fi
 
 [ -e "$HOME/.bashrc" ] && . "$HOME/.bashrc"
