@@ -591,8 +591,18 @@ NOTE: Node.jsの更新にはリリース署名鍵の検証が必要。
 
 ### Claude Code の指示文（想定モデル）
 
-`dot_claude/CLAUDE.md`、`.claude/rules/`、`dot_claude/commands/`の指示文と、
-`settings.json.src`の`effortLevel`は **Claude Opus 5.5** に合わせてある。
+`dot_claude/CLAUDE.md`、`.claude/rules/`、`dot_claude/commands/`の指示文は
+**Claude Opus 5.5** に合わせてある。effortはOpus 5.5の既定（`medium`）のまま使う。
+
+`settings.json.src`の`effortLevel`はOpus 5.5には効かない。user設定のトップレベル
+`effortLevel`は`/effort`が以前書いていた旧形式で、Opus 5以前のモデルにしか適用されない
+（[公式ドキュメント](https://code.claude.com/docs/en/model-config.md)）。Opus 5.5以降は
+`modelSettings.<モデルID>.effortLevel`か、それが無ければモデルの既定で決まる。
+
+`/model`のピッカーや`/effort`のスライダーでEnterを押すと、選んだ値が
+`modelSettings`に保存される。保存先はこの`settings.json.src`なので、
+その場限りで上げたいときは`s`（このセッションのみ）か`claude --effort <level>`を使う。
+共有設定に`modelSettings`を入れるとモデルIDが埋め込まれ、退役後も残り続ける。
 
 モデル名はここにだけ書き、指示文の中には書かない。指示文は毎セッション読み込まれるため、
 モデル名を書くとそのモデルが退役した後も残り続け、古い前提を伝えてしまう。
@@ -604,8 +614,7 @@ NOTE: Node.jsの更新にはリリース署名鍵の検証が必要。
 ```
 
 監査で見るのは、前のモデル向けの回避策（冗長さ・検証・進捗報告の調整）が
-新しいモデルでもまだ必要か、そして`effortLevel`の値が新しいモデルの既定と
-思考量に合っているか。
+新しいモデルでもまだ必要か、そして新しいモデルの既定effortで足りるか。
 
 ## その他
 
