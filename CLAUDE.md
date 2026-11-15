@@ -39,7 +39,7 @@ Ubuntu/WSL2環境向けのChezmoiで管理された個人用dotfilesリポジト
 - **winget**（Windows）: Nix CLIツールのWindows対応版 + Windows専用アプリ
 - **uvx/pnpm shim**（`dot_config/shim-definitions`）: `chezmoi apply`時に`~/.scripts/`へラッパースクリプトを自動生成。新ツール追加は定義ファイルに1行追加するだけ
 - 判定基準: CLIツール→Nix、ビルド依存→APT、PJごとのバージョン固定が必要→mise、root権限必要→APT、Pythonツール(ruff等)→uvx shim、JSツール(markdownlint-cli2等)→pnpm shim
-- markdownlint-cli2 だけはバージョンを固定する（現在 `0.23.2`）。`.markdownlint-cli2.yaml`で
+- markdownlint-cli2 だけはバージョンを固定する（版は定義ファイル側にだけ書く）。`.markdownlint-cli2.yaml`で
   MD060の`style`を明示しており、ルールの挙動がバージョンに依存するため、CIとローカルで
   版が食い違うと「ローカルで通ったのにCIで落ちる」が起きる。
   **固定箇所は`dot_config/shim-definitions`の1行だけ**。CI（`.github/workflows/linter.yaml`）は
