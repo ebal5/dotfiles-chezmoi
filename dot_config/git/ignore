@@ -12,12 +12,14 @@ settings.local.json
 .claude/*.log
 
 # =================================
-# Mise/RTX Tool Version Manager
+# Mise (local-only configs; shared mise.toml / .tool-versions / mise.lock are committed)
 # =================================
-mise.toml
-.mise.toml
-.rtxrc
-.tool-versions
+mise*.local.toml
+.mise*.local.toml
+**/mise/config*.local.toml
+**/.mise/config*.local.toml
+**/mise/conf.d/*.local.toml
+**/.mise/conf.d/*.local.toml
 
 # =================================
 # OS Generated Files
@@ -29,7 +31,6 @@ mise.toml
 ._*
 .Spotlight-V100
 .Trashes
-Icon?
 
 # Windows
 Thumbs.db
@@ -56,11 +57,7 @@ $RECYCLE.BIN/
 # Development Tools Local Settings
 # =================================
 
-# VS Code
-.vscode/settings.json
-.vscode/launch.json
-.vscode/extensions.json
-.vscode/tasks.json
+# VS Code (.vscode/*.json is often shared per project)
 .history/
 
 # JetBrains IDEs
@@ -75,14 +72,6 @@ $RECYCLE.BIN/
 .idea/dataSources.local.xml
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
-.idea/uiDesigner.xml
-.idea/gradle.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-.idea/modules.xml
-.idea/inspectionProfiles/
-.idea/artifacts/
 
 # Vim/Neovim
 .netrwhist
@@ -99,11 +88,8 @@ Sessionx.vim
 /.emacs.desktop
 /.emacs.desktop.lock
 *.elc
-auto-save-list
-tramp
 .\#*
 .org-id-locations
-*_archive
 ltximg/**
 *.rel
 
@@ -127,13 +113,12 @@ id_ed25519
 .env
 .env.local
 .env.*.local
-.envrc
+.envrc.local
 
 # API Keys & Tokens
 .secrets
 .token
 .credentials
-*api_key*
 auth.json
 .netrc
 
@@ -156,37 +141,22 @@ __pycache__/
 *.so
 .Python
 develop-eggs/
-downloads/
-eggs/
 .eggs/
-parts/
 sdist/
-var/
 wheels/
 *.egg-info/
 .installed.cfg
 *.egg
 .venv
 .venv/
-ENV/
-env/
 venv/
 
 # Ruby
 *.gem
 *.rbc
-/.config
-/coverage/
-/InstalledFiles
-/pkg/
-/spec/reports/
-/spec/examples.txt
-/test/tmp/
-/test/version_tmp/
-/tmp/
 .bundle/
 vendor/bundle
-.rspec
+.rspec-local
 .rvmrc
 
 # Go
@@ -197,13 +167,9 @@ vendor/bundle
 *.test
 go.work
 
-# Rust
-Cargo.lock
-
 # Java
 *.class
 *.log
-*.jar
 *.war
 *.nar
 *.ear
@@ -238,11 +204,6 @@ hs_err_pid*
 .next/
 .nuxt/
 .vuepress/dist
-
-# Database
-*.db
-*.sqlite
-*.sqlite3
 
 # =================================
 # Documentation and Media
@@ -316,7 +277,6 @@ composer.phar
 
 # Sublime Text
 *.sublime-workspace
-*.sublime-project
 
 # Atom
 .atom/
@@ -343,7 +303,6 @@ callgrind.*
 *.tfstate
 *.tfstate.*
 .terraform/
-.terraform.lock.hcl
 
 # AWS
 .aws/config.local
