@@ -137,6 +137,25 @@ prek install
 
 プロジェクト固有のファイルを無視する場合は、各プロジェクトの `.gitignore` ファイルを使用してください。
 
+### ワークツリーへのローカル専用ファイルのコピー
+
+除外したローカル専用ファイル（`mise.local.toml`等）は`git worktree add`で作ったワークツリーに
+入らない。`~/.gitconfig`の`hook.worktree-copy`（設定ファイル定義のpost-checkoutフック）が
+[`git-worktree-copy.sh`](dot_scripts/executable_git-worktree-copy.sh)を呼び、メインワークツリーから
+コピーする。`.git/hooks`や`core.hooksPath`を使わないので、prek等のフックと共存する。
+
+コピー対象はgitignore形式の定義ファイルに書く。書式はClaude Codeの`.worktreeinclude`と同じで、
+定義に一致し、かつgitの除外対象になっているファイルだけを、既存ファイルを上書きせずにコピーする。
+
+| 定義ファイル | コミット | `git worktree add` | Claude Codeのワークツリー |
+| --- | --- | --- | --- |
+| `<repo>/.worktreeinclude` | する | 効く | 効く（Claude Code自身の機能） |
+| `<repo>/.git/info/worktreeinclude` | しない | 効く | 効かない |
+
+Claude Code（`--worktree`やサブエージェントの`isolation: worktree`）がワークツリーを作るときは
+post-checkoutフックが呼ばれないことを実測で確認している。そのため両者が同じファイルを
+二重にコピーすることはなく、Claude側では`.worktreeinclude`だけが効く。
+
 ## 設定内容
 
 - パッケージ管理ツールを利用したセットアップ
