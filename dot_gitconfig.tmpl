@@ -127,6 +127,13 @@
 
 [diff]
   colorMoved = default
+{{ if ne .chezmoi.os "windows" }}
+# git worktree add 時にローカル専用ファイル（.worktreeinclude で定義）をコピーする。
+# 設定ファイル定義のフックは .git/hooks（prek 等）と共存する。この機能を持たない古い git では無視される
+[hook "worktree-copy"]
+  event = post-checkout
+  command = "$HOME/.scripts/git-worktree-copy.sh"
+{{ end -}}
 {{ if lookPath "gh" }}
 [credential "https://github.com"]
 	helper =
