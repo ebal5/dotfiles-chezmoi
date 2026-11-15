@@ -144,17 +144,21 @@ prek install
 [`git-worktree-copy.sh`](dot_scripts/executable_git-worktree-copy.sh)を呼び、メインワークツリーから
 コピーする。`.git/hooks`や`core.hooksPath`を使わないので、prek等のフックと共存する。
 
-コピー対象はgitignore形式の定義ファイルに書く。書式はClaude Codeの`.worktreeinclude`と同じで、
-定義に一致し、かつgitの除外対象になっているファイルだけを、既存ファイルを上書きせずにコピーする。
+コピー対象はリポジトリ直下の`.worktreeinclude`（gitignore形式）に書く。Claude Codeが読むものと
+同じファイルで、定義に一致し、かつgitの除外対象になっているファイルだけを、既存ファイルを
+上書きせずにコピーする。
 
-| 定義ファイル | コミット | `git worktree add` | Claude Codeのワークツリー |
-| --- | --- | --- | --- |
-| `<repo>/.worktreeinclude` | する | 効く | 効く（Claude Code自身の機能） |
-| `<repo>/.git/info/worktreeinclude` | しない | 効く | 効かない |
+```gitignore
+mise*.local.toml
+.mise*.local.toml
+```
+
+コミットしたくないリポジトリ（業務用等）では、`.worktreeinclude`自体を`.git/info/exclude`に
+書いて未追跡のまま置く。未追跡でもフックとClaude Codeの両方が読む。
 
 Claude Code（`--worktree`やサブエージェントの`isolation: worktree`）がワークツリーを作るときは
-post-checkoutフックが呼ばれないことを実測で確認している。そのため両者が同じファイルを
-二重にコピーすることはなく、Claude側では`.worktreeinclude`だけが効く。
+post-checkoutフックが呼ばれず、Claude Code自身が`.worktreeinclude`に従ってコピーすることを
+実測で確認している。どちらの経路でも同じ定義が使われ、二重にコピーされることはない。
 
 ## 設定内容
 

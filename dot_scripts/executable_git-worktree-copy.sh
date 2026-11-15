@@ -5,11 +5,13 @@
 # ~/.gitconfig の hook.worktree-copy から呼ばれる（.git/hooks や core.hooksPath を
 # 使わないので、prek 等がリポジトリに入れるフックと共存する）。
 #
-# 定義ファイル（gitignore 形式。Claude Code の .worktreeinclude と同じ書式）:
-#   <main>/.worktreeinclude          リポジトリにコミットする場合
-#   <git-common-dir>/info/worktreeinclude  コミットせず自分だけで使う場合
+# 定義ファイルはメインワークツリー直下の .worktreeinclude（gitignore 形式）。
+# Claude Code が読むものと同じファイルなので、git と Claude のどちらで作っても
+# 同じものがコピーされる。コミットしたくないリポジトリでは、.worktreeinclude 自体を
+# .git/info/exclude に書いて未追跡のまま置けばよい（未追跡でも両者とも読む）。
 # 定義に一致し、かつ git の除外対象になっているファイルだけを、既存ファイルを
-# 上書きせずにコピーする。Claude Code が同じ定義でコピーしても結果は変わらない。
+# 上書きせずにコピーする。Claude Code のワークツリー作成ではこのフックは呼ばれず
+# Claude 自身がコピーするため（実測）、二重にコピーされることはない。
 #
 # フックの終了コードは git worktree add / checkout の終了コードになるため、
 # 失敗しても警告を出すだけで常に 0 で終わる（-E で関数内のエラーも ERR トラップに届ける）。
@@ -46,17 +48,16 @@ copy_local_files() {
   src="${line#worktree }"
   [[ -d "${src}" && "${src}" != "${dst}" ]] || return 0
 
-  local def
-  for def in "${src}/.worktreeinclude" "${common_dir}/info/worktreeinclude"; do
-    [[ -f "${def}" ]] || continue
-    # 定義に一致する未追跡ファイルのうち、通常の除外規則でも除外されるものだけ
-    git -C "${src}" ls-files -z --others --ignored --exclude-from="${def}" |
-      git -C "${src}" check-ignore -z --stdin |
-      while IFS= read -r -d '' file; do
-        mkdir -p "$(dirname "${dst}/${file}")"
-        cp -n -p "${src}/${file}" "${dst}/${file}"
-      done
-  done
+  local def="${src}/.worktreeinclude"
+  [[ -f "${def}" ]] || return 0
+
+  # 定義に一致する未追跡ファイルのうち、通常の除外規則でも除外されるものだけ
+  git -C "${src}" ls-files -z --others --ignored --exclude-from="${def}" |
+    git -C "${src}" check-ignore -z --stdin |
+    while IFS= read -r -d '' file; do
+      mkdir -p "$(dirname "${dst}/${file}")"
+      cp -n -p "${src}/${file}" "${dst}/${file}"
+    done
 }
 
 trap 'echo "git-worktree-copy: ローカル専用ファイルのコピーに失敗しました" >&2; exit 0' ERR
