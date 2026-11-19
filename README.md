@@ -457,8 +457,12 @@ allowed-tools: Edit, Bash(npm:*)
 デフォルトで許可されている操作（確認なし）:
 
 方針: askは「外部に出る・大きく消える・取り返しがつきにくい」操作に絞る。
-ローカルでreflog等から戻せる操作や、PR作成のような日常的な外部操作はルールを置かず、
-auto modeの分類器に判断させる（default modeではルール外のコマンドは従来どおり確認が出る）。
+PR作成やpushのような日常的な外部操作はルールを置かず、auto modeの分類器に判断させる
+（default modeではルール外のコマンドは従来どおり確認が出る）。
+allowに一致したコマンドは分類器を通らないため、広いallow（`git branch *`、`git rebase *`等）の
+例外として外したaskは「分類器行き」ではなく「確認なしで実行」になる点に注意。
+ブランチの強制削除・改名（`-D`/`-M`/`-C`/`-f`）、`merge --no-ff`、mainのrebaseは
+ローカルで戻せる前提でこの扱いにしている。
 
 デフォルトで許可されている操作（確認なし）:
 
@@ -477,6 +481,12 @@ auto modeの分類器に判断させる（default modeではルール外のコ�
 - mainへのpush（`git push origin main`、`HEAD:main`等）。引数なしの`git push`は
   現在のブランチをパターンで判別できないため対象外
 - `rm -rf`、`git reset --hard`、`git clean -f`
+- `git rebase --exec`/`-x`（任意コマンドの実行になり、denyを迂回できる）、
+  `git worktree remove --force`、`git stash drop/clear`（reflogで戻せない）
+- AWS CLIの書き込み系（`create-*`/`delete-*`/`put-*`/`update-*`/`terminate-*`、
+  `s3 cp/mv/rm/sync/rb`、`lambda invoke`）。読み取りallowの`aws * list-*`は
+  最初の`*`が引数をまたぐため、`aws s3 cp list-x.json ...`のような書き込みにも一致する。
+  askはallowより優先されるので、この網で塞いでいる。網に無い書き込みは分類器行き
 - `gh api`（`-f`/`-F`で暗黙にPOSTになり、GraphQLは常にPOSTのため読み取りを判別できない）、
   `gh label create`
 - `docker system prune`、`docker volume rm`、`chezmoi apply`、`sudo`
