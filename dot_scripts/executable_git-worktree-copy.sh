@@ -13,6 +13,11 @@
 # 上書きせずにコピーする。Claude Code のワークツリー作成ではこのフックは呼ばれず
 # Claude 自身がコピーするため（実測）、二重にコピーされることはない。
 #
+# また、~/.claude/settings.json の worktree.symlinkDirectories に挙げたディレクトリ
+# （docs.local 等）は、コピーではなくメインワークツリーへのシンボリックリンクにする。
+# Claude Code が同じ設定でリンクを張るので、両経路で同じ定義が使われる。
+# 編集内容がワークツリーの削除で失われず、全ワークツリーで1つの実体を共有できる。
+#
 # フックの終了コードは git worktree add / checkout の終了コードになるため、
 # 失敗しても警告を出すだけで常に 0 で終わる（-E で関数内のエラーも ERR トラップに届ける）。
 set -Eeuo pipefail
@@ -48,6 +53,10 @@ copy_local_files() {
   src="${line#worktree }"
   [[ -d "${src}" && "${src}" != "${dst}" ]] || return 0
 
+  # リンクを先に張る。.worktreeinclude にも挙がっていれば、以降のコピーは
+  # リンク先の既存ファイルを見て何もしない
+  link_dirs "${src}" "${dst}"
+
   local def="${src}/.worktreeinclude"
   [[ -f "${def}" ]] || return 0
 
@@ -58,6 +67,26 @@ copy_local_files() {
       mkdir -p "$(dirname "${dst}/${file}")"
       cp -n -p "${src}/${file}" "${dst}/${file}"
     done
+}
+
+# worktree.symlinkDirectories の各ディレクトリを、メインワークツリーに在るものだけリンクする
+link_dirs() {
+  local src="$1" dst="$2"
+  local settings="${HOME}/.claude/settings.json"
+  [[ -f "${settings}" ]] || return 0
+  command -v jq >/dev/null || return 0
+
+  local dirs dir
+  dirs=$(jq -r '.worktree.symlinkDirectories[]? // empty' "${settings}") || return 0
+  while IFS= read -r dir; do
+    dir="${dir%/}"
+    # 絶対パスやリポジトリ外を指すものは扱わない
+    [[ -n "${dir}" && "${dir}" != /* && "/${dir}/" != */../* ]] || continue
+    [[ -d "${src}/${dir}" ]] || continue
+    [[ ! -e "${dst}/${dir}" && ! -L "${dst}/${dir}" ]] || continue
+    mkdir -p "$(dirname "${dst}/${dir}")"
+    ln -s "${src}/${dir}" "${dst}/${dir}"
+  done <<<"${dirs}"
 }
 
 trap 'echo "git-worktree-copy: ローカル専用ファイルのコピーに失敗しました" >&2; exit 0' ERR

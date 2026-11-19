@@ -156,5 +156,10 @@
     "type": "command"
   },
   "teammateMode": "auto",
-  "tui": "fullscreen"
+  "tui": "fullscreen",
+  "worktree": {
+    "symlinkDirectories": [
+      "docs.local"
+    ]
+  }
 }

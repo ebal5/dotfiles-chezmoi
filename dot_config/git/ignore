@@ -12,6 +12,12 @@ settings.local.json
 .claude/*.log
 
 # =================================
+# Personal docs (never shared; symlinked into worktrees)
+# =================================
+# No trailing slash: in worktrees it is a symlink, which git treats as a file
+/docs.local
+
+# =================================
 # Mise (local-only configs; shared mise.toml / .tool-versions / mise.lock are committed)
 # =================================
 mise*.local.toml
