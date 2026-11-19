@@ -36,15 +36,9 @@
     "ask": [
       "Bash(gh api *)",
       "Bash(gh pr merge *)",
-      "Bash(gh pr comment *)",
-      "Bash(chezmoi add *)",
-      "Bash(chezmoi edit *)",
-      "Bash(chezmoi forget *)",
-      "Bash(chezmoi re-add *)",
       "Bash(chezmoi remove *)",
-      "Bash(chezmoi update *)",
-      "Bash(nix profile install *)",
-      "Bash(nix profile remove *)"
+      "Bash(chezmoi destroy *)",
+      "Bash(chezmoi update *)"
     ]
   },
   "hooks": {
