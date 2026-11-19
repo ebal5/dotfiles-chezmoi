@@ -29,6 +29,16 @@ This file contains Claude Code standards applied across all projects.
 - When finished, lead with the outcome: the first sentence should answer "what
   happened" or "what did you find", with supporting detail after it
 
+## Premises and frameworks
+
+- When the user supplies a classification or framework that will shape the
+  deliverable, validate it before building on it, even if told to "assume" it:
+  what is the axis, is it MECE, does an alternative structure fit better
+- Report the verdict briefly with reasons (sound / needs change, plus any gap
+  found), then proceed. Do not block on it
+- Do not paper over gaps with ritual checks (checkboxes, boilerplate sections)
+  that look like rigor without doing the work
+
 ## Written deliverables
 
 Files written to disk (documents, reports, summaries) run long by default.
