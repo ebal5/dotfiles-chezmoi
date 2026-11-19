@@ -56,5 +56,6 @@
       }
     ]
   },
-  "enableAllProjectMcpServers": false
+  "enableAllProjectMcpServers": false,
+  "language": "japanese"
 }
