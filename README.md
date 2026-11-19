@@ -467,26 +467,46 @@ allowed-tools: Edit, Bash(npm:*)
 
 デフォルトで許可されている操作（確認なし）:
 
-- Git操作: fetch, checkout, add, commit, branch, stash, `merge --ff-only`, rebase,
-  `worktree list/remove`
-- `chmod +x`
+方針: askは「外部に出る・大きく消える・取り返しがつきにくい」操作に絞る。
+PR作成やpushのような日常的な外部操作はルールを置かず、auto modeの分類器に判断させる
+（default modeではルール外のコマンドは従来どおり確認が出る）。
+allowに一致したコマンドは分類器を通らないため、広いallow（`git branch *`、`git rebase *`等）の
+例外として外したaskは「分類器行き」ではなく「確認なしで実行」になる点に注意。
+ブランチの強制削除・改名（`-D`/`-M`/`-C`/`-f`）、`merge --no-ff`、mainのrebaseは
+ローカルで戻せる前提でこの扱いにしている。
+
+デフォルトで許可されている操作（確認なし）:
+
+- Git操作: fetch, checkout, add, commit, branch, stash, `merge --ff-only`, rebase, mv, grep,
+  `worktree add/list/remove`
+- `chmod +x`、`mkdir`、`pgrep`
+- lint: `shfmt`、`shellcheck`、`markdownlint-cli2`、`prek run`
 - GitHub CLI: PR/Issue閲覧、ステータス確認
+- AWS CLIの読み取り: `describe-*`、`list-*`、`s3 ls`、`sts get-caller-identity`、
+  `logs get-log-events`/`filter-log-events`/`tail`。値そのものを返す`get-*`
+  （`secretsmanager get-secret-value`等）は含めない
 - Web検索、ドキュメント取得
 
-確認が必要な主な操作（askリスト）:
+確認が必要な操作（askリスト）:
 
-- `git push`、ブランチの強制削除・移動・上書き（`-D`、`-M`、`-C`、`-f`、`--force`）、
-  `git worktree remove --force`
-- `git rebase`のうち、`--exec`/`-x`付きと、最後の引数が`main`のもの
-  （main上での`git rebase`はパターンで検出できない。ローカルはreflogで戻せる）
-- `git merge --ff-only`に`--no-ff`/`--ff`を後置してマージコミットを作るもの
-- `gh api`（`-f`/`-F`で暗黙にPOSTになり、GraphQLは常にPOSTのため読み取りを判別できない）
-- `gh issue create`, `gh pr create`, `gh label create`
+- mainへのpush（`git push origin main`、`HEAD:main`等）。引数なしの`git push`は
+  現在のブランチをパターンで判別できないため対象外
+- `rm -rf`、`git reset --hard`、`git clean -f`
+- `git rebase --exec`/`-x`（任意コマンドの実行になり、denyを迂回できる）、
+  `git worktree remove --force`、`git stash drop/clear`（reflogで戻せない）
+- AWS CLIの書き込み系（`create-*`/`delete-*`/`put-*`/`update-*`/`terminate-*`、
+  `s3 cp/mv/rm/sync/rb`、`lambda invoke`）。読み取りallowの`aws * list-*`は
+  最初の`*`が引数をまたぐため、`aws s3 cp list-x.json ...`のような書き込みにも一致する。
+  askはallowより優先されるので、この網で塞いでいる。網に無い書き込みは分類器行き
+- `gh api`（`-f`/`-F`で暗黙にPOSTになり、GraphQLは常にPOSTのため読み取りを判別できない）、
+  `gh label create`
+- `docker system prune`、`docker volume rm`、`chezmoi apply`、`sudo`
 
 force push（`--force`、`--force-with-lease`、`-f`、`+refspec`。`git -C <dir> push`も含む）はdeny。
 
-ask は allow より優先されるため、allow で例外を作るには ask 側の広いパターンを外す必要がある。
-`--ff-only`以外の`git merge`はどのルールにも一致せず、auto modeでは分類器の判断に委ねられる。
+ask は allow より優先され、スコープ（プロジェクト設定か共有設定か）も問わない。
+共有設定に広いaskを置くと、プロジェクト側でallowを足しても効かなくなる
+（以前は`aws *`がaskだったため、プロジェクトに読み取り系をallowしても確認が出ていた）。
 gitは長いオプションを一意な接頭辞に省略できる（`--exe`が`--exec`として通る）ため、
 オプションを塞ぐパターンは`*--ex*`のように接頭辞で書く。
 
